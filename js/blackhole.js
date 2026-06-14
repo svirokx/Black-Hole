@@ -117,13 +117,11 @@ vec3 diskColor(float r, float angle, float t) {
   float cx = r * cos(rotatedAngle);
   float cy = r * sin(rotatedAngle);
 
-  // Main turbulence — fbm in rotated polar coords (4 octaves inside)
-  float turb = fbm(vec2(cx * 0.6, cy * 0.6));
-  brightness *= 0.45 + 0.55 * turb;
-
-  // Large-scale density waves
-  float wave = fbm(vec2(cx * 0.25 + 10.0, cy * 0.25 + 10.0));
-  brightness *= 0.6 + 0.4 * wave;
+  // Main turbulence — fbm in rotated Cartesian (aperiodic = no rings)
+  float turb = fbm(vec2(cx * 0.5, cy * 0.5));
+  // Single noise for large-scale density variation (cheap)
+  float wave = noise(vec2(cx * 0.2 + 10.0, cy * 0.2 + 10.0));
+  brightness *= 0.40 + 0.35 * turb + 0.25 * wave;
 
   // Hot spots — bright clumps from fbm peaks
   float hotSpot = pow(max(turb - 0.55, 0.0) * 3.3, 2.0) * temp;
@@ -289,11 +287,13 @@ void main() {
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
     if (absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
-      float thickness = mix(2.2, 0.45, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
-      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.07;
+      float thickness = mix(1.8, 0.4, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
+      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.06;
       float dAng = atan(newPos.z, newPos.x);
       // Use full diskColor so the glow ROTATES and has spiral structure
-      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.55;
+      // Simple temperature-based color for volumetric (no fbm — performance)
+      float vTemp = smoothstep(DISK_OUTER, DISK_INNER, diskR);
+      vec3 vCol = mix(vec3(0.5, 0.1, 0.02), vec3(1.0, 0.7, 0.35), vTemp) * 0.55;
       // Fade glow when viewing edge-on (camera near disk plane)
       float edgeFade = 1.0 - smoothstep(0.3, 0.95, sin(uCamTheta));
       vol *= edgeFade;

@@ -164,12 +164,14 @@ export class StablePerformanceEngine {
 
     // Начальный уровень — консервативный, НЕ максимальный
     // На мобильных устройствах: ещё ниже
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    this.isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
                   || ('ontouchstart' in window && window.innerWidth < 1024);
-    const startMap = isMobile
-      ? { high: 3, medium: 2, low: 0 }  // Мобильные: начинаем ниже
+    const startMap = this.isMobile
+      ? { high: 2, medium: 1, low: 0 }  // Мобильные: начинаем ОЧЕНЬ низко
       : GPU_START_LEVEL;
-    this.currentLevel = startMap[this.gpuTier] ?? 2;
+    // На мобильных жёсткий потолок — уровень 3 максимум
+    this.maxLevel = this.isMobile ? 3 : 7;
+    this.currentLevel = startMap[this.gpuTier] ?? 1;
 
     console.log(`[Perf] GPU: ${this.gpuRenderer || 'неизвестно'}`);
     console.log(`[Perf] Тир: ${this.gpuTier} → начальный уровень: ${this.currentLevel} (${LEVELS[this.currentLevel].label})`);
@@ -383,14 +385,19 @@ export class StablePerformanceEngine {
   // ==================== Применение уровня ====================
 
   _applyLevel(level) {
-    level = Math.max(0, Math.min(LEVELS.length - 1, level));
+    level = Math.max(0, Math.min(this.maxLevel, Math.min(LEVELS.length - 1, level)));
     this.currentLevel = level;
     const settings = LEVELS[level];
 
-    // Вычисляем реальный pixelRatio
-    const resolvedDpr = settings.dpr === null
-      ? Math.min(window.devicePixelRatio, 2.0)
-      : settings.dpr;
+    // Вычисляем реальный pixelRatio (на мобильных — максимум 1.0 для производительности)
+    let resolvedDpr;
+    if (settings.dpr === null) {
+      resolvedDpr = this.isMobile
+        ? Math.min(window.devicePixelRatio, 1.0)
+        : Math.min(window.devicePixelRatio, 2.0);
+    } else {
+      resolvedDpr = this.isMobile ? Math.min(settings.dpr, 1.0) : settings.dpr;
+    }
 
     // Передаём настройки в колбэк (app.js применит к рендереру)
     this.onChange({

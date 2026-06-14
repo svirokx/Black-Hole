@@ -125,7 +125,11 @@ async function init() {
   const canvas = document.getElementById('blackhole-canvas');
 
   const bhRenderer = new BlackHoleRenderer(canvas);
-  const particleSystem = new ParticleSystem(bhRenderer);
+
+  // На мобильных — отключаем частицы полностью (экономия GPU)
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+                || ('ontouchstart' in window && window.innerWidth < 1024);
+  const particleSystem = isMobile ? null : new ParticleSystem(bhRenderer);
 
   const gl = bhRenderer.renderer.getContext();
   const perfEngine = new StablePerformanceEngine(gl, (settings) => {
@@ -143,8 +147,10 @@ async function init() {
     lastTime = now;
 
     bhRenderer.update(elapsed);
-    particleSystem.update(dt);
-    particleSystem.render(bhRenderer.renderer);
+    if (particleSystem) {
+      particleSystem.update(dt);
+      particleSystem.render(bhRenderer.renderer);
+    }
     perfEngine.tick();
 
     requestAnimationFrame(animate);

@@ -275,6 +275,20 @@ void main() {
     pos   = newPos;
   }
 
+  // ---- Захват лучей: если луч не вылетел за r=50, он поглощён ЧД ----
+  // Вычисляем финальный r из позиции (r был объявлен внутри цикла)
+  {
+    float fr2_xy  = dot(pos.xz, pos.xz);
+    float fr2_bls = fr2_xy + pos.y * pos.y - a * a;
+    float finalR  = sqrt(0.5 * (fr2_bls + sqrt(fr2_bls * fr2_bls + 4.0 * a * a * pos.y * pos.y)));
+    // Луч не вылетел → поглощён чёрной дырой → абсолютная чернота
+    if (!hitHorizon && finalR < 50.0) {
+      hitHorizon = true;
+      color = vec3(0.0);
+      diskAlpha = 1.0;
+    }
+  }
+
   // ---- Background stars (gravitationally lensed direction) ----
   if (!hitHorizon) {
     vec3 stars = starField(normalize(vel));
@@ -295,14 +309,14 @@ void main() {
   if (!hitHorizon) {
     float rimDist = closestR - R_HORIZON;
 
-    // Первичное фотонное кольцо (1 оборот вокруг ЧД)
-    float ring1 = exp(-rimDist * 2.0) * 0.55;
+    // Первичное фотонное кольцо (1 оборот вокруг ЧД) — быстрый спад
+    float ring1 = exp(-rimDist * 5.0) * 0.35;
 
     // Вторичное кольцо (2 оборота — тоньше, тусклее)
-    float ring2 = exp(-rimDist * 4.5) * 0.3;
+    float ring2 = exp(-rimDist * 10.0) * 0.18;
 
     // Третичное кольцо (3 оборота — каустика у самого края тени)
-    float ring3 = exp(-rimDist * 9.0) * 0.15;
+    float ring3 = exp(-rimDist * 18.0) * 0.10;
 
     // Цвет кольца = накопленный свет аккреционного диска (тёплый бело-золотой)
     vec3 ringColor = mix(
@@ -314,8 +328,8 @@ void main() {
     float totalRing = ring1 + ring2 + ring3;
     color += ringColor * totalRing * (1.0 - diskAlpha * 0.3);
 
-    // Тонкая яркая каустика у самого края тени
-    float caustic = exp(-pow(rimDist * 5.0, 2.0)) * 0.08;
+    // Тонкая яркая каустика у самого края тени (только для вылетевших лучей)
+    float caustic = exp(-pow(rimDist * 8.0, 2.0)) * 0.05;
     color += vec3(1.0, 0.92, 0.75) * caustic;
   }
 
@@ -329,18 +343,18 @@ void main() {
     float sR = length(uv);
     float edgeDist = sR - shadowR;
 
-    if (edgeDist > -0.005 && edgeDist < 0.18) {
+    if (edgeDist > 0.0 && edgeDist < 0.10) {
       float sAngle = atan(uv.y, uv.x);
 
       // Вертикальная компонента: максимум сверху/снизу тени,
       // минимум по бокам (там диск виден напрямую)
       float vert = abs(sin(sAngle));
       float edgeness = sin(uCamTheta);
-      float wrapVis = mix(0.3, vert, edgeness);
+      // Показываем обволакивание только при боковом ракурсе
+      float wrapVis = vert * smoothstep(0.2, 0.6, edgeness);
 
-      // Яркость: экспоненциальный спад от края тени
-      float brightness = exp(-max(0.0, edgeDist) * 12.0) * wrapVis * 0.6;
-      if (edgeDist < 0.0) brightness *= smoothstep(-0.005, 0.0, edgeDist);
+      // Яркость: резкий экспоненциальный спад от края тени
+      float brightness = exp(-edgeDist * 22.0) * wrapVis * 0.45;
 
       if (brightness > 0.005) {
         // Приблизительная позиция на диске для линзированного луча
@@ -450,8 +464,8 @@ export class BlackHoleRenderer {
     });
     window.addEventListener('mousemove', (e) => {
       if (!this.isDragging) return;
-      this.targetPhi   -= (e.clientX - this.lastMouse.x) * 0.005;
-      this.targetTheta += (e.clientY - this.lastMouse.y) * 0.005;
+      this.targetPhi   += (e.clientX - this.lastMouse.x) * 0.005;
+      this.targetTheta -= (e.clientY - this.lastMouse.y) * 0.005;
       this.targetTheta  = Math.max(0.15, Math.min(Math.PI - 0.15, this.targetTheta));
       this.lastMouse.x  = e.clientX;
       this.lastMouse.y  = e.clientY;
@@ -499,8 +513,8 @@ export class BlackHoleRenderer {
         }
         if (touchIsOrbit) {
           e.preventDefault();
-          this.targetPhi   -= dx * 0.005;
-          this.targetTheta += dy * 0.005;
+          this.targetPhi   += dx * 0.005;
+          this.targetTheta -= dy * 0.005;
           this.targetTheta  = Math.max(0.15, Math.min(Math.PI - 0.15, this.targetTheta));
           this.lastMouse.x  = e.touches[0].clientX;
           this.lastMouse.y  = e.touches[0].clientY;

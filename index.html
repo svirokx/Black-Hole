@@ -3,19 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Security -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qC+YWhF3NPdIQ5KTB3TZrbgffn9kAvaLLFtTKaG1N4c=' https://cdn.jsdelivr.net https://ga.jspm.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://upload.wikimedia.org https://*.wikipedia.org data:; connect-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none';">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()">
   <title>Black Hole — Симуляция сверхмассивной чёрной дыры TON 618</title>
-  <meta name="description" content="Интерактивная 3D-симуляция сверхмассивной чёрной дыры TON 618 (66 миллиардов солнечных масс) с гравитационным линзированием, доплеровским излучением и метрикой Керра.">
-  <meta name="keywords" content="чёрная дыра, симуляция, 3D, гравитационное линзирование, аккреционный диск, горизонт событий, Интерстеллар, M87, Стрелец A, NASA, астрофизика">
-  <meta property="og:title" content="Black Hole — Интерактивная 3D-симуляция">
-  <meta property="og:description" content="Реалистичная симуляция чёрной дыры и наука о самых экстремальных объектах Вселенной.">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/1200px-Black_hole_-_Messier_87_crop_max_res.jpg">
+  <meta name="description" content="Интерактивная 3D-симуляция сверхмассивной чёрной дыры TON 618 с гравитационным линзированием и метрикой Керра.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,16 +20,17 @@
   <!-- ============ LOADING SCREEN ============ -->
   <div id="loader">
     <div class="loader-content">
-      <div class="loader-ring">
-        <div class="loader-ring-inner"></div>
-      </div>
+      <div class="loader-ring"><div class="loader-ring-inner"></div></div>
       <div class="loader-text">BLACK HOLE</div>
       <div class="loader-sub">Искривляем пространство-время…</div>
     </div>
   </div>
 
+  <!-- ============ FIXED BACKGROUND CANVAS ============ -->
+  <canvas id="blackhole-canvas"></canvas>
+
   <!-- ============ SOUND TOGGLE ============ -->
-  <button id="sound-toggle" class="sound-btn" aria-label="Включить/выключить звук">
+  <button id="sound-toggle" class="sound-btn" aria-label="Звук">
     <svg class="sound-icon sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
     </svg>
@@ -45,56 +39,25 @@
     </svg>
   </button>
 
-  <!-- ============ CREATE MODE TOGGLE ============ -->
-  <button id="create-toggle" class="create-btn" aria-label="Режим создания объектов">
-    <svg class="create-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
-    </svg>
-  </button>
-  <div id="create-indicator" class="create-indicator" style="display:none">
-    <span>🪐 Нажмите, чтобы создать объект</span>
-  </div>
-
   <!-- ============ HERO SECTION ============ -->
   <section id="hero">
-    <canvas id="blackhole-canvas"></canvas>
     <div class="hero-overlay">
       <h1 class="hero-title">BLACK HOLE</h1>
     </div>
 
-    <!-- ============ BH INFO HUD ============ -->
     <div id="bh-hud" class="bh-hud">
       <div class="bh-hud-name">TON 618</div>
       <div class="bh-hud-type">СВЕРХМАССИВНАЯ · КВАЗАР</div>
       <div class="bh-hud-stats">
-        <div class="bh-hud-stat">
-          <span class="bh-hud-label">Масса</span>
-          <span class="bh-hud-value">66 млрд M<sub>☉</sub></span>
-        </div>
-        <div class="bh-hud-stat">
-          <span class="bh-hud-label">Горизонт событий</span>
-          <span class="bh-hud-value">~1 300 а.е.</span>
-        </div>
-        <div class="bh-hud-stat">
-          <span class="bh-hud-label">Расстояние</span>
-          <span class="bh-hud-value">10,4 млрд св. лет</span>
-        </div>
-        <div class="bh-hud-stat">
-          <span class="bh-hud-label">Созвездие</span>
-          <span class="bh-hud-value">Гончие Псы</span>
-        </div>
+        <div class="bh-hud-stat"><span class="bh-hud-label">Масса</span><span class="bh-hud-value">66 млрд M<sub>☉</sub></span></div>
+        <div class="bh-hud-stat"><span class="bh-hud-label">Горизонт событий</span><span class="bh-hud-value">~1 300 а.е.</span></div>
+        <div class="bh-hud-stat"><span class="bh-hud-label">Расстояние</span><span class="bh-hud-value">10,4 млрд св. лет</span></div>
+        <div class="bh-hud-stat"><span class="bh-hud-label">Созвездие</span><span class="bh-hud-value">Гончие Псы</span></div>
       </div>
     </div>
 
-    <!-- ============ SCALE RULER ============ -->
     <div id="scale-ruler" class="scale-ruler">
-      <div class="scale-bar">
-        <div class="scale-line"></div>
-        <div class="scale-ticks">
-          <div class="scale-tick"></div>
-          <div class="scale-tick"></div>
-        </div>
-      </div>
+      <div class="scale-bar"><div class="scale-line"></div><div class="scale-ticks"><div class="scale-tick"></div><div class="scale-tick"></div></div></div>
       <div class="scale-label" id="scale-label">— а.е.</div>
     </div>
 
@@ -109,11 +72,11 @@
 
     <!-- INTRO -->
     <section class="content-section" id="intro">
-      <div class="section-inner">
+      <div class="section-inner two-col">
         <div class="section-text reveal">
           <h2 class="section-title">Что такое чёрная дыра?</h2>
           <p class="section-body">Чёрная дыра — это область пространства-времени, гравитация в которой настолько чудовищно сильна, что ничто — ни частицы, ни электромагнитное излучение, включая свет — не может покинуть её, пересекув границу, известную как <strong>горизонт событий</strong>.</p>
-          <p class="section-body">Общая теория относительности предсказывает, что достаточно компактная масса способна деформировать пространство-время, образуя чёрную дыру. Граница, за которой побег невозможен, называется горизонтом событий. Несмотря на колоссальное влияние на судьбу любого объекта, пересекающего её, по общей теории относительности она не обладает никакими локально наблюдаемыми особенностями.</p>
+          <p class="section-body">Общая теория относительности предсказывает, что достаточно компактная масса способна деформировать пространство-время, образуя чёрную дыру. Несмотря на колоссальное влияние на судьбу любого объекта, пересекающего горизонт, по ОТО он не обладает никакими локально наблюдаемыми особенностями.</p>
           <p class="section-source">Источник: NASA Science; Общая теория относительности — А. Эйнштейн, 1915</p>
         </div>
         <div class="section-visual reveal">
@@ -126,39 +89,39 @@
     </section>
 
     <!-- ANATOMY -->
-    <section class="content-section dark-section" id="anatomy">
+    <section class="content-section" id="anatomy">
       <div class="section-inner full-width">
         <h2 class="section-title center reveal">Анатомия чёрной дыры</h2>
         <div class="anatomy-grid">
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">◉</div>
             <h3>Сингулярность</h3>
-            <p>Самый центр чёрной дыры, где материя сжата до бесконечной плотности, а известные законы физики перестают работать. Это одномерная точка, содержащая огромную массу в бесконечно малом пространстве.</p>
+            <p>Центр чёрной дыры, где материя сжата до бесконечной плотности, а законы физики перестают работать. Одномерная точка с огромной массой в бесконечно малом пространстве.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">◎</div>
             <h3>Горизонт событий</h3>
-            <p>Граница вокруг чёрной дыры, за которой ничто не может вырваться. Это не физическая поверхность, а математически определённый рубеж. В этой точке вторая космическая скорость равна скорости света — 299 792 км/с.</p>
+            <p>Граница, за которой ничто не может вырваться. Не физическая поверхность, а математический рубеж, где вторая космическая скорость равна скорости света — 299 792 км/с.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">◌</div>
             <h3>Фотонная сфера</h3>
-            <p>Сферическая область на расстоянии 1,5 шварцшильдовского радиуса, где гравитация настолько сильна, что фотоны вынуждены двигаться по орбитам. Любой фотон, вошедший в эту сферу по касательной, будет вращаться вокруг чёрной дыры.</p>
+            <p>Область на расстоянии 1,5 радиуса Шварцшильда, где фотоны движутся по орбитам. Любой фотон, вошедший по касательной, будет вращаться вокруг чёрной дыры.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">≋</div>
             <h3>Аккреционный диск</h3>
-            <p>Плоская дискообразная структура из газа и пыли, вращающаяся вокруг чёрной дыры по спирали. Трение нагревает материал до миллионов градусов, заставляя его ярко светиться в рентгеновском и видимом диапазонах. Диск может затмевать целые галактики.</p>
+            <p>Диск из газа и пыли, вращающийся по спирали. Трение нагревает материал до миллионов градусов, заставляя его ярко светиться в рентгене и видимом спектре.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">↕</div>
             <h3>Релятивистские джеты</h3>
-            <p>Мощные пучки ионизированной материи, выбрасываемые от полюсов некоторых чёрных дыр со скоростью, близкой к скорости света. Эти джеты могут простираться на тысячи световых лет и формируются магнитными полями, закрученными вращающимся пространством-временем.</p>
+            <p>Пучки ионизированной материи, выбрасываемые от полюсов со скоростью, близкой к скорости света. Простираются на тысячи световых лет.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">◐</div>
             <h3>Эргосфера</h3>
-            <p>Область за пределами горизонта событий вращающейся (керровской) чёрной дыры, в которой само пространство-время увлекается за собой. Объекты в эргосфере не могут оставаться неподвижными — они вынуждены вращаться вместе с чёрной дырой.</p>
+            <p>Область за горизонтом вращающейся чёрной дыры, где само пространство-время увлекается. Объекты не могут оставаться неподвижными — вращаются вместе с ЧД.</p>
           </div>
         </div>
       </div>
@@ -172,34 +135,34 @@
           <div class="type-card reveal">
             <div class="type-mass">5 – 100 M☉</div>
             <h3>Звёздной массы</h3>
-            <p>Образуются при коллапсе массивных звёзд (более 25 солнечных масс), исчерпавших ядерное топливо. Ядро обрушивается под собственной гравитацией в результате взрыва сверхновой. Самый распространённый тип чёрных дыр.</p>
+            <p>Образуются при коллапсе массивных звёзд (более 25 M☉). Ядро обрушивается в результате сверхновой. Самый распространённый тип.</p>
             <div class="type-example">Пример: Лебедь X-1 (~21 M☉)</div>
           </div>
           <div class="type-card reveal">
             <div class="type-mass">100 – 100 000 M☉</div>
             <h3>Промежуточной массы</h3>
-            <p>Их существование долгое время оставалось под вопросом, пока недавние наблюдения не подтвердили его. Могут формироваться при слиянии чёрных дыр звёздной массы или при прямом коллапсе массивных газовых облаков в ранней Вселенной.</p>
+            <p>Существование подтверждено недавно. Могут формироваться при слиянии чёрных дыр или прямом коллапсе газовых облаков.</p>
             <div class="type-example">Пример: HLX-1 (~20 000 M☉)</div>
           </div>
           <div class="type-card reveal">
             <div class="type-mass">10⁶ – 10¹⁰ M☉</div>
             <h3>Сверхмассивные</h3>
-            <p>Находятся в центре почти каждой крупной галактики, включая наш Млечный Путь. Механизм их роста до таких масс — один из главных открытых вопросов астрофизики. Возможно, они выросли из массивных «зародышей» в ранней Вселенной.</p>
-            <div class="type-example">Пример: Стрелец A* (~4 миллиона M☉)</div>
+            <p>В центре почти каждой крупной галактики. Механизм роста — один из главных вопросов астрофизики.</p>
+            <div class="type-example">Пример: Стрелец A* (~4 млн M☉)</div>
           </div>
           <div class="type-card reveal">
             <div class="type-mass">≤ 1 M☉ (теория)</div>
             <h3>Первичные</h3>
-            <p>Гипотетические чёрные дыры, которые могли образоваться при экстремальной плотности и давлении в ранней Вселенной — в первую секунду после Большого взрыва. Их размеры могут варьироваться от микроскопических до звёздных.</p>
-            <div class="type-example">Пока не обнаружены — предсказаны Зельдовичем и Хокингом (1966–1971)</div>
+            <p>Гипотетические, могли образоваться при экстремальных условиях в первую секунду после Большого взрыва.</p>
+            <div class="type-example">Предсказаны Зельдовичем и Хокингом (1966–1971)</div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- FORMATION -->
-    <section class="content-section dark-section" id="formation">
-      <div class="section-inner">
+    <section class="content-section" id="formation">
+      <div class="section-inner two-col">
         <div class="section-text reveal">
           <h2 class="section-title">Как рождаются чёрные дыры</h2>
           <div class="formation-steps">
@@ -207,31 +170,37 @@
               <div class="step-num">01</div>
               <div class="step-content">
                 <h4>Массивная звезда</h4>
-                <p>Звезда, масса которой как минимум в 25 раз превышает массу Солнца, сжигает водородное топливо в ядре. На протяжении миллионов лет она синтезирует всё более тяжёлые элементы — вплоть до железа.</p>
+                <p>Звезда с массой от 25 M☉ сжигает водород в ядре, синтезируя всё более тяжёлые элементы — вплоть до железа.</p>
               </div>
             </div>
             <div class="formation-step">
               <div class="step-num">02</div>
               <div class="step-content">
                 <h4>Коллапс ядра</h4>
-                <p>Когда железное ядро превышает предел Чандрасекара (~1,4 солнечных масс), давление вырожденного электронного газа больше не может удерживать его. Ядро коллапсирует за миллисекунды, падая внутрь со скоростью до 70 000 км/с.</p>
+                <p>Железное ядро превышает предел Чандрасекара (~1,4 M☉). Давление вырожденного газа не выдерживает. Ядро рушится за миллисекунды.</p>
               </div>
             </div>
             <div class="formation-step">
               <div class="step-num">03</div>
               <div class="step-content">
                 <h4>Взрыв сверхновой</h4>
-                <p>Падающая материя отскакивает от сверхплотного ядра, создавая ударную волну, которая разрывает внешние слои звезды в грандиозном взрыве сверхновой — на мгновение затмевающем целую галактику.</p>
+                <p>Ударная волна разрывает внешние слои звезды — взрыв на мгновение затмевает целую галактику.</p>
               </div>
             </div>
             <div class="formation-step">
               <div class="step-num">04</div>
               <div class="step-content">
                 <h4>Рождение чёрной дыры</h4>
-                <p>Если оставшееся ядро превышает ~3 солнечных масс (предел Толмана — Оппенгеймера — Волкова), никакая известная сила не может остановить коллапс. Материя сжимается в сингулярность, формируется горизонт событий — чёрная дыра рождена.</p>
+                <p>Если ядро превышает ~3 M☉, никакая сила не остановит коллапс. Формируется горизонт событий — чёрная дыра рождена.</p>
               </div>
             </div>
           </div>
+        </div>
+        <div class="section-visual reveal">
+          <div class="section-image">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Crab_Nebula.jpg/800px-Crab_Nebula.jpg" alt="Крабовидная туманность — остаток сверхновой, снятый телескопом Хаббл. Взрыв наблюдали в 1054 году." loading="lazy">
+          </div>
+          <p class="section-source" style="margin-top:12px;">Крабовидная туманность — остаток сверхновой 1054 года. NASA/ESA Hubble.</p>
         </div>
       </div>
     </section>
@@ -243,41 +212,41 @@
 
         <div class="famous-entry reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/800px-Black_hole_-_Messier_87_crop_max_res.jpg" alt="Первый в истории снимок чёрной дыры — M87*, полученный телескопом горизонта событий в 2019 году" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/800px-Black_hole_-_Messier_87_crop_max_res.jpg" alt="Первый снимок чёрной дыры M87*" loading="lazy">
           </div>
           <div class="famous-info">
             <h3>M87* <span class="famous-tag">Первая сфотографированная</span></h3>
             <div class="famous-stats">
               <div><strong>Масса:</strong> 6,5 млрд M☉</div>
               <div><strong>Расстояние:</strong> 55 млн св. лет</div>
-              <div><strong>Галактика:</strong> Messier 87 (Дева A)</div>
-              <div><strong>Диаметр тени:</strong> ~42 мкс (микросекунды дуги)</div>
+              <div><strong>Галактика:</strong> Messier 87</div>
+              <div><strong>Тень:</strong> ~42 мкс дуги</div>
             </div>
-            <p>10 апреля 2019 года коллаборация Телескопа горизонта событий (EHT) представила первый в истории прямой снимок тени чёрной дыры. Эта сверхмассивная чёрная дыра находится в центре гигантской эллиптической галактики Messier 87. Яркое кольцо — это излучение раскалённого газа, вращающегося вокруг чёрной дыры, а тёмный центр — её тень. Для получения снимка потребовалось восемь радиотелескопов по всему миру, работающих как единый виртуальный телескоп размером с Землю.</p>
-            <p class="section-source">Источник: Event Horizon Telescope Collaboration, The Astrophysical Journal Letters, 2019</p>
+            <p>10 апреля 2019 — первый прямой снимок тени ЧД. Восемь радиотелескопов по всему миру работали как один виртуальный телескоп размером с Землю.</p>
+            <p class="section-source">EHT Collaboration, ApJ Letters, 2019</p>
           </div>
         </div>
 
         <div class="famous-entry reverse reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Sgr_A_star_EHT.jpg/800px-Sgr_A_star_EHT.jpg" alt="Снимок Стрельца A* — сверхмассивной чёрной дыры в центре Млечного Пути" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Sgr_A_star_EHT.jpg/800px-Sgr_A_star_EHT.jpg" alt="Стрелец A* — сверхмассивная ЧД Млечного Пути" loading="lazy">
           </div>
           <div class="famous-info">
-            <h3>Стрелец A* <span class="famous-tag">Сердце нашей Галактики</span></h3>
+            <h3>Стрелец A* <span class="famous-tag">Сердце Галактики</span></h3>
             <div class="famous-stats">
               <div><strong>Масса:</strong> 4 млн M☉</div>
               <div><strong>Расстояние:</strong> 26 000 св. лет</div>
               <div><strong>Галактика:</strong> Млечный Путь</div>
-              <div><strong>Радиус Шварцшильда:</strong> ~12 млн км</div>
+              <div><strong>Радиус:</strong> ~12 млн км</div>
             </div>
-            <p>Стрелец A* (Sgr A*) — сверхмассивная чёрная дыра в центре нашей Галактики. Её существование было подтверждено отслеживанием звёзд, вращающихся вокруг галактического центра — эта работа принесла Андреа Гез и Райнхарду Генцелю Нобелевскую премию по физике 2020 года. EHT получил её снимок в мае 2022 года, подтвердив предсказания общей теории относительности.</p>
-            <p class="section-source">Источник: EHT Collaboration, 2022; Нобелевский комитет, 2020</p>
+            <p>Нобелевская премия 2020 за доказательство. EHT получил снимок в 2022 году, подтвердив предсказания ОТО.</p>
+            <p class="section-source">EHT Collaboration, 2022; Нобелевский комитет</p>
           </div>
         </div>
 
         <div class="famous-entry reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Cygnus_X-1.png/800px-Cygnus_X-1.png" alt="Художественное изображение Лебедя X-1 — первой подтверждённой чёрной дыры" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Cygnus_X-1.png/800px-Cygnus_X-1.png" alt="Лебедь X-1 — первая подтверждённая ЧД" loading="lazy">
           </div>
           <div class="famous-info">
             <h3>Лебедь X-1 <span class="famous-tag">Первая подтверждённая</span></h3>
@@ -285,16 +254,16 @@
               <div><strong>Масса:</strong> ~21 M☉</div>
               <div><strong>Расстояние:</strong> 6 070 св. лет</div>
               <div><strong>Созвездие:</strong> Лебедь</div>
-              <div><strong>Звезда-компаньон:</strong> HDE 226868 (голубой сверхгигант)</div>
+              <div><strong>Компаньон:</strong> HDE 226868</div>
             </div>
-            <p>Обнаруженный в 1964 году как рентгеновский источник, Лебедь X-1 стал первым общепризнанным кандидатом в чёрные дыры. Это чёрная дыра звёздной массы в двойной системе, активно «обдирающая» материю своей звезды-компаньона. Эта система стала предметом знаменитого пари между Стивеном Хокингом и Кипом Торном — Хокинг ставил против того, что это чёрная дыра, и признал поражение в 1990 году.</p>
-            <p class="section-source">Источник: NASA, Webster & Murdin 1972, Bolton 1972</p>
+            <p>Обнаружен в 1964 как рентгеновский источник. Предмет знаменитого пари Хокинга и Торна — Хокинг проиграл в 1990.</p>
+            <p class="section-source">NASA, Webster & Murdin 1972</p>
           </div>
         </div>
 
         <div class="famous-entry reverse reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/BH_LMC.png/800px-BH_LMC.png" alt="Симуляция вида чёрной дыры с гравитационным линзированием" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/BH_LMC.png/800px-BH_LMC.png" alt="Визуализация гравитационного линзирования ЧД" loading="lazy">
           </div>
           <div class="famous-info">
             <h3>TON 618 <span class="famous-tag">Одна из самых массивных</span></h3>
@@ -302,16 +271,16 @@
               <div><strong>Масса:</strong> ~66 млрд M☉</div>
               <div><strong>Расстояние:</strong> 10,4 млрд св. лет</div>
               <div><strong>Тип:</strong> Ультраяркий квазар</div>
-              <div><strong>Радиус Шварцшильда:</strong> ~1 300 а.е.</div>
+              <div><strong>Радиус:</strong> ~1 300 а.е.</div>
             </div>
-            <p>TON 618 — это гиперяркий квазар, питаемый одной из самых массивных чёрных дыр, когда-либо обнаруженных. Её радиус Шварцшильда простирается примерно на 1 300 расстояний от Земли до Солнца. Масштаб практически непостижим — если бы она оказалась в нашей Солнечной системе, горизонт событий простирался бы далеко за орбиту Плутона.</p>
-            <p class="section-source">Источник: Shemmer et al. 2004, The Astrophysical Journal</p>
+            <p>Горизонт событий простирался бы далеко за орбиту Плутона. Именно эту ЧД мы моделируем на этой странице.</p>
+            <p class="section-source">Shemmer et al. 2004, ApJ</p>
           </div>
         </div>
 
         <div class="famous-entry reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg/800px-Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg" alt="Художественное изображение Gaia BH1 — ближайшей известной чёрной дыры" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg/800px-Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg" alt="Gaia BH1 — ближайшая известная ЧД" loading="lazy">
           </div>
           <div class="famous-info">
             <h3>Gaia BH1 <span class="famous-tag">Ближайшая известная</span></h3>
@@ -319,82 +288,87 @@
               <div><strong>Масса:</strong> ~10 M☉</div>
               <div><strong>Расстояние:</strong> ~1 560 св. лет</div>
               <div><strong>Созвездие:</strong> Змееносец</div>
-              <div><strong>Открытие:</strong> 2022 (космический аппарат Gaia)</div>
+              <div><strong>Открытие:</strong> 2022 (Gaia)</div>
             </div>
-            <p>Gaia BH1 — ближайшая к Земле известная чёрная дыра, обнаруженная с помощью космического аппарата Gaia Европейского космического агентства. Это «спящая» чёрная дыра — она не поглощает материю, поэтому невидима в рентгеновских лучах. Её обнаружили по колебаниям звезды-компаньона солнечного типа, вращающейся вокруг невидимого объекта.</p>
-            <p class="section-source">Источник: El-Badry et al. 2023, Monthly Notices of the Royal Astronomical Society</p>
+            <p>«Спящая» ЧД — не поглощает материю. Обнаружена по колебаниям звезды-компаньона солнечного типа.</p>
+            <p class="section-source">El-Badry et al. 2023, MNRAS</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- HISTORY TIMELINE -->
-    <section class="content-section dark-section" id="history">
+    <section class="content-section" id="history">
       <div class="section-inner full-width">
         <h2 class="section-title center reveal">История открытия</h2>
-        <div class="timeline">
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1783</div>
-            <div class="timeline-content">
-              <h4>«Тёмные звёзды» Джона Мичелла</h4>
-              <p>Английский геолог Джон Мичелл предположил существование тела настолько массивного, что даже свет не мог бы покинуть его. Он рассчитал, что объект с плотностью Солнца должен иметь радиус в 500 раз больше солнечного.</p>
+        <div class="timeline-layout">
+          <div class="timeline">
+            <div class="timeline-item reveal">
+              <div class="timeline-year">1783</div>
+              <div class="timeline-content">
+                <h4>«Тёмные звёзды» Мичелла</h4>
+                <p>Джон Мичелл предположил существование тела, настолько массивного, что даже свет не может его покинуть.</p>
+              </div>
+            </div>
+            <div class="timeline-item reveal">
+              <div class="timeline-year">1915</div>
+              <div class="timeline-content">
+                <h4>ОТО Эйнштейна</h4>
+                <p>Альберт Эйнштейн публикует уравнения поля — гравитация как искривление пространства-времени.</p>
+              </div>
+            </div>
+            <div class="timeline-item reveal">
+              <div class="timeline-year">1916</div>
+              <div class="timeline-content">
+                <h4>Решение Шварцшильда</h4>
+                <p>Карл Шварцшильд находит первое точное решение уравнений Эйнштейна — предсказывает горизонт событий.</p>
+              </div>
+            </div>
+            <div class="timeline-item reveal">
+              <div class="timeline-year">1963</div>
+              <div class="timeline-content">
+                <h4>Вращающаяся ЧД Керра</h4>
+                <p>Рой Керр находит решение для вращающейся ЧД — более реалистичное. Раскрывает эргосферу и увлечение систем отсчёта.</p>
+              </div>
+            </div>
+            <div class="timeline-item reveal">
+              <div class="timeline-year">1974</div>
+              <div class="timeline-content">
+                <h4>Излучение Хокинга</h4>
+                <p>Стивен Хокинг предсказывает: ЧД не абсолютно чёрные — квантовые эффекты заставляют их медленно испаряться.</p>
+              </div>
+            </div>
+            <div class="timeline-item reveal">
+              <div class="timeline-year">2015</div>
+              <div class="timeline-content">
+                <h4>Гравитационные волны (LIGO)</h4>
+                <p>Впервые зарегистрирована рябь пространства-времени от слияния двух ЧД. Нобелевская премия 2017.</p>
+              </div>
+            </div>
+            <div class="timeline-item reveal">
+              <div class="timeline-year">2019</div>
+              <div class="timeline-content">
+                <h4>Первый снимок ЧД</h4>
+                <p>EHT получает первое изображение тени M87* — кольцо раскалённого газа вокруг монстра в 6,5 млрд M☉.</p>
+              </div>
+            </div>
+            <div class="timeline-item reveal">
+              <div class="timeline-year">2022</div>
+              <div class="timeline-content">
+                <h4>Стрелец A* — снимок</h4>
+                <p>EHT публикует снимок ЧД в центре нашего Млечного Пути, подтвердив десятилетия косвенных доказательств.</p>
+              </div>
             </div>
           </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1915</div>
-            <div class="timeline-content">
-              <h4>Общая теория относительности Эйнштейна</h4>
-              <p>Альберт Эйнштейн публикует уравнения поля, фундаментально изменив наше понимание гравитации как искривления пространства-времени массой и энергией.</p>
+          <div class="timeline-sidebar reveal">
+            <div class="timeline-sidebar-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Einstein_1921_by_F_Schmutzer_-_restoration.jpg/440px-Einstein_1921_by_F_Schmutzer_-_restoration.jpg" alt="Альберт Эйнштейн, 1921" loading="lazy">
             </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1916</div>
-            <div class="timeline-content">
-              <h4>Решение Шварцшильда</h4>
-              <p>Карл Шварцшильд находит первое точное решение уравнений Эйнштейна, описывающее геометрию пространства-времени вокруг невращающейся сферической массы. Это решение предсказывает «шварцшильдовский радиус» — то, что мы теперь называем горизонтом событий.</p>
+            <p class="timeline-sidebar-caption">Альберт Эйнштейн, 1921 — его ОТО предсказала существование чёрных дыр</p>
+            <div class="timeline-sidebar-img">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/440px-Black_hole_-_Messier_87_crop_max_res.jpg" alt="Первый снимок ЧД — M87*, 2019" loading="lazy">
             </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1963</div>
-            <div class="timeline-content">
-              <h4>Вращающаяся чёрная дыра Керра</h4>
-              <p>Рой Керр находит точное решение для вращающейся чёрной дыры — гораздо более реалистичный случай, чем невращающееся решение Шварцшильда. Решение Керра раскрывает эргосферу и эффекты увлечения систем отсчёта.</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1967</div>
-            <div class="timeline-content">
-              <h4>Термин «чёрная дыра»</h4>
-              <p>Физик Джон Уилер популяризирует термин «чёрная дыра» на конференции NASA в Нью-Йорке, заменив ранние названия вроде «замороженная звезда» и «гравитационно полностью коллапсировавший объект».</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1974</div>
-            <div class="timeline-content">
-              <h4>Излучение Хокинга</h4>
-              <p>Стивен Хокинг предсказывает, что чёрные дыры не абсолютно чёрные — они испускают тепловое излучение благодаря квантовым эффектам вблизи горизонта событий. Это означает, что чёрные дыры медленно испаряются на протяжении колоссальных временных масштабов.</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">2015</div>
-            <div class="timeline-content">
-              <h4>Обнаружение гравитационных волн</h4>
-              <p>LIGO впервые регистрирует гравитационные волны — рябь пространства-времени от слияния двух чёрных дыр в 1,3 миллиарда световых лет (GW150914). Каждая чёрная дыра имела массу около 30 солнечных. Это подтвердило предсказание общей теории относительности и принесло Нобелевскую премию 2017 года.</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">2019</div>
-            <div class="timeline-content">
-              <h4>Первый снимок чёрной дыры</h4>
-              <p>Телескоп горизонта событий получает первое прямое изображение тени чёрной дыры — M87*, раскалённое кольцо газа вокруг монстра массой 6,5 миллиарда солнечных масс в сердце галактики Messier 87.</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">2022</div>
-            <div class="timeline-content">
-              <h4>Стрелец A* — снимок</h4>
-              <p>EHT публикует снимок Sgr A* — сверхмассивной чёрной дыры в центре нашего Млечного Пути, подтвердив десятилетия косвенных доказательств и открыв новую эру в науке о чёрных дырах.</p>
-            </div>
+            <p class="timeline-sidebar-caption">Первый снимок чёрной дыры — M87*, 10 апреля 2019</p>
           </div>
         </div>
       </div>
@@ -407,149 +381,125 @@
         <div class="physics-grid">
           <div class="physics-card reveal">
             <h3>Гравитационное линзирование</h3>
-            <p>Чудовищная гравитация чёрной дыры искривляет свет от объектов позади неё, создавая искажённые, увеличенные или множественные изображения. Этот эффект, предсказанный Эйнштейном в 1936 году, наблюдался у галактик и скоплений. Вблизи чёрной дыры он создаёт характерное фотонное кольцо, видимое на снимках EHT.</p>
+            <p>Гравитация искривляет свет, создавая искажённые и множественные изображения. Вблизи ЧД формируется фотонное кольцо.</p>
             <div class="physics-equation">θ = 4GM/(c²b)</div>
-            <div class="physics-eq-label">Угол отклонения Эйнштейна для луча с прицельным параметром b</div>
+            <div class="physics-eq-label">Угол отклонения Эйнштейна</div>
           </div>
           <div class="physics-card reveal">
             <h3>Замедление времени</h3>
-            <p>При приближении к чёрной дыре время замедляется относительно далёкого наблюдателя. На горизонте событий время фактически останавливается с внешней точки зрения. Часы вблизи чёрной дыры тикают всё медленнее. Это не фантастика — спутники GPS должны учитывать гравитационное замедление времени для точной работы.</p>
+            <p>Вблизи ЧД время замедляется. На горизонте — фактически останавливается для далёкого наблюдателя. GPS-спутники учитывают этот эффект.</p>
             <div class="physics-equation">Δt' = Δt × √(1 − rₛ/r)</div>
-            <div class="physics-eq-label">Гравитационное замедление времени в метрике Шварцшильда</div>
+            <div class="physics-eq-label">Гравитационное замедление</div>
           </div>
           <div class="physics-card reveal">
             <h3>Излучение Хокинга</h3>
-            <p>Квантовые флуктуации вблизи горизонта событий создают виртуальные пары частица-античастица. Иногда одна частица падает в чёрную дыру, а другая ускользает, унося энергию. За астрономические временные масштабы это приводит к потере массы и «испарению» чёрной дыры. Звёздная чёрная дыра испарялась бы ~10⁶⁷ лет — несоизмеримо дольше возраста Вселенной (13,8 млрд лет).</p>
+            <p>Квантовые флуктуации у горизонта создают пары частиц. Одна падает внутрь, другая ускользает. ЧД звёздной массы испарялась бы ~10⁶⁷ лет.</p>
             <div class="physics-equation">T = ℏc³/(8πGMk_B)</div>
-            <div class="physics-eq-label">Температура Хокинга — обратно пропорциональна массе</div>
+            <div class="physics-eq-label">Температура Хокинга</div>
           </div>
           <div class="physics-card reveal">
             <h3>Спагеттификация</h3>
-            <p>Приливные силы вблизи чёрной дыры растягивают объекты вдоль направления гравитационного градиента и сжимают перпендикулярно ему. Для чёрных дыр звёздной массы это происходит далеко за горизонтом событий. Для сверхмассивных — приливные силы у горизонта удивительно слабы: можно пересечь его целым (но вернуться уже никогда).</p>
+            <p>Приливные силы растягивают объекты вдоль гравитационного градиента. У сверхмассивных ЧД приливные силы у горизонта удивительно слабы.</p>
             <div class="physics-equation">ΔF ∝ M/r³</div>
-            <div class="physics-eq-label">Градиент приливной силы — сильнее у маленьких близких ЧД</div>
+            <div class="physics-eq-label">Градиент приливной силы</div>
           </div>
           <div class="physics-card reveal">
             <h3>Информационный парадокс</h3>
-            <p>Если чёрная дыра полностью испарится через излучение Хокинга, что произойдёт с информацией обо всём, что в неё упало? Квантовая механика утверждает, что информация не может быть уничтожена, но ОТО говорит, что она исчезает за горизонтом событий. Этот парадокс, сформулированный Хокингом в 1976 году, остаётся одной из глубочайших нерешённых проблем теоретической физики.</p>
+            <p>Если ЧД испарится, что произойдёт с информацией? Квантовая механика говорит — нельзя уничтожить, ОТО — исчезает за горизонтом. Нерешённая проблема физики.</p>
           </div>
           <div class="physics-card reveal">
             <h3>Гравитационные волны</h3>
-            <p>Когда две чёрные дыры сближаются по спирали и сливаются, они создают рябь в ткани пространства-времени — гравитационные волны. Они распространяются со скоростью света и были впервые зарегистрированы LIGO в 2015 году. За 0,2 секунды слияние излучило больше энергии, чем все звёзды наблюдаемой Вселенной вместе взятые.</p>
+            <p>Слияние двух ЧД создаёт рябь пространства-времени. За 0,2 секунды — больше энергии, чем все звёзды наблюдаемой Вселенной.</p>
             <div class="physics-equation">P = (32/5) × G⁴/c⁵ × (m₁m₂)²(m₁+m₂)/r⁵</div>
-            <div class="physics-eq-label">Мощность гравитационного излучения двойной системы</div>
+            <div class="physics-eq-label">Мощность излучения двойной системы</div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- BY THE NUMBERS -->
-    <section class="content-section dark-section" id="numbers">
+    <section class="content-section" id="numbers">
       <div class="section-inner full-width">
         <h2 class="section-title center reveal">В числах</h2>
         <div class="numbers-grid">
           <div class="number-card reveal">
             <div class="big-number">299 792</div>
             <div class="number-unit">км/с</div>
-            <div class="number-label">Скорость света — вторая космическая скорость на горизонте событий</div>
+            <div class="number-label">Скорость света — вторая космическая на горизонте</div>
           </div>
           <div class="number-card reveal">
             <div class="big-number">66 000 000 000</div>
             <div class="number-unit">масс Солнца</div>
-            <div class="number-label">Масса TON 618 — одной из самых массивных известных ЧД</div>
+            <div class="number-label">Масса TON 618</div>
           </div>
           <div class="number-card reveal">
             <div class="big-number">1 560</div>
             <div class="number-unit">световых лет</div>
-            <div class="number-label">Расстояние до Gaia BH1 — ближайшей известной чёрной дыры</div>
+            <div class="number-label">До Gaia BH1 — ближайшей ЧД</div>
           </div>
           <div class="number-card reveal">
             <div class="big-number">55 000 000</div>
             <div class="number-unit">световых лет</div>
-            <div class="number-label">Расстояние до M87* — первой сфотографированной чёрной дыры</div>
+            <div class="number-label">До M87* — первая фотография</div>
           </div>
           <div class="number-card reveal">
             <div class="big-number">10 000 000</div>
             <div class="number-unit">°C</div>
-            <div class="number-label">Температура газа в аккреционном диске, нагретого трением</div>
+            <div class="number-label">Температура аккреционного диска</div>
           </div>
           <div class="number-card reveal">
             <div class="big-number">10<sup>67</sup></div>
             <div class="number-unit">лет</div>
-            <div class="number-label">Время испарения звёздной ЧД через излучение Хокинга</div>
+            <div class="number-label">Время испарения звёздной ЧД</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SOUND SECTION -->
+    <!-- SOUND -->
     <section class="content-section" id="sound-section">
       <div class="section-inner">
-        <div class="section-text reveal">
-          <h2 class="section-title">Звук чёрной дыры</h2>
-          <p class="section-body">В 2003 году рентгеновская обсерватория NASA «Чандра» обнаружила звуковые волны, распространяющиеся через раскалённый газ вокруг сверхмассивной чёрной дыры в центре скопления галактик Персея. Звуковая волна соответствует ноте си-бемоль, на 57 октав ниже средней до — частота примерно в квадриллион раз ниже, чем может услышать человек.</p>
-          <p class="section-body">В 2022 году NASA опубликовало «сонификацию» этих данных, сдвинув частоты вверх на 57–58 октав в диапазон человеческого слуха. Результат — зловещий, гулкий гул — звук сверхмассивной чёрной дыры, резонирующей через 200 000 световых лет горячего газа.</p>
-          <p class="section-body">Симуляция на этой странице генерирует похожий глубокий дрон с помощью синтезированных тонов. Нажмите кнопку звука в верхнем правом углу, чтобы послушать.</p>
-          <p class="section-source">Источник: NASA Chandra X-ray Observatory, Fabian et al. 2003</p>
-        </div>
-        <div class="section-visual reveal">
-          <div class="stat-card sound-card">
-            <div class="stat-number">57</div>
-            <div class="stat-label">октав ниже средней до — самая глубокая нота, когда-либо обнаруженная во Вселенной</div>
+        <div class="sound-layout">
+          <div class="section-text reveal">
+            <h2 class="section-title">Звук чёрной дыры</h2>
+            <p class="section-body">В 2003 году обсерватория «Чандра» обнаружила звуковые волны в раскалённом газе вокруг ЧД в скоплении Персея. Нота си-бемоль на 57 октав ниже средней до — в квадриллион раз ниже порога слуха.</p>
+            <p class="section-body">В 2022 NASA опубликовало «сонификацию», сдвинув частоты в слышимый диапазон. Результат — зловещий гулкий дрон. Нажмите кнопку звука в правом верхнем углу.</p>
+            <p class="section-source">NASA Chandra X-ray Observatory, Fabian et al. 2003</p>
+          </div>
+          <div class="sound-visual reveal">
+            <div class="sound-wave-display">
+              <div class="sound-note">B♭</div>
+              <div class="sound-note-label">самая глубокая нота во Вселенной</div>
+            </div>
+            <div class="sound-stat-row">
+              <div class="sound-stat-item">
+                <div class="sound-stat-number">57</div>
+                <div class="sound-stat-label">октав ниже До</div>
+              </div>
+              <div class="sound-stat-item">
+                <div class="sound-stat-number">200K</div>
+                <div class="sound-stat-label">св. лет резонанса</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- INTERSTELLAR -->
-    <section class="content-section dark-section" id="interstellar">
+    <section class="content-section" id="interstellar">
       <div class="section-inner">
-        <div class="section-text reveal">
-          <h2 class="section-title">Чёрные дыры в кино: Интерстеллар</h2>
-          <p class="section-body">Фильм «Интерстеллар» (2014) Кристофера Нолана содержал самое научно точное изображение чёрной дыры, когда-либо созданное для кино. В сотрудничестве с физиком-теоретиком Кипом Торном команда Double Negative разработала рендерер DNGR, решающий уравнения общей теории относительности для десятков миллионов световых лучей.</p>
-          <p class="section-body">Результат — вымышленная чёрная дыра «Гаргантюа» — раскрыл неожиданные визуальные особенности, в частности, искривлённый вид аккреционного диска, обволакивающего чёрную дыру благодаря гравитационному линзированию. Свет с задней стороны диска огибает объект сверху и снизу, создавая характерный нимб.</p>
-          <p class="section-body">Симуляция на этой странице использует аналогичные принципы трассировки лучей, решая траектории фотонов в пространстве-времени Керра (вращающаяся ЧД, спин a ≈ 0,97) для воспроизведения линзирования, увлечения систем отсчёта и доплеровского излучения. Вы можете перетаскивать мышь для обзора чёрной дыры с разных углов.</p>
-          <p class="section-source">Источник: James et al. «Gravitational Lensing by Spinning Black Holes…», 2015, Classical and Quantum Gravity</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- FINAL FACTS -->
-    <section class="content-section" id="facts">
-      <div class="section-inner full-width">
-        <h2 class="section-title center reveal">Удивительные факты</h2>
-        <div class="facts-grid">
-          <div class="fact-card reveal">
-            <div class="fact-icon">🌀</div>
-            <p>Если бы Земля была сжата до размера шарика (~9 мм), она стала бы чёрной дырой.</p>
+        <div class="interstellar-layout">
+          <div class="section-text reveal">
+            <div class="interstellar-movie-tag">🎬 КИНЕМАТОГРАФ</div>
+            <h2 class="section-title">Интерстеллар (2014)</h2>
+            <p class="section-body">Фильм Кристофера Нолана содержал самое научно точное изображение ЧД в кино. Физик Кип Торн совместно с Double Negative разработал рендерер DNGR, решающий уравнения ОТО для миллионов лучей.</p>
+            <p class="section-body">Вымышленная ЧД «Гаргантюа» раскрыла неожиданный эффект: аккреционный диск обволакивает ЧД сверху и снизу через линзирование. Свет с задней стороны огибает объект, создавая характерный нимб.</p>
+            <p class="section-body">Наша симуляция использует аналогичную трассировку лучей в метрике Керра (спин a ≈ 0,97) для воспроизведения линзирования, доплеровского излучения и увлечения систем отсчёта.</p>
+            <p class="section-source">James et al. «Gravitational Lensing by Spinning Black Holes…», CQG, 2015</p>
           </div>
-          <div class="fact-card reveal">
-            <div class="fact-icon">⏱</div>
-            <p>Время останавливается на горизонте событий с точки зрения далёкого наблюдателя. Вы никогда не увидите, как кто-то его пересекает — он будет замедляться, краснеть и угасать навечно.</p>
-          </div>
-          <div class="fact-card reveal">
-            <div class="fact-icon">🔊</div>
-            <p>Чёрная дыра в центре скопления Персея издаёт самую глубокую ноту во Вселенной — на 57 октав ниже средней до.</p>
-          </div>
-          <div class="fact-card reveal">
-            <div class="fact-icon">💫</div>
-            <p>Сверхмассивная ЧД в галактике NGC 1277 составляет 14% от общей массы галактики — необычно высокая доля, ставящая под вопрос теории формирования.</p>
-          </div>
-          <div class="fact-card reveal">
-            <div class="fact-icon">🌊</div>
-            <p>Когда LIGO зафиксировала первое слияние (GW150914), две чёрные дыры за 0,2 секунды выделили больше энергии, чем все звёзды наблюдаемой Вселенной вместе взятые.</p>
-          </div>
-          <div class="fact-card reveal">
-            <div class="fact-icon">⚡</div>
-            <p>Квазары — активные сверхмассивные ЧД, поглощающие материю — являются ярчайшими объектами во Вселенной. Некоторые из них в 100 раз ярче своей галактики.</p>
-          </div>
-          <div class="fact-card reveal">
-            <div class="fact-icon">🧲</div>
-            <p>Магнитные поля вблизи чёрной дыры могут быть настолько закручены, что запускают джеты плазмы со скоростью 99,99% скорости света на тысячи световых лет.</p>
-          </div>
-          <div class="fact-card reveal">
-            <div class="fact-icon">🪐</div>
-            <p>Если бы Солнце заменили чёрной дырой той же массы, орбита Земли не изменилась бы. Гравитация на нашем расстоянии была бы идентичной — но мы замёрзли бы в темноте.</p>
+          <div class="interstellar-image reveal">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/BH_LMC.png/800px-BH_LMC.png" alt="Симуляция гравитационного линзирования чёрной дыры на фоне Большого Магелланова Облака" loading="lazy">
           </div>
         </div>
       </div>
@@ -559,18 +509,17 @@
     <footer class="site-footer">
       <div class="footer-inner">
         <div class="footer-title">BLACK HOLE</div>
-        <p class="footer-text">Вся научная информация взята из материалов NASA, ESA, коллаборации Телескопа горизонта событий и рецензируемых астрофизических журналов.</p>
-        <p class="footer-text">3D-симуляция использует трассировку лучей в пространстве-времени Керра (вращающаяся ЧД) на базе Three.js и WebGL.</p>
+        <p class="footer-text">Научная информация: NASA, ESA, EHT, рецензируемые астрофизические журналы.</p>
+        <p class="footer-text">3D-симуляция: трассировка лучей в пространстве-времени Керра · Three.js · WebGL</p>
         <p class="footer-text"><a href="catalog.html" style="color: var(--accent); text-decoration: none;">📚 Каталог всех известных чёрных дыр →</a></p>
         <div class="footer-credits">
-          <p>Изображения: NASA, ESA, EHT Collaboration, ESO — используются на условиях public domain / CC BY 4.0</p>
+          <p>Изображения: NASA, ESA, EHT Collaboration, ESO — public domain / CC BY 4.0</p>
         </div>
       </div>
     </footer>
 
   </main>
 
-  <!-- Three.js -->
   <script type="importmap">
   {
     "imports": {

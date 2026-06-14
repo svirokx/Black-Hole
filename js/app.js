@@ -1,7 +1,7 @@
 // ============================================
 // BLACK HOLE — Main Application
-// Loader, scroll animations, creation mode,
-// scale HUD, TON 618 supermassive simulation
+// Loader, scroll animations, sound, scale HUD
+// TON 618 supermassive simulation
 // ============================================
 
 import { BlackHoleRenderer } from './blackhole.js';
@@ -13,11 +13,7 @@ import {
 } from './performance.js';
 
 // ---------- TON 618 Scale Constants ----------
-// TON 618: 66 billion solar masses
-// Rs = 2GM/c² ≈ 1.95 × 10^14 m ≈ 1300 AU
-// In shader: M = 1, so 1 unit = Rs/2 = 650 AU
-const AU_PER_UNIT = 650; // 1 shader unit = 650 AU for TON 618
-const LY_PER_AU = 1 / 63241; // 1 AU ≈ 1/63241 light-years
+const AU_PER_UNIT = 650;
 
 // ---------- Loader ----------
 
@@ -25,16 +21,13 @@ const loader = document.getElementById('loader');
 
 function hideLoader() {
   loader.classList.add('hidden');
-  setTimeout(() => {
-    loader.style.display = 'none';
-  }, 800);
+  setTimeout(() => { loader.style.display = 'none'; }, 800);
 }
 
 // ---------- Scroll Reveal ----------
 
 function initScrollReveal() {
   const reveals = document.querySelectorAll('.reveal');
-
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -43,17 +36,11 @@ function initScrollReveal() {
           c.classList.contains('reveal') && !c.classList.contains('visible')
         );
         const idx = allReveals.indexOf(entry.target);
-        if (idx > 0) {
-          entry.target.style.transitionDelay = `${idx * 0.1}s`;
-        }
+        if (idx > 0) entry.target.style.transitionDelay = `${idx * 0.1}s`;
         entry.target.classList.add('visible');
       }
     });
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px',
-  });
-
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
   reveals.forEach((el) => observer.observe(el));
 }
 
@@ -72,10 +59,7 @@ function initHeroParallax() {
       const progress = scrollY / heroH;
       overlay.style.opacity = 1 - progress * 1.5;
       overlay.style.transform = `translateY(${scrollY * 0.3}px)`;
-
-      if (scrollIndicator) {
-        scrollIndicator.style.opacity = Math.max(0, 1 - progress * 3);
-      }
+      if (scrollIndicator) scrollIndicator.style.opacity = Math.max(0, 1 - progress * 3);
     }
 
     // Toggle HUD visibility
@@ -113,20 +97,13 @@ function initScaleRuler(bhRenderer) {
   if (!scaleLabel) return;
 
   function updateScale() {
-    // Camera distance in shader units
     const camDist = bhRenderer.camDist;
-    // Approximate visible width at center = 2 * camDist * tan(FOV/2)
-    // FOV vertical ≈ 53°, so tan(26.5°) ≈ 0.5
-    const visibleWidth = 2 * camDist * 0.5; // in shader units
-    // The ruler is ~120px, screen is ~window.innerWidth
+    const visibleWidth = 2 * camDist * 0.5;
     const rulerFraction = 120 / window.innerWidth;
-    const rulerWidth = visibleWidth * rulerFraction; // shader units
-
-    const rulerAU = rulerWidth * AU_PER_UNIT;
+    const rulerAU = visibleWidth * rulerFraction * AU_PER_UNIT;
 
     let label;
     if (rulerAU > 63241) {
-      // light-years
       const ly = rulerAU / 63241;
       label = ly >= 100 ? `${Math.round(ly).toLocaleString()} ly` : `${ly.toFixed(1)} ly`;
     } else if (rulerAU > 100) {
@@ -134,49 +111,12 @@ function initScaleRuler(bhRenderer) {
     } else if (rulerAU > 1) {
       label = `${rulerAU.toFixed(1)} AU`;
     } else {
-      const mkm = rulerAU * 149.598; // million km per AU
-      label = `${mkm.toFixed(0)} M km`;
+      label = `${(rulerAU * 149.598).toFixed(0)} M km`;
     }
-
     scaleLabel.textContent = label;
     requestAnimationFrame(updateScale);
   }
   updateScale();
-}
-
-// ---------- Scale Comparison (removed by design) ----------
-function initScaleCompare() {}
-
-// ---------- Creation Mode ----------
-
-function initCreationMode(bhRenderer, particleSystem) {
-  const btn = document.getElementById('create-toggle');
-  const canvas = document.getElementById('blackhole-canvas');
-  const indicator = document.getElementById('create-indicator');
-  let createMode = false;
-
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    createMode = !createMode;
-    btn.classList.toggle('active', createMode);
-    canvas.classList.toggle('create-mode', createMode);
-
-    if (indicator) {
-      indicator.style.display = createMode ? 'flex' : 'none';
-    }
-  });
-
-  // Spawn object on click in create mode
-  canvas.addEventListener('click', (e) => {
-    if (!createMode) return;
-
-    // Convert click to NDC (-1 to 1)
-    const rect = canvas.getBoundingClientRect();
-    const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    const ndcY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-
-    particleSystem.spawn(ndcX, ndcY);
-  });
 }
 
 // ---------- Main Init ----------
@@ -184,21 +124,15 @@ function initCreationMode(bhRenderer, particleSystem) {
 async function init() {
   const canvas = document.getElementById('blackhole-canvas');
 
-  // Инициализация рендереров
   const bhRenderer = new BlackHoleRenderer(canvas);
   const particleSystem = new ParticleSystem(bhRenderer);
 
-  // Движок производительности «Стабильный FPS»
-  // Колбэк onChange вызывается при каждой смене уровня графики
   const gl = bhRenderer.renderer.getContext();
   const perfEngine = new StablePerformanceEngine(gl, (settings) => {
     applyGraphicsSettings(bhRenderer.renderer, bhRenderer.uniforms, settings);
   });
-
-  // Запускаем бенчмарк (первые 4 секунды)
   perfEngine.startBenchmark();
 
-  // Цикл анимации — без ограничения FPS (стремится к частоте монитора)
   const startTime = performance.now();
   let lastTime = startTime;
 
@@ -208,41 +142,27 @@ async function init() {
     const dt = Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
 
-    // Обновляем шейдер чёрной дыры
     bhRenderer.update(elapsed);
-
-    // Частицы поверх шейдера
     particleSystem.update(dt);
     particleSystem.render(bhRenderer.renderer);
-
-    // Тик стабилизатора (бенчмарк → рантайм-мониторинг)
     perfEngine.tick();
 
     requestAnimationFrame(animate);
   }
-
   animate();
 
-  // Hide loader after first frame renders
-  setTimeout(() => {
-    hideLoader();
-  }, 2500);
+  setTimeout(() => hideLoader(), 2500);
 
-  // Init features
   initScrollReveal();
   initHeroParallax();
   initSound();
-  initCreationMode(bhRenderer, particleSystem);
   initScaleRuler(bhRenderer);
-  initScaleCompare();
 }
 
 function safeInit() {
-  try {
-    init();
-  } catch (e) {
+  try { init(); }
+  catch (e) {
     console.error('Black Hole init error:', e);
-    // Always hide loader even if initialization fails
     hideLoader();
   }
 }

@@ -1,50 +1,93 @@
-# Black Hole — Interactive 3D Simulation & Science
+# 🕳️ Black Hole — Interactive 3D Simulation
 
-An immersive single-page website featuring a real-time 3D black hole simulation with gravitational lensing, accretion disk rendering, and comprehensive scientific content about black holes.
+A visually stunning, scientifically accurate black hole simulation built with WebGL and Three.js. Experience gravitational lensing, accretion disk physics, and the extreme warping of spacetime — right in your browser.
+
+**[🌐 Live Demo →](https://svirokx.github.io/Black-Hole/)**
+
+---
 
 ## Features
 
-- **Realistic 3D Simulation** — Ray-tracing in Schwarzschild spacetime using WebGL shaders (Three.js)
-- **Gravitational Lensing** — Light bending, Doppler beaming, and accretion disk warping
-- **Interactive Camera** — Orbit the black hole by dragging with mouse/touch, zoom with scroll
-- **Black Hole Sound** — Synthesized deep drone inspired by NASA's Perseus cluster sonification
-- **Rich Scientific Content** — Verified information from NASA, ESA, EHT, and peer-reviewed journals
-- **Smooth Scroll Animations** — Content reveals as you explore
-- **Loading Screen** — Stylish black hole animation while assets load
-- **Responsive Design** — Works on desktop and mobile
-- **SEO Optimized** — Meta tags, Open Graph, sitemap, robots.txt
+### 🌀 Kerr Black Hole Simulation
+- Full **Kerr metric** ray-tracing (rotating black hole, spin a ≈ 0.97)
+- Gravitational lensing with **Einstein rings** and **photon sphere**
+- **Frame-dragging** (Lense-Thirring effect)
+- Asymmetric shadow from spin
+- Relativistic **Doppler beaming** on accretion disk
+- Spiral accretion disk with temperature gradient
+- Star field distortion with nebula
+- **Free orbit camera** — drag mouse to view from any angle, scroll to zoom
+
+### 🪐 Creation Mode
+- Click the **+** button in the corner to enter creation mode
+- Click anywhere on screen to spawn objects:
+  - Rocky planets, Gas giants, Asteroids, Stars, Photon bursts
+- Each object follows **Kerr geodesics** — real gravitational physics
+- Watch them orbit, spiral in, and get absorbed
+- **Spaghettification** effect near the event horizon
+- Glowing trails show orbital paths
+- Frame-dragging affects orbits
+
+### 📚 Black Hole Catalog
+- **40+ known black holes** with verified scientific data
+- Organized by class:
+  - **Supermassive** (M87*, Sgr A*, Phoenix A, TON 618, NGC 4889, etc.)
+  - **Intermediate-mass** (HLX-1, Omega Centauri IMBH, GW190521 remnant)
+  - **Stellar-mass** (Cygnus X-1, Gaia BH1/BH2/BH3, V404 Cygni, etc.)
+  - **GW Mergers** (GW150914, GW190521, O4 run, and more)
+- Filter by category
+- All data from NASA, ESA, EHT, LIGO/Virgo, and peer-reviewed journals
+
+### 🔊 Synthesized Audio
+- Web Audio API drone based on NASA's sonification of the Perseus cluster
+- Low-frequency oscillations matching real gravitational wave patterns
+
+### 🎨 Design
+- Dark cosmic theme with smooth scroll-reveal animations
+- Responsive design (desktop and mobile)
+- Loading screen with black hole animation
+- No scroll buttons — content appears naturally as you scroll
+
+---
 
 ## Tech Stack
 
-- HTML5, CSS3, Vanilla JavaScript (ES Modules)
-- [Three.js](https://threejs.org/) — WebGL rendering
-- Custom GLSL fragment shader — Schwarzschild ray tracer
-- Web Audio API — Sound synthesis
-- Intersection Observer API — Scroll animations
-- Google Fonts (Space Grotesk, Inter)
+- **Three.js** (v0.170.0) — 3D rendering
+- **GLSL** — Custom ray-tracing fragment shader (Kerr metric)
+- **Web Audio API** — Synthesized black hole sounds
+- **Vanilla JS** — No frameworks, no build step
+- **Google Fonts** — Space Grotesk + Inter
 
-## How the Simulation Works
+## Physics
 
-The black hole is rendered using a fragment shader that traces photon paths through curved Schwarzschild spacetime. For each pixel:
+The simulation implements:
+- **Kerr metric** with spin parameter a = 0.97 (near-maximal)
+- Oblate-spheroidal Boyer-Lindquist coordinates
+- Photon geodesics with adaptive RK4 integration (256 steps)
+- Frame-dragging (Lense-Thirring precession)
+- ISCO at r ≈ 1.55M (prograde Kerr)
+- Gravitational + Doppler frequency shift on disk emission
+- Particle physics: leapfrog integrator, GR corrections, velocity clamping
 
-1. A ray is cast from the camera
-2. The photon's trajectory is numerically integrated using the geodesic equation
-3. Intersections with the accretion disk (equatorial plane) are detected
-4. Disk color is computed from temperature gradients, Doppler beaming, and gravitational redshift
-5. Escaped rays sample a procedural star field
-6. Absorbed rays (crossing the event horizon) render as black
+## Local Development
+
+Just open `index.html` in a browser — no build step needed.
+
+Or use a local server:
+```bash
+npx serve .
+# or
+python -m http.server 8000
+```
 
 ## Sources
 
-All scientific content is sourced from:
-- NASA Science (science.nasa.gov)
-- European Space Agency (ESA)
-- Event Horizon Telescope Collaboration
-- Peer-reviewed papers in The Astrophysical Journal, Classical and Quantum Gravity, MNRAS
-- Nobel Prize Committee citations
-
-Images are public domain / CC BY 4.0 from NASA, ESA, EHT, ESO, and Wikimedia Commons.
+- Event Horizon Telescope Collaboration (2019, 2022)
+- LIGO/Virgo/KAGRA Collaboration (2016–2025)
+- ESA Gaia Collaboration (2023, 2024)
+- NASA, ESA, ESO image archives
+- Kip Thorne, "The Science of Interstellar" (2014)
 
 ## License
 
-Content and code are provided as-is for personal use.
+MIT

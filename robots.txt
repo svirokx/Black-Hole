@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://millerj79pa-afk.github.io/Black-Hole/sitemap.xml

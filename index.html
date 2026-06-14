@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black Hole — Interactive 3D Simulation & Science</title>
+  <meta name="description" content="Explore black holes through a realistic 3D simulation with gravitational lensing. Discover types, history, famous black holes, and the physics behind these cosmic giants.">
+  <meta name="keywords" content="black hole, simulation, 3D, gravitational lensing, accretion disk, event horizon, Interstellar, M87, Sagittarius A, NASA, astrophysics">
+  <meta property="og:title" content="Black Hole — Interactive 3D Simulation">
+  <meta property="og:description" content="Experience a realistic black hole simulation and explore the science of the universe's most extreme objects.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/1200px-Black_hole_-_Messier_87_crop_max_res.jpg">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ============ LOADING SCREEN ============ -->
+  <div id="loader">
+    <div class="loader-content">
+      <div class="loader-ring">
+        <div class="loader-ring-inner"></div>
+      </div>
+      <div class="loader-text">BLACK HOLE</div>
+      <div class="loader-sub">Bending spacetime…</div>
+    </div>
+  </div>
+
+  <!-- ============ SOUND TOGGLE ============ -->
+  <button id="sound-toggle" class="sound-btn" aria-label="Toggle sound">
+    <svg class="sound-icon sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
+    </svg>
+    <svg class="sound-icon sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+      <path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+  </button>
+
+  <!-- ============ HERO SECTION ============ -->
+  <section id="hero">
+    <canvas id="blackhole-canvas"></canvas>
+    <div class="hero-overlay">
+      <h1 class="hero-title">BLACK HOLE</h1>
+      <p class="hero-subtitle">A journey into the darkest corners of the universe</p>
+    </div>
+    <div class="scroll-indicator">
+      <div class="scroll-arrow"></div>
+      <span>Scroll to explore</span>
+    </div>
+  </section>
+
+  <!-- ============ CONTENT SECTIONS ============ -->
+  <main id="content">
+
+    <!-- INTRO -->
+    <section class="content-section" id="intro">
+      <div class="section-inner">
+        <div class="section-text reveal">
+          <h2 class="section-title">What Is a Black Hole?</h2>
+          <p class="section-body">A black hole is a region of spacetime where gravity is so immensely strong that nothing — no particles, not even electromagnetic radiation such as light — can escape once it crosses the boundary known as the <strong>event horizon</strong>.</p>
+          <p class="section-body">The theory of general relativity predicts that a sufficiently compact mass can deform spacetime to form a black hole. The boundary beyond which no escape is possible is called the event horizon. Although it has a great effect on the fate and circumstances of an object crossing it, it has no locally detectable features according to general relativity.</p>
+          <p class="section-source">Source: NASA Science, General Relativity — A. Einstein, 1915</p>
+        </div>
+        <div class="section-visual reveal">
+          <div class="stat-card">
+            <div class="stat-number">100,000,000,000</div>
+            <div class="stat-label">Estimated black holes in the Milky Way alone</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANATOMY -->
+    <section class="content-section dark-section" id="anatomy">
+      <div class="section-inner full-width">
+        <h2 class="section-title center reveal">The Anatomy of a Black Hole</h2>
+        <div class="anatomy-grid">
+          <div class="anatomy-card reveal">
+            <div class="anatomy-icon">◉</div>
+            <h3>Singularity</h3>
+            <p>The very center of a black hole, where matter is crushed to infinite density and the laws of physics as we know them break down. It is a one-dimensional point containing a huge mass in an infinitely small space.</p>
+          </div>
+          <div class="anatomy-card reveal">
+            <div class="anatomy-icon">◎</div>
+            <h3>Event Horizon</h3>
+            <p>The boundary around a black hole beyond which nothing can escape. It is not a physical surface but a mathematically defined boundary. At this point, the escape velocity equals the speed of light — 299,792 km/s.</p>
+          </div>
+          <div class="anatomy-card reveal">
+            <div class="anatomy-icon">◌</div>
+            <h3>Photon Sphere</h3>
+            <p>A spherical region at 1.5 times the Schwarzschild radius where gravity is strong enough that photons are forced to travel in orbits. Any photon entering this sphere tangentially will orbit the black hole.</p>
+          </div>
+          <div class="anatomy-card reveal">
+            <div class="anatomy-icon">≋</div>
+            <h3>Accretion Disk</h3>
+            <p>A flat, disk-shaped structure of gas and dust spiraling into the black hole. Friction heats the material to millions of degrees, making it glow brilliantly in X-rays and visible light. The disk can outshine entire galaxies.</p>
+          </div>
+          <div class="anatomy-card reveal">
+            <div class="anatomy-icon">↕</div>
+            <h3>Relativistic Jets</h3>
+            <p>Powerful beams of ionized matter ejected at nearly the speed of light from the poles of some black holes. These jets can extend thousands of light-years and are powered by magnetic fields twisted by the rotating spacetime.</p>
+          </div>
+          <div class="anatomy-card reveal">
+            <div class="anatomy-icon">◐</div>
+            <h3>Ergosphere</h3>
+            <p>A region outside the event horizon of a rotating (Kerr) black hole where spacetime itself is dragged along. Objects in the ergosphere cannot remain stationary — they are forced to co-rotate with the black hole.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TYPES -->
+    <section class="content-section" id="types">
+      <div class="section-inner full-width">
+        <h2 class="section-title center reveal">Types of Black Holes</h2>
+        <div class="types-grid">
+          <div class="type-card reveal">
+            <div class="type-mass">5 – 100 M☉</div>
+            <h3>Stellar-Mass</h3>
+            <p>Formed when massive stars (more than about 25 solar masses) exhaust their nuclear fuel and collapse under their own gravity in a supernova explosion. The most common type of black hole.</p>
+            <div class="type-example">Example: Cygnus X-1 (~21 M☉)</div>
+          </div>
+          <div class="type-card reveal">
+            <div class="type-mass">100 – 100,000 M☉</div>
+            <h3>Intermediate-Mass</h3>
+            <p>Their existence was long debated until recent evidence confirmed them. They may form through the merger of stellar-mass black holes or by direct collapse of massive gas clouds in the early universe.</p>
+            <div class="type-example">Example: HLX-1 (~20,000 M☉)</div>
+          </div>
+          <div class="type-card reveal">
+            <div class="type-mass">10⁶ – 10¹⁰ M☉</div>
+            <h3>Supermassive</h3>
+            <p>Found at the center of nearly every large galaxy, including our own Milky Way. How they grow so massive is one of the biggest open questions in astrophysics. They may have formed from massive seed black holes in the early universe.</p>
+            <div class="type-example">Example: Sagittarius A* (~4 million M☉)</div>
+          </div>
+          <div class="type-card reveal">
+            <div class="type-mass">≤ 1 M☉ (theoretical)</div>
+            <h3>Primordial</h3>
+            <p>Hypothetical black holes that may have formed in the extreme density and pressure of the early universe, within the first second after the Big Bang. They could range from microscopic to stellar sizes.</p>
+            <div class="type-example">Not yet observed — predicted by Zel'dovich & Hawking (1966–1971)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMATION -->
+    <section class="content-section dark-section" id="formation">
+      <div class="section-inner">
+        <div class="section-text reveal">
+          <h2 class="section-title">How Black Holes Form</h2>
+          <div class="formation-steps">
+            <div class="formation-step">
+              <div class="step-num">01</div>
+              <div class="step-content">
+                <h4>Massive Star</h4>
+                <p>A star at least 25 times the mass of our Sun burns through its hydrogen fuel in its core, fusing heavier and heavier elements up to iron over millions of years.</p>
+              </div>
+            </div>
+            <div class="formation-step">
+              <div class="step-num">02</div>
+              <div class="step-content">
+                <h4>Core Collapse</h4>
+                <p>When the iron core exceeds the Chandrasekhar limit (~1.4 solar masses), electron degeneracy pressure can no longer support it. The core collapses in milliseconds, falling inward at up to 70,000 km/s.</p>
+              </div>
+            </div>
+            <div class="formation-step">
+              <div class="step-num">03</div>
+              <div class="step-content">
+                <h4>Supernova Explosion</h4>
+                <p>The infalling matter bounces off the ultra-dense core, creating a shockwave that tears the outer layers apart in a spectacular supernova — briefly outshining an entire galaxy.</p>
+              </div>
+            </div>
+            <div class="formation-step">
+              <div class="step-num">04</div>
+              <div class="step-content">
+                <h4>Black Hole Birth</h4>
+                <p>If the remaining core exceeds ~3 solar masses (the Tolman–Oppenheimer–Volkoff limit), no known force can halt the collapse. The matter compresses to a singularity, and an event horizon forms — a black hole is born.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAMOUS BLACK HOLES -->
+    <section class="content-section" id="famous">
+      <div class="section-inner full-width">
+        <h2 class="section-title center reveal">Famous Black Holes</h2>
+
+        <div class="famous-entry reveal">
+          <div class="famous-image">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/800px-Black_hole_-_Messier_87_crop_max_res.jpg" alt="First ever image of a black hole — M87* captured by the Event Horizon Telescope in 2019" loading="lazy">
+          </div>
+          <div class="famous-info">
+            <h3>M87* <span class="famous-tag">First Ever Photographed</span></h3>
+            <div class="famous-stats">
+              <div><strong>Mass:</strong> 6.5 billion M☉</div>
+              <div><strong>Distance:</strong> 55 million light-years</div>
+              <div><strong>Galaxy:</strong> Messier 87 (Virgo A)</div>
+              <div><strong>Shadow diameter:</strong> ~42 μas (micro-arcseconds)</div>
+            </div>
+            <p>On April 10, 2019, the Event Horizon Telescope (EHT) collaboration revealed the first-ever direct image of a black hole's shadow. This supermassive black hole sits at the center of the giant elliptical galaxy Messier 87. The bright ring is emission from hot gas swirling around the black hole, with the dark center being the black hole's shadow. The image required eight radio telescopes across the globe working together as an Earth-sized virtual telescope.</p>
+            <p class="section-source">Source: Event Horizon Telescope Collaboration, The Astrophysical Journal Letters, 2019</p>
+          </div>
+        </div>
+
+        <div class="famous-entry reverse reveal">
+          <div class="famous-image">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Sgr_A_star_EHT.jpg/800px-Sgr_A_star_EHT.jpg" alt="Image of Sagittarius A* — the supermassive black hole at the center of the Milky Way" loading="lazy">
+          </div>
+          <div class="famous-info">
+            <h3>Sagittarius A* <span class="famous-tag">Our Galaxy's Heart</span></h3>
+            <div class="famous-stats">
+              <div><strong>Mass:</strong> 4 million M☉</div>
+              <div><strong>Distance:</strong> 26,000 light-years</div>
+              <div><strong>Galaxy:</strong> Milky Way</div>
+              <div><strong>Schwarzschild radius:</strong> ~12 million km</div>
+            </div>
+            <p>Sagittarius A* (Sgr A*) is the supermassive black hole at the center of our Milky Way galaxy. Its existence was confirmed by tracking stars orbiting the galactic center — work that earned Andrea Ghez and Reinhard Genzel the 2020 Nobel Prize in Physics. The EHT captured its image in May 2022, confirming it matched predictions from general relativity. Despite its immense mass, Sgr A* is relatively quiet compared to M87*.</p>
+            <p class="section-source">Source: EHT Collaboration, The Astrophysical Journal Letters, 2022; Nobel Prize Committee, 2020</p>
+          </div>
+        </div>
+
+        <div class="famous-entry reveal">
+          <div class="famous-image">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Cygnus_X-1.png/800px-Cygnus_X-1.png" alt="Artist impression of Cygnus X-1 — the first confirmed black hole" loading="lazy">
+          </div>
+          <div class="famous-info">
+            <h3>Cygnus X-1 <span class="famous-tag">First Confirmed Black Hole</span></h3>
+            <div class="famous-stats">
+              <div><strong>Mass:</strong> ~21 M☉</div>
+              <div><strong>Distance:</strong> 6,070 light-years</div>
+              <div><strong>Constellation:</strong> Cygnus</div>
+              <div><strong>Companion star:</strong> HDE 226868 (blue supergiant)</div>
+            </div>
+            <p>Discovered as an X-ray source in 1964, Cygnus X-1 became the first widely accepted black hole candidate. It is a stellar-mass black hole in a binary system, actively stripping matter from its companion star. This system was the subject of a famous bet between Stephen Hawking and Kip Thorne — Hawking bet against it being a black hole, and conceded in 1990.</p>
+            <p class="section-source">Source: NASA, Webster & Murdin 1972, Bolton 1972</p>
+          </div>
+        </div>
+
+        <div class="famous-entry reverse reveal">
+          <div class="famous-image">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/BH_LMC.png/800px-BH_LMC.png" alt="Simulated view of a black hole with gravitational lensing" loading="lazy">
+          </div>
+          <div class="famous-info">
+            <h3>TON 618 <span class="famous-tag">One of the Most Massive Known</span></h3>
+            <div class="famous-stats">
+              <div><strong>Mass:</strong> ~66 billion M☉</div>
+              <div><strong>Distance:</strong> 10.4 billion light-years</div>
+              <div><strong>Type:</strong> Ultraluminous quasar</div>
+              <div><strong>Schwarzschild radius:</strong> ~1,300 AU</div>
+            </div>
+            <p>TON 618 is a hyperluminous quasar powered by one of the most massive black holes ever discovered. Its Schwarzschild radius extends to about 1,300 times the distance from the Earth to the Sun. The sheer scale is almost incomprehensible — if placed in our solar system, its event horizon would extend far beyond the orbit of Pluto.</p>
+            <p class="section-source">Source: Shemmer et al. 2004, The Astrophysical Journal</p>
+          </div>
+        </div>
+
+        <div class="famous-entry reveal">
+          <div class="famous-image">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg/800px-Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg" alt="Artist impression of Gaia BH1 - the nearest known black hole" loading="lazy">
+          </div>
+          <div class="famous-info">
+            <h3>Gaia BH1 <span class="famous-tag">Nearest Known</span></h3>
+            <div class="famous-stats">
+              <div><strong>Mass:</strong> ~10 M☉</div>
+              <div><strong>Distance:</strong> ~1,560 light-years</div>
+              <div><strong>Constellation:</strong> Ophiuchus</div>
+              <div><strong>Discovery:</strong> 2022 (Gaia spacecraft)</div>
+            </div>
+            <p>Gaia BH1 is the closest known black hole to Earth, discovered using the European Space Agency's Gaia spacecraft. It is a dormant black hole — meaning it is not actively consuming matter, making it invisible in X-rays. It was found by tracking the wobble of its Sun-like companion star as it orbits the invisible black hole.</p>
+            <p class="section-source">Source: El-Badry et al. 2023, Monthly Notices of the Royal Astronomical Society</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY TIMELINE -->
+    <section class="content-section dark-section" id="history">
+      <div class="section-inner full-width">
+        <h2 class="section-title center reveal">History of Discovery</h2>
+        <div class="timeline">
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1783</div>
+            <div class="timeline-content">
+              <h4>John Michell's "Dark Stars"</h4>
+              <p>English geologist John Michell proposes the idea of a body so massive that even light could not escape its gravitational pull, calling them "dark stars." He calculated that such an object with the density of the Sun would have a radius 500 times that of the Sun.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1796</div>
+            <div class="timeline-content">
+              <h4>Laplace Refines the Concept</h4>
+              <p>French mathematician Pierre-Simon Laplace independently arrives at a similar conclusion in his work "Exposition du système du monde," predicting invisible stars based on Newtonian gravity.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1915</div>
+            <div class="timeline-content">
+              <h4>Einstein's General Relativity</h4>
+              <p>Albert Einstein publishes his field equations of general relativity, fundamentally changing our understanding of gravity as the curvature of spacetime caused by mass and energy.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1916</div>
+            <div class="timeline-content">
+              <h4>Schwarzschild Solution</h4>
+              <p>Karl Schwarzschild finds the first exact solution to Einstein's field equations, describing the spacetime geometry around a non-rotating spherical mass. This solution predicts the existence of a "Schwarzschild radius" — what we now call the event horizon.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1931</div>
+            <div class="timeline-content">
+              <h4>Chandrasekhar Limit</h4>
+              <p>Subrahmanyan Chandrasekhar calculates that white dwarf stars above 1.4 solar masses cannot be supported by electron degeneracy pressure and must collapse further, hinting at the inevitability of gravitational collapse for massive stars.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1939</div>
+            <div class="timeline-content">
+              <h4>Oppenheimer-Snyder Collapse</h4>
+              <p>Robert Oppenheimer and Hartland Snyder publish "On Continued Gravitational Contraction," demonstrating that a sufficiently massive star will collapse indefinitely, crossing the Schwarzschild radius to form what we now call a black hole.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1958</div>
+            <div class="timeline-content">
+              <h4>Event Horizon Understood</h4>
+              <p>David Finkelstein identifies the Schwarzschild surface as a one-way membrane — the event horizon — clarifying that it is not a physical barrier but a causal boundary from which no information can escape.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1963</div>
+            <div class="timeline-content">
+              <h4>Kerr Rotating Black Hole</h4>
+              <p>Roy Kerr discovers the exact solution for a rotating black hole, which is far more realistic than Schwarzschild's non-rotating case. The Kerr solution reveals the ergosphere and frame-dragging effects.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1967</div>
+            <div class="timeline-content">
+              <h4>The Term "Black Hole" Is Coined</h4>
+              <p>Physicist John Wheeler popularizes the term "black hole" at a NASA conference in New York, replacing earlier terms like "frozen star" and "gravitationally completely collapsed object."</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1971</div>
+            <div class="timeline-content">
+              <h4>Cygnus X-1 Identified</h4>
+              <p>The X-ray source Cygnus X-1, discovered in 1964, is identified as a strong black hole candidate based on its mass exceeding the maximum for a neutron star. It becomes the first widely accepted black hole.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">1974</div>
+            <div class="timeline-content">
+              <h4>Hawking Radiation</h4>
+              <p>Stephen Hawking predicts that black holes are not entirely black — they emit thermal radiation due to quantum effects near the event horizon. This implies that black holes slowly evaporate over immense timescales, connecting general relativity with quantum mechanics.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">2015</div>
+            <div class="timeline-content">
+              <h4>Gravitational Waves Detected</h4>
+              <p>LIGO detects gravitational waves for the first time — ripples in spacetime from two black holes merging 1.3 billion light-years away (GW150914). Each black hole was about 30 solar masses. This confirms a major prediction of general relativity and earns the 2017 Nobel Prize.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">2019</div>
+            <div class="timeline-content">
+              <h4>First Image of a Black Hole</h4>
+              <p>The Event Horizon Telescope captures the first-ever direct image of a black hole shadow — M87*, revealing the glowing ring of superheated gas around the 6.5-billion-solar-mass monster at the heart of galaxy Messier 87.</p>
+            </div>
+          </div>
+          <div class="timeline-item reveal">
+            <div class="timeline-year">2022</div>
+            <div class="timeline-content">
+              <h4>Sagittarius A* Revealed</h4>
+              <p>The EHT releases the image of Sgr A*, the supermassive black hole at the center of our own Milky Way galaxy, confirming decades of indirect evidence and marking a new era in black hole science.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHYSICS -->
+    <section class="content-section" id="physics">
+      <div class="section-inner full-width">
+        <h2 class="section-title center reveal">The Physics of Black Holes</h2>
+        <div class="physics-grid">
+          <div class="physics-card reveal">
+            <h3>Gravitational Lensing</h3>
+            <p>The immense gravity of a black hole bends light from objects behind it, creating distorted, magnified, or multiple images. This effect, predicted by Einstein in 1936, has been observed around galaxies and galaxy clusters. Near a black hole, it produces the distinctive photon ring visible in EHT images.</p>
+            <div class="physics-equation">θ = 4GM/(c²b)</div>
+            <div class="physics-eq-label">Einstein's deflection angle for a ray with impact parameter b</div>
+          </div>
+          <div class="physics-card reveal">
+            <h3>Time Dilation</h3>
+            <p>As you approach a black hole, time slows down relative to a distant observer. At the event horizon, time effectively stops from the outside perspective. A clock near a black hole would tick slower and slower. This is not science fiction — GPS satellites must account for gravitational time dilation to maintain accuracy.</p>
+            <div class="physics-equation">Δt' = Δt × √(1 − rₛ/r)</div>
+            <div class="physics-eq-label">Gravitational time dilation in Schwarzschild spacetime</div>
+          </div>
+          <div class="physics-card reveal">
+            <h3>Hawking Radiation</h3>
+            <p>Quantum fluctuations near the event horizon create virtual particle-antiparticle pairs. Occasionally, one particle falls into the black hole while the other escapes, carrying away energy. Over astronomical timescales, this causes the black hole to lose mass and eventually evaporate. A stellar-mass black hole would take ~10⁶⁷ years to evaporate — far longer than the current age of the universe (13.8 billion years).</p>
+            <div class="physics-equation">T = ℏc³/(8πGMk_B)</div>
+            <div class="physics-eq-label">Hawking temperature — inversely proportional to mass</div>
+          </div>
+          <div class="physics-card reveal">
+            <h3>Spaghettification</h3>
+            <p>The tidal forces near a black hole stretch objects along the direction of the gravitational gradient and compress them perpendicular to it. For stellar-mass black holes, this happens far outside the event horizon. For supermassive ones, the tidal forces at the horizon are surprisingly gentle — you could cross without being torn apart (but you could never return).</p>
+            <div class="physics-equation">ΔF ∝ M/r³</div>
+            <div class="physics-eq-label">Tidal force gradient — stronger for smaller, closer black holes</div>
+          </div>
+          <div class="physics-card reveal">
+            <h3>Information Paradox</h3>
+            <p>If a black hole evaporates completely via Hawking radiation, what happens to the information about everything that fell in? Quantum mechanics says information cannot be destroyed, but general relativity says it vanishes behind the event horizon. This paradox, formulated by Hawking in 1976, remains one of the deepest unsolved problems in theoretical physics.</p>
+          </div>
+          <div class="physics-card reveal">
+            <h3>Gravitational Waves</h3>
+            <p>When two black holes spiral together and merge, they produce ripples in the fabric of spacetime — gravitational waves. These waves travel at the speed of light and were first directly detected by LIGO in 2015. The merger briefly radiated more energy than all the stars in the observable universe combined.</p>
+            <div class="physics-equation">P = (32/5) × G⁴/c⁵ × (m₁m₂)²(m₁+m₂)/r⁵</div>
+            <div class="physics-eq-label">Power radiated in gravitational waves by a binary system</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BY THE NUMBERS -->
+    <section class="content-section dark-section" id="numbers">
+      <div class="section-inner full-width">
+        <h2 class="section-title center reveal">By the Numbers</h2>
+        <div class="numbers-grid">
+          <div class="number-card reveal">
+            <div class="big-number" data-count="299792">299,792</div>
+            <div class="number-unit">km/s</div>
+            <div class="number-label">Speed of light — the escape velocity at the event horizon</div>
+          </div>
+          <div class="number-card reveal">
+            <div class="big-number">66,000,000,000</div>
+            <div class="number-unit">solar masses</div>
+            <div class="number-label">Mass of TON 618 — one of the most massive black holes known</div>
+          </div>
+          <div class="number-card reveal">
+            <div class="big-number">1,560</div>
+            <div class="number-unit">light-years</div>
+            <div class="number-label">Distance to Gaia BH1 — the nearest known black hole</div>
+          </div>
+          <div class="number-card reveal">
+            <div class="big-number">55,000,000</div>
+            <div class="number-unit">light-years</div>
+            <div class="number-label">Distance to M87* — the first black hole ever photographed</div>
+          </div>
+          <div class="number-card reveal">
+            <div class="big-number">10,000,000</div>
+            <div class="number-unit">°C</div>
+            <div class="number-label">Temperature of gas in the accretion disk, heated by friction</div>
+          </div>
+          <div class="number-card reveal">
+            <div class="big-number">10<sup>67</sup></div>
+            <div class="number-unit">years</div>
+            <div class="number-label">Time for a stellar-mass black hole to evaporate via Hawking radiation</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOUND SECTION -->
+    <section class="content-section" id="sound-section">
+      <div class="section-inner">
+        <div class="section-text reveal">
+          <h2 class="section-title">The Sound of a Black Hole</h2>
+          <p class="section-body">In 2003, NASA's Chandra X-ray Observatory detected sound waves propagating through the hot gas surrounding the supermassive black hole at the center of the Perseus galaxy cluster. The sound wave, a pressure wave in the intracluster medium, corresponds to a B-flat note, 57 octaves below middle C — a frequency about one million billion times lower than the lowest sounds humans can hear.</p>
+          <p class="section-body">In 2022, NASA released a "sonification" of this data, shifting the frequencies up by 57–58 octaves into the range of human hearing. The result is an eerie, rumbling drone — the sound of a supermassive black hole resonating through 200,000 light-years of hot gas.</p>
+          <p class="section-body">The simulation on this page generates a similar deep drone using synthesized tones. Toggle the sound button in the top-right corner to listen.</p>
+          <p class="section-source">Source: NASA Chandra X-ray Observatory, Fabian et al. 2003</p>
+        </div>
+        <div class="section-visual reveal">
+          <div class="stat-card sound-card">
+            <div class="stat-number">57</div>
+            <div class="stat-label">octaves below middle C — the deepest note ever detected in the universe</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTERSTELLAR -->
+    <section class="content-section dark-section" id="interstellar">
+      <div class="section-inner">
+        <div class="section-text reveal">
+          <h2 class="section-title">Black Holes in Cinema: Interstellar</h2>
+          <p class="section-body">The 2014 film <em>Interstellar</em>, directed by Christopher Nolan, featured the most scientifically accurate depiction of a black hole ever created for cinema. Working with theoretical physicist Kip Thorne, the visual effects team at Double Negative developed a new ray-tracing renderer called DNGR (Double Negative Gravitational Renderer) that solved the equations of general relativity for tens of millions of light rays.</p>
+          <p class="section-body">The resulting image of the fictional black hole "Gargantua" revealed unexpected visual features — particularly the warped appearance of the accretion disk, which wraps around the black hole due to gravitational lensing. Light from the back of the disk curves over the top and under the bottom, creating the distinctive halo.</p>
+          <p class="section-body">The simulation on this page uses similar (though simplified) ray-tracing principles, solving photon trajectories in Schwarzschild spacetime to produce the lensing effect you see.</p>
+          <p class="section-source">Source: James et al. "Gravitational Lensing by Spinning Black Holes in Astrophysics, and in the Movie Interstellar," 2015, Classical and Quantum Gravity</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL FACTS -->
+    <section class="content-section" id="facts">
+      <div class="section-inner full-width">
+        <h2 class="section-title center reveal">Fascinating Facts</h2>
+        <div class="facts-grid">
+          <div class="fact-card reveal">
+            <div class="fact-icon">🌀</div>
+            <p>If you compressed the Earth to the size of a marble (about 9mm), it would become a black hole.</p>
+          </div>
+          <div class="fact-card reveal">
+            <div class="fact-icon">⏱</div>
+            <p>Time stops at the event horizon from the perspective of a distant observer. You would never see someone cross it — they would appear to slow down, redden, and fade away forever.</p>
+          </div>
+          <div class="fact-card reveal">
+            <div class="fact-icon">🔊</div>
+            <p>The black hole at the center of the Perseus cluster produces the deepest note ever detected — 57 octaves below middle C.</p>
+          </div>
+          <div class="fact-card reveal">
+            <div class="fact-icon">💫</div>
+            <p>The supermassive black hole in galaxy NGC 1277 makes up 14% of its galaxy's total mass — an unusually high ratio that challenges formation theories.</p>
+          </div>
+          <div class="fact-card reveal">
+            <div class="fact-icon">🌊</div>
+            <p>When LIGO detected the first gravitational wave merger (GW150914), the two black holes released more energy in 0.2 seconds than all the stars in the observable universe combined.</p>
+          </div>
+          <div class="fact-card reveal">
+            <div class="fact-icon">⚡</div>
+            <p>Quasars — active supermassive black holes feeding on matter — are the brightest objects in the universe. Some outshine their entire host galaxy by a factor of 100.</p>
+          </div>
+          <div class="fact-card reveal">
+            <div class="fact-icon">🧲</div>
+            <p>The magnetic field lines near a black hole can become so twisted that they launch jets of plasma at 99.99% the speed of light, extending thousands of light-years into space.</p>
+          </div>
+          <div class="fact-card reveal">
+            <div class="fact-icon">🪐</div>
+            <p>If our Sun were replaced with a black hole of the same mass, Earth's orbit would not change. The gravitational pull at our distance would be identical — but we'd freeze in darkness.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-title">BLACK HOLE</div>
+        <p class="footer-text">All scientific information sourced from NASA, ESA, the Event Horizon Telescope Collaboration, and peer-reviewed astrophysical journals.</p>
+        <p class="footer-text">3D simulation uses ray-tracing in Schwarzschild spacetime with Three.js and WebGL.</p>
+        <div class="footer-credits">
+          <p>Images: NASA, ESA, EHT Collaboration, ESO — used under public domain / CC BY 4.0</p>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Three.js -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

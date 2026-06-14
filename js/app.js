@@ -7,6 +7,12 @@
 import { BlackHoleRenderer } from './blackhole.js';
 import { BlackHoleAudio } from './audio.js';
 import { ParticleSystem } from './particles.js';
+import {
+  PerformanceEngine,
+  setLowGraphics,
+  setMediumGraphics,
+  setHighGraphics,
+} from './performance.js';
 
 // ---------- TON 618 Scale Constants ----------
 // TON 618: 66 billion solar masses
@@ -193,26 +199,43 @@ function initCreationMode(bhRenderer, particleSystem) {
 async function init() {
   const canvas = document.getElementById('blackhole-canvas');
 
-  // Initialize renderers
+  // Инициализация рендереров
   const bhRenderer = new BlackHoleRenderer(canvas);
   const particleSystem = new ParticleSystem(bhRenderer);
 
-  // Animation loop
+  // Движок производительности — подключаем колбэки графики
+  const gl = bhRenderer.renderer.getContext();
+  const uniforms = bhRenderer.uniforms;
+  const renderer3 = bhRenderer.renderer;
+
+  const perfEngine = new PerformanceEngine(gl, {
+    onLow:    (profile) => setLowGraphics(renderer3, uniforms, profile),
+    onMedium: (profile) => setMediumGraphics(renderer3, uniforms, profile),
+    onHigh:   (profile) => setHighGraphics(renderer3, uniforms, profile),
+  });
+
+  // Запускаем бенчмарк (первые 4 секунды)
+  perfEngine.startBenchmark();
+
+  // Цикл анимации — без ограничения FPS (следует за частотой монитора)
   const startTime = performance.now();
   let lastTime = startTime;
 
   function animate() {
     const now = performance.now();
     const elapsed = (now - startTime) / 1000;
-    const dt = Math.min((now - lastTime) / 1000, 0.05); // cap dt
+    const dt = Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
 
-    // Update black hole shader
+    // Обновляем шейдер чёрной дыры
     bhRenderer.update(elapsed);
 
-    // Update and render particles on top
+    // Частицы поверх шейдера
     particleSystem.update(dt);
     particleSystem.render(bhRenderer.renderer);
+
+    // Тик движка производительности (бенчмарк + рантайм-мониторинг)
+    perfEngine.tick();
 
     requestAnimationFrame(animate);
   }

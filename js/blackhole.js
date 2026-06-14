@@ -6,18 +6,10 @@
 //   - Gravitational lensing (Einstein ring)
 //   - Doppler beaming & gravitational redshift
 //   - Frame dragging
-//   - Auto-adaptive GPU quality tiers
+//   - Auto-adaptive GPU quality via performance.js
 // ============================================
 
 import * as THREE from 'three';
-
-// ---------- Quality Presets ----------
-const QUALITY = {
-  ultra:  { steps: 300, resMul: 1.0,  label: 'Ultra' },
-  high:   { steps: 220, resMul: 0.85, label: 'High' },
-  medium: { steps: 150, resMul: 0.7,  label: 'Medium' },
-  low:    { steps: 90,  resMul: 0.5,  label: 'Low' },
-};
 
 // ---------- GLSL ----------
 
@@ -318,122 +310,8 @@ export class BlackHoleRenderer {
     this.autoRotate   = true;
     this.heroElement  = null;
 
-    // Performance monitoring
-    this.quality      = 'medium';
-    this.frameCount   = 0;
-    this.fpsAccum     = 0;
-    this.lastFpsTime  = 0;
-    this.qualityLocked = false;
-    this.fpsReadings  = [];
-
     this.init();
-    this.detectGPU();
     this.setupControls();
-  }
-
-  // ---------- GPU Detection ----------
-  detectGPU() {
-    const gl = this.renderer.getContext();
-    const ext = gl.getExtension('WEBGL_debug_renderer_info');
-    if (!ext) { this.applyQuality('medium'); return; }
-
-    const gpu = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL).toLowerCase();
-    console.log('[BH] GPU:', gpu);
-
-    // High-end desktop / Apple Silicon
-    if (/rtx|rx\s?[67]|radeon\s?pro|apple\s?m[1-9]|arc\s?a[7-9]/i.test(gpu)) {
-      this.applyQuality('ultra');
-    }
-    // Mid-range desktop
-    else if (/gtx\s?1[06-9]|gtx\s?[2-9]|rx\s?5[5-9]|rx\s?6[0-4]|intel\s?iris\s?xe|apple/i.test(gpu)) {
-      this.applyQuality('high');
-    }
-    // Integrated / older
-    else if (/intel.*uhd|intel.*hd|mali|adreno\s?[4-5]|powervr/i.test(gpu)) {
-      this.applyQuality('low');
-    }
-    // Mobile high-end (Adreno 6xx+, Mali-G7x+)
-    else if (/adreno\s?[6-7]|mali-g7|mali-g[8-9]/i.test(gpu)) {
-      this.applyQuality('medium');
-    }
-    else {
-      this.applyQuality('medium');
-    }
-  }
-
-  applyQuality(level) {
-    const preset = QUALITY[level];
-    if (!preset) return;
-    this.quality = level;
-    this.uniforms.uMaxSteps.value = preset.steps;
-
-    const dpr = Math.min(window.devicePixelRatio, 2.0) * preset.resMul;
-    this.renderer.setPixelRatio(dpr);
-    const w = window.innerWidth, h = window.innerHeight;
-    this.renderer.setSize(w, h);
-    this.uniforms.uResolution.value.set(w * dpr, h * dpr);
-
-    this.showQualityBadge(preset.label);
-    console.log(`[BH] Quality: ${preset.label} (${preset.steps} steps, ${(preset.resMul * 100).toFixed(0)}% res)`);
-  }
-
-  showQualityBadge(label) {
-    let badge = document.getElementById('quality-badge');
-    if (!badge) {
-      badge = document.createElement('div');
-      badge.id = 'quality-badge';
-      badge.style.cssText = `
-        position:fixed; bottom:12px; left:12px; z-index:900;
-        padding:4px 10px; border-radius:6px;
-        background:rgba(255,255,255,0.08); backdrop-filter:blur(6px);
-        color:rgba(255,255,255,0.5); font:500 11px/1 'Inter',sans-serif;
-        letter-spacing:0.5px; text-transform:uppercase;
-        pointer-events:none; transition:opacity 1s ease;
-      `;
-      document.body.appendChild(badge);
-    }
-    badge.textContent = label;
-    badge.style.opacity = '1';
-    clearTimeout(this._badgeTimer);
-    this._badgeTimer = setTimeout(() => { badge.style.opacity = '0'; }, 5000);
-  }
-
-  // ---------- FPS Monitor (auto-adjust quality) ----------
-  monitorFPS(now) {
-    if (this.qualityLocked) return;
-    this.frameCount++;
-    if (this.lastFpsTime === 0) { this.lastFpsTime = now; return; }
-
-    const elapsed = now - this.lastFpsTime;
-    if (elapsed > 2000) {
-      const fps = (this.frameCount / elapsed) * 1000;
-      this.fpsReadings.push(fps);
-      this.frameCount = 0;
-      this.lastFpsTime = now;
-
-      // Need at least 3 readings (6 seconds) before adjusting
-      if (this.fpsReadings.length >= 3) {
-        const avgFps = this.fpsReadings.reduce((a, b) => a + b) / this.fpsReadings.length;
-        const tiers = ['low', 'medium', 'high', 'ultra'];
-        const idx = tiers.indexOf(this.quality);
-
-        if (avgFps < 24 && idx > 0) {
-          // Downgrade
-          this.applyQuality(tiers[idx - 1]);
-          this.fpsReadings = [];
-        } else if (avgFps > 55 && idx < 3) {
-          // Upgrade
-          this.applyQuality(tiers[idx + 1]);
-          this.fpsReadings = [];
-        } else {
-          // Stable — lock after 4 stable periods
-          if (this.fpsReadings.length >= 6) {
-            this.qualityLocked = true;
-            console.log(`[BH] Quality locked at ${this.quality} (avg ${avgFps.toFixed(0)} FPS)`);
-          }
-        }
-      }
-    }
   }
 
   // ---------- Init ----------
@@ -569,10 +447,8 @@ export class BlackHoleRenderer {
 
   // ---------- Resize ----------
   onResize() {
-    const preset = QUALITY[this.quality];
-    const dpr = Math.min(window.devicePixelRatio, 2.0) * preset.resMul;
     const w = window.innerWidth, h = window.innerHeight;
-    this.renderer.setPixelRatio(dpr);
+    const dpr = this.renderer.getPixelRatio(); // сохраняем текущий DPR
     this.renderer.setSize(w, h);
     this.uniforms.uResolution.value.set(w * dpr, h * dpr);
   }
@@ -590,7 +466,6 @@ export class BlackHoleRenderer {
     this.uniforms.uCamPhi.value   = this.currentPhi;
 
     this.renderer.render(this.scene, this.camera);
-    this.monitorFPS(performance.now());
   }
 
   dispose() {

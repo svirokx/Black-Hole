@@ -284,17 +284,23 @@ void main() {
     pos   = newPos;
   }
 
-  // ---- Захват лучей: если луч не вылетел за r=50, он поглощён ЧД ----
-  // Вычисляем финальный r из позиции (r был объявлен внутри цикла)
+  // ---- Захват лучей ----
+  // Луч не вылетел за r=50: проверяем, захвачен ли он или просто не хватило шагов
   {
     float fr2_xy  = dot(pos.xz, pos.xz);
     float fr2_bls = fr2_xy + pos.y * pos.y - a * a;
     float finalR  = sqrt(0.5 * (fr2_bls + sqrt(fr2_bls * fr2_bls + 4.0 * a * a * pos.y * pos.y)));
-    // Луч не вылетел → поглощён чёрной дырой → абсолютная чернота
     if (!hitHorizon && finalR < 50.0) {
-      hitHorizon = true;
-      color = vec3(0.0);
-      diskAlpha = 1.0;
+      float radVel = dot(normalize(pos), vel);
+      // Если луч далеко от ЧД и летит наружу — он просто не успел выйти за 50,
+      // но уже на траектории побега. Не захватываем.
+      if (finalR > 8.0 && radVel > 0.05) {
+        // Ушедший луч — используем текущее vel для звёзд/фона
+      } else {
+        hitHorizon = true;
+        color = vec3(0.0);
+        diskAlpha = 1.0;
+      }
     }
   }
 
@@ -340,6 +346,44 @@ void main() {
     // Тонкая яркая каустика у самого края тени (только для вылетевших лучей)
     float caustic = exp(-pow(rimDist * 8.0, 2.0)) * 0.05;
     color += vec3(1.0, 0.92, 0.75) * caustic;
+  }
+
+  // ---- Линзированный диск (physics-based wrapping) ----
+  // Лучи, прошедшие близко к ЧД, видят заднюю сторону диска
+  // через гравитационное линзирование — «обволакивание» как в Интерстелларе.
+  // Используем closestR (реальная физика луча), а не экранные координаты.
+  if (!hitHorizon && closestR < 5.0 && diskAlpha < 0.9) {
+    // Сила изгиба: чем ближе к ЧД, тем сильнее обволакивание
+    float bendStrength = exp(-(closestR - R_HORIZON) * 1.5);
+
+    // Вертикальная видимость: обволакивание видно сверху/снизу тени,
+    // по бокам — прямой диск виден напрямую
+    float uvAngle = atan(uv.y, uv.x);
+    float vertFactor = abs(sin(uvAngle));
+
+    // При боковом ракурсе (edge-on) обволакивание сильнее
+    float edgeness = sin(uCamTheta);
+    float wrapVis = bendStrength * vertFactor * smoothstep(0.1, 0.45, edgeness) * 0.55;
+
+    if (wrapVis > 0.005) {
+      // Позиция на задней стороне диска: ближние лучи видят внутренний диск
+      float dR = mix(DISK_INNER + 0.5, DISK_OUTER * 0.45,
+                    clamp((closestR - R_HORIZON) / 2.5, 0.0, 1.0));
+
+      // Угол: используем ОТКЛОНЁННОЕ направление луча (vel) — вращается с диском
+      float dA = atan(vel.z, vel.x) + PI;
+
+      vec3 lCol = diskColor(dR, dA, uTime);
+
+      // Доплеровская асимметрия приближающейся/удаляющейся стороны
+      float dopplerHint = 1.0 + 0.3 * cos(dA - uCamPhi);
+      lCol *= dopplerHint;
+
+      // Гравитационное красное смещение
+      float grs = sqrt(max(0.0, 1.0 - 2.0 * M / (dR + 0.01)));
+
+      color += lCol * wrapVis * grs * (1.0 - diskAlpha * 0.4);
+    }
   }
 
   // ---- Горизонт событий → абсолютная чернота ----

@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://ga.jspm.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://upload.wikimedia.org https://*.wikipedia.org data:; connect-src 'self'; frame-ancestors 'none';">
+  <!-- Security -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net https://ga.jspm.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://upload.wikimedia.org https://*.wikipedia.org data:; connect-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none';">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()">
   <title>Black Hole — TON 618 Supermassive Simulation</title>
   <meta name="description" content="Experience TON 618, one of the most massive black holes ever discovered (66 billion solar masses), through a realistic Kerr-metric 3D simulation with gravitational lensing, Doppler beaming, and scale comparison.">
   <meta name="keywords" content="black hole, simulation, 3D, gravitational lensing, accretion disk, event horizon, Interstellar, M87, Sagittarius A, NASA, astrophysics">

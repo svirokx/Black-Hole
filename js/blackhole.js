@@ -136,7 +136,7 @@ vec3 diskColor(float r, float angle, float t) {
   float innerFade = smoothstep(DISK_INNER - 0.1, DISK_INNER + 0.4, r);
   float outerFade = smoothstep(DISK_OUTER, DISK_OUTER - 3.0, r);
 
-  return col * brightness * innerFade * outerFade * 2.8;
+  return col * brightness * innerFade * outerFade * 2.2;
 }
 
 // ==================== Main ====================
@@ -275,23 +275,26 @@ void main() {
       }
     }
 
-    // Volumetric disk glow — FAT glowing torus, very visible
+    // Volumetric disk glow — follows disk rotation, fades at edge-on view
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
-    if (absY < 5.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
-      // Disk is VERY FAT at inner edge (turbulent puffed up) → thins toward outer
-      float thickness = mix(2.8, 0.5, smoothstep(DISK_INNER, DISK_OUTER * 0.5, diskR));
-      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.10;
+    if (absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
+      float thickness = mix(1.8, 0.35, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
+      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.055;
       float dAng = atan(newPos.z, newPos.x);
-      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.7;
+      // Use full diskColor so the glow ROTATES and has spiral structure
+      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.45;
+      // Fade glow when viewing edge-on (camera near disk plane)
+      float edgeFade = 1.0 - smoothstep(0.3, 0.95, sin(uCamTheta));
+      vol *= edgeFade;
       color     += vCol * vol * (1.0 - diskAlpha);
-      diskAlpha += vol * 0.3 * (1.0 - diskAlpha);
+      diskAlpha += vol * 0.12 * (1.0 - diskAlpha);
     }
 
     // Hot corona — bright glowing gas near photon sphere
-    if (r < 6.0 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
+    if (r < 5.5 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
       float coronaDist = r - R_HORIZON;
-      float coronaGlow = exp(-coronaDist * 1.0) * 0.018;
+      float coronaGlow = exp(-coronaDist * 1.2) * 0.014;
       vec3 coronaCol = mix(vec3(1.0, 0.55, 0.15), vec3(0.6, 0.75, 1.0), exp(-coronaDist * 3.0));
       color += coronaCol * coronaGlow * (1.0 - diskAlpha);
     }
@@ -502,7 +505,7 @@ export class BlackHoleRenderer {
       if (!this.isDragging) return;
       this.targetPhi   += (e.clientX - this.lastMouse.x) * 0.005;
       this.targetTheta -= (e.clientY - this.lastMouse.y) * 0.005;
-      this.targetTheta  = Math.max(0.15, Math.min(Math.PI - 0.15, this.targetTheta));
+      this.targetTheta  = Math.max(0.35, Math.min(Math.PI * 0.52, this.targetTheta));
       this.lastMouse.x  = e.clientX;
       this.lastMouse.y  = e.clientY;
     });
@@ -551,7 +554,7 @@ export class BlackHoleRenderer {
           e.preventDefault();
           this.targetPhi   += dx * 0.005;
           this.targetTheta -= dy * 0.005;
-          this.targetTheta  = Math.max(0.15, Math.min(Math.PI - 0.15, this.targetTheta));
+          this.targetTheta  = Math.max(0.35, Math.min(Math.PI * 0.52, this.targetTheta));
           this.lastMouse.x  = e.touches[0].clientX;
           this.lastMouse.y  = e.touches[0].clientY;
         }

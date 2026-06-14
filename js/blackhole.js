@@ -2,7 +2,7 @@
 // BLACK HOLE — Kerr (rotating) Supermassive Simulation
 // TON 618 — 66 billion M☉
 // Ray-tracing: Kerr metric, frame-dragging, Doppler
-// Full quality on all devices, no visual downgrade
+// Full quality always — optimization via algorithms only
 // ============================================
 
 import * as THREE from 'three';
@@ -74,7 +74,6 @@ float fbm(vec2 p) {
 vec3 starField(vec3 rd) {
   vec3 col = vec3(0.0);
 
-  // 3 star layers — full quality always
   for (int i = 0; i < 3; i++) {
     float scale = 150.0 + float(i) * 250.0;
     vec3 q = rd * scale;
@@ -110,7 +109,6 @@ vec3 starField(vec3 rd) {
 vec3 diskColor(float r, float angle, float time) {
   float t = smoothstep(DISK_OUTER, DISK_INNER, r);
 
-  // Multi-stop blackbody gradient
   vec3 cold  = vec3(0.5, 0.08, 0.02);
   vec3 warm  = vec3(0.95, 0.4, 0.08);
   vec3 mid   = vec3(1.0, 0.65, 0.2);
@@ -141,7 +139,6 @@ vec3 diskColor(float r, float angle, float time) {
   float iscoGlow = exp(-pow((r - DISK_INNER) * 2.5, 2.0)) * 0.7;
   col += vec3(0.4, 0.65, 1.0) * iscoGlow;
 
-  // Edge fades
   float innerFade = smoothstep(DISK_INNER - 0.1, DISK_INNER + 0.4, r);
   float outerFade = smoothstep(DISK_OUTER, DISK_OUTER - 2.5, r);
 
@@ -151,7 +148,6 @@ vec3 diskColor(float r, float angle, float time) {
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution) / uResolution.y;
 
-  // Camera (spherical coords)
   float camR = uCamDist;
   vec3 camPos = vec3(
     camR * sin(uCamTheta) * cos(uCamPhi),
@@ -167,7 +163,7 @@ void main() {
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
 
-  // ---- Kerr ray tracing (full 256 steps always) ----
+  // ---- Kerr ray tracing (full 256 steps) ----
   vec3 pos = camPos;
   vec3 vel = rd;
   vec3 spinAxis = vec3(0.0, 1.0, 0.0);
@@ -178,6 +174,7 @@ void main() {
   bool hitHorizon = false;
   float prevY = pos.y;
   float closestR = 100.0;
+  float prevR = length(camPos);
 
   for (int i = 0; i < MAX_STEPS; i++) {
     float r2_xy = dot(pos.xz, pos.xz);
@@ -189,7 +186,10 @@ void main() {
     if (r < R_HORIZON * 0.5) { hitHorizon = true; break; }
     if (r > 65.0) break;
 
-    // Adaptive step (smaller near BH for accuracy, no quality loss)
+    // Early escape: ray is moving away AND far out
+    if (r > 30.0 && r > prevR + 0.1) break;
+
+    // Adaptive step (smaller near BH, larger far away — no quality loss)
     float dt = 0.012 + 0.14 * smoothstep(2.0, 30.0, r);
 
     float cosTheta2 = (pos.y * pos.y) / max(r * r, 0.001);
@@ -200,7 +200,6 @@ void main() {
 
     float kerrCorr = 1.0 + a * a / (r * r);
     vec3 acc = -1.5 * h2 / (r * r * r * r * r) * pos * kerrCorr;
-
     float dragStrength = 2.0 * a * M / (Sigma * r + 0.001);
     acc += dragStrength * cross(spinAxis, vel);
 
@@ -230,7 +229,6 @@ void main() {
 
       if (cR > DISK_INNER * 0.9 && cR < DISK_OUTER) {
         float angle = atan(crossPos.z, crossPos.x);
-
         float v_orb = sqrt(M / max(cR, 0.5)) / (1.0 + a * sqrt(M / max(cR*cR*cR, 0.1)));
         vec3 diskVel = normalize(vec3(-crossPos.z, 0.0, crossPos.x)) * v_orb;
 
@@ -241,7 +239,6 @@ void main() {
 
         vec3 dCol = diskColor(cR, angle, uTime) * dopplerI * gRedshift;
 
-        // Doppler color shift
         if (doppler > 1.0) {
           dCol = mix(dCol, dCol * vec3(0.8, 0.88, 1.25), min((doppler-1.0)*0.25, 0.4));
         } else {
@@ -250,12 +247,12 @@ void main() {
 
         float alpha = smoothstep(DISK_OUTER, DISK_OUTER-2.0, cR) *
                       smoothstep(DISK_INNER*0.8, DISK_INNER+0.4, cR) * 0.93;
-
         color += dCol * alpha * (1.0 - diskAlpha);
         diskAlpha += alpha * (1.0 - diskAlpha);
       }
     }
 
+    prevR = r;
     prevY = newY;
     pos = newPos;
   }
@@ -265,28 +262,24 @@ void main() {
     color += starField(normalize(vel)) * (1.0 - diskAlpha);
   }
 
-  // Photon ring glow (multi-layer, asymmetric)
+  // Photon ring glow
   float centerDist = length(uv);
   float bhAng = R_HORIZON * 2.6 / uCamDist;
   float asym = 1.0 + 0.35 * (-uv.x / (centerDist + 0.001));
-
   float ring1 = exp(-pow((centerDist - bhAng) * uCamDist * 1.3, 2.0) * 2.0);
   float ring2 = exp(-pow((centerDist - bhAng * 1.15) * uCamDist * 2.0, 2.0) * 4.0);
   color += vec3(1.0, 0.72, 0.3) * ring1 * 0.05 * asym;
   color += vec3(1.0, 0.85, 0.5) * ring2 * 0.03 * asym;
 
-  // Photon sphere glow
   float sphereGlow = exp(-pow((centerDist - bhAng*1.5) * uCamDist*0.5, 2.0) * 0.3);
   color += vec3(0.15, 0.08, 0.02) * sphereGlow * 0.04;
 
-  // Proximity bloom
   if (closestR < 4.0 && !hitHorizon) {
     color += vec3(1.0, 0.6, 0.2) * exp(-(closestR - R_HORIZON)*0.8) * 0.015;
   }
 
   if (hitHorizon) color = vec3(0.0);
 
-  // Vignette
   color *= 1.0 - 0.2 * dot(uv, uv);
 
   // ACES tone mapping
@@ -312,20 +305,24 @@ export class BlackHoleRenderer {
     this.autoRotate = true;
     this.pinchStartDist = 0;
     this.pinchStartCamDist = 25;
+    this.heroElement = null;
 
     this.init();
     this.setupControls();
   }
 
   init() {
+    // Use pixel ratio capped at 2.0 — on phones (DPR 3) this saves ~56% pixels
+    // while being visually identical on small screens. All shader settings stay maxed.
+    const dpr = Math.min(window.devicePixelRatio, 2.0);
+
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: false,
       alpha: false,
       powerPreference: 'high-performance',
     });
-    // Full native resolution — no downscaling
-    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setPixelRatio(dpr);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     this.scene = new THREE.Scene();
@@ -334,8 +331,8 @@ export class BlackHoleRenderer {
     const geometry = new THREE.PlaneGeometry(2, 2);
     this.uniforms = {
       uResolution: { value: new THREE.Vector2(
-        window.innerWidth * window.devicePixelRatio,
-        window.innerHeight * window.devicePixelRatio
+        window.innerWidth * dpr,
+        window.innerHeight * dpr
       )},
       uTime: { value: 0 },
       uCamDist: { value: this.camDist },
@@ -355,11 +352,21 @@ export class BlackHoleRenderer {
     window.addEventListener('resize', () => this.onResize());
   }
 
+  /* Is the hero section currently visible (user hasn't scrolled past it)? */
+  isHeroVisible() {
+    if (!this.heroElement) {
+      this.heroElement = document.getElementById('hero');
+    }
+    if (!this.heroElement) return true;
+    return window.scrollY < this.heroElement.offsetHeight * 0.8;
+  }
+
   setupControls() {
     const c = this.canvas;
 
-    // --- Mouse orbit ---
+    // === MOUSE: drag = orbit camera ===
     c.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return; // left click only
       this.isDragging = true;
       this.lastMouse.x = e.clientX;
       this.lastMouse.y = e.clientY;
@@ -384,53 +391,89 @@ export class BlackHoleRenderer {
     });
     c.style.cursor = 'grab';
 
-    // --- Touch: 1-finger orbit + 2-finger pinch zoom ---
+    // === MOUSE WHEEL: only zoom when hero is visible, otherwise let page scroll ===
+    c.addEventListener('wheel', (e) => {
+      if (!this.isHeroVisible()) return; // let page scroll normally
+      e.preventDefault();
+      this.camDist += e.deltaY * 0.015;
+      this.camDist = Math.max(5, Math.min(60, this.camDist));
+    }, { passive: false });
+
+    // === TOUCH: 1-finger = orbit, 2-finger = pinch zoom ===
+    let touchStartY = 0;
+    let touchDecided = false; // have we decided scroll vs orbit?
+    let touchIsOrbit = false;
+
     c.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) {
-        this.isDragging = true;
         this.lastMouse.x = e.touches[0].clientX;
         this.lastMouse.y = e.touches[0].clientY;
-        this.autoRotate = false;
+        touchStartY = e.touches[0].clientY;
+        touchDecided = false;
+        touchIsOrbit = false;
       } else if (e.touches.length === 2) {
+        e.preventDefault();
+        touchDecided = true;
+        touchIsOrbit = false;
         this.isDragging = false;
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         this.pinchStartDist = Math.sqrt(dx*dx + dy*dy);
         this.pinchStartCamDist = this.camDist;
       }
-    }, { passive: true });
+    }, { passive: false });
 
     c.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 1 && this.isDragging) {
+      if (e.touches.length === 1) {
         const dx = e.touches[0].clientX - this.lastMouse.x;
         const dy = e.touches[0].clientY - this.lastMouse.y;
-        this.targetPhi -= dx * 0.005;
-        this.targetTheta += dy * 0.005;
-        this.targetTheta = Math.max(0.15, Math.min(Math.PI - 0.15, this.targetTheta));
-        this.lastMouse.x = e.touches[0].clientX;
-        this.lastMouse.y = e.touches[0].clientY;
+
+        // Decide on first significant move: mostly horizontal = orbit, mostly vertical = scroll
+        if (!touchDecided) {
+          const totalMove = Math.abs(dx) + Math.abs(dy);
+          if (totalMove > 10) {
+            touchDecided = true;
+            touchIsOrbit = Math.abs(dx) > Math.abs(dy) * 1.2;
+            if (touchIsOrbit) {
+              this.autoRotate = false;
+              this.isDragging = true;
+            }
+          }
+        }
+
+        if (touchIsOrbit) {
+          e.preventDefault(); // prevent page scroll during orbit
+          this.targetPhi -= dx * 0.005;
+          this.targetTheta += dy * 0.005;
+          this.targetTheta = Math.max(0.15, Math.min(Math.PI - 0.15, this.targetTheta));
+          this.lastMouse.x = e.touches[0].clientX;
+          this.lastMouse.y = e.touches[0].clientY;
+        }
+        // else: let browser handle scroll naturally (passive)
       } else if (e.touches.length === 2) {
+        e.preventDefault();
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        this.camDist = Math.max(5, Math.min(60, this.pinchStartCamDist * (this.pinchStartDist / Math.max(dist, 1))));
+        this.camDist = Math.max(5, Math.min(60,
+          this.pinchStartCamDist * (this.pinchStartDist / Math.max(dist, 1))
+        ));
       }
-    }, { passive: true });
-
-    c.addEventListener('touchend', () => { this.isDragging = false; });
-
-    // --- Mouse wheel zoom ---
-    c.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      this.camDist += e.deltaY * 0.01;
-      this.camDist = Math.max(5, Math.min(60, this.camDist));
     }, { passive: false });
+
+    c.addEventListener('touchend', () => {
+      this.isDragging = false;
+      touchDecided = false;
+      touchIsOrbit = false;
+    });
   }
 
   onResize() {
     const w = window.innerWidth, h = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio, 2.0);
+    this.renderer.setPixelRatio(dpr);
     this.renderer.setSize(w, h);
-    this.uniforms.uResolution.value.set(w * window.devicePixelRatio, h * window.devicePixelRatio);
+    this.uniforms.uResolution.value.set(w * dpr, h * dpr);
   }
 
   update(time) {

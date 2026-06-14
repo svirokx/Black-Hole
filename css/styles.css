@@ -422,7 +422,7 @@ body.scrolled-past-hero .scale-compare {
   width: 100%;
   height: 100%;
   display: block;
-  touch-action: none; /* prevent scroll while touching canvas */
+  /* touch-action handled via JS: horizontal swipe = orbit, vertical = page scroll */
 }
 .hero-overlay {
   position: absolute;

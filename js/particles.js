@@ -119,9 +119,70 @@ export class ParticleSystem {
     // Shared geometry/materials
     this.sphereGeo = new THREE.IcosahedronGeometry(1, 2);
 
+    // Scale comparison rings
+    this.scaleRingsVisible = false;
+    this.scaleRings = [];
+    this.createScaleRings();
+
     window.addEventListener('resize', () => {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
+    });
+  }
+
+  createScaleRings() {
+    // TON 618: 1 shader unit = 650 AU
+    // Event horizon at r+ ≈ 1.243 (Kerr)
+    const rings = [
+      { radius: 1 / 650, color: 0x4488ff, label: 'Earth orbit (1 AU)', dash: false },
+      { radius: 40 / 650, color: 0x88aaff, label: 'Pluto orbit (40 AU)', dash: false },
+      { radius: 120 / 650, color: 0x44ffaa, label: 'Solar System (120 AU)', dash: false },
+      { radius: R_HORIZON, color: 0xff4444, label: 'Event Horizon', dash: true },
+    ];
+
+    rings.forEach(({ radius, color, dash }) => {
+      const segments = 128;
+      const points = [];
+      for (let i = 0; i <= segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        points.push(new THREE.Vector3(
+          Math.cos(angle) * radius,
+          0,
+          Math.sin(angle) * radius
+        ));
+      }
+
+      const geo = new THREE.BufferGeometry().setFromPoints(points);
+      const mat = dash
+        ? new THREE.LineDashedMaterial({
+            color,
+            transparent: true,
+            opacity: 0.6,
+            dashSize: 0.1,
+            gapSize: 0.05,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+          })
+        : new THREE.LineBasicMaterial({
+            color,
+            transparent: true,
+            opacity: 0.5,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+          });
+
+      const line = new THREE.Line(geo, mat);
+      if (dash) line.computeLineDistances();
+      line.visible = false;
+      this.scene.add(line);
+      this.scaleRings.push(line);
+    });
+  }
+
+  toggleScaleRings(visible) {
+    this.scaleRingsVisible = visible;
+    this.scaleRings.forEach(ring => {
+      ring.visible = visible;
     });
   }
 

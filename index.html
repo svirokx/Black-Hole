@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Black Hole — Interactive 3D Simulation & Science</title>
-  <meta name="description" content="Explore black holes through a realistic 3D simulation with gravitational lensing. Discover types, history, famous black holes, and the physics behind these cosmic giants.">
+  <title>Black Hole — TON 618 Supermassive Simulation</title>
+  <meta name="description" content="Experience TON 618, one of the most massive black holes ever discovered (66 billion solar masses), through a realistic Kerr-metric 3D simulation with gravitational lensing, Doppler beaming, and scale comparison.">
   <meta name="keywords" content="black hole, simulation, 3D, gravitational lensing, accretion disk, event horizon, Interstellar, M87, Sagittarius A, NASA, astrophysics">
   <meta property="og:title" content="Black Hole — Interactive 3D Simulation">
   <meta property="og:description" content="Experience a realistic black hole simulation and explore the science of the universe's most extreme objects.">
@@ -56,6 +56,76 @@
       <h1 class="hero-title">BLACK HOLE</h1>
       <p class="hero-subtitle">A journey into the darkest corners of the universe</p>
     </div>
+
+    <!-- ============ BH INFO HUD ============ -->
+    <div id="bh-hud" class="bh-hud">
+      <div class="bh-hud-name">TON 618</div>
+      <div class="bh-hud-type">SUPERMASSIVE · QUASAR</div>
+      <div class="bh-hud-stats">
+        <div class="bh-hud-stat">
+          <span class="bh-hud-label">Mass</span>
+          <span class="bh-hud-value">66 billion M<sub>☉</sub></span>
+        </div>
+        <div class="bh-hud-stat">
+          <span class="bh-hud-label">Event Horizon</span>
+          <span class="bh-hud-value">~1 300 AU</span>
+        </div>
+        <div class="bh-hud-stat">
+          <span class="bh-hud-label">Distance</span>
+          <span class="bh-hud-value">10.4 Gly</span>
+        </div>
+        <div class="bh-hud-stat">
+          <span class="bh-hud-label">Constellation</span>
+          <span class="bh-hud-value">Canes Venatici</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SCALE RULER ============ -->
+    <div id="scale-ruler" class="scale-ruler">
+      <div class="scale-bar">
+        <div class="scale-line"></div>
+        <div class="scale-ticks">
+          <div class="scale-tick"></div>
+          <div class="scale-tick"></div>
+        </div>
+      </div>
+      <div class="scale-label" id="scale-label">— AU</div>
+    </div>
+
+    <!-- ============ SCALE COMPARISON ============ -->
+    <div id="scale-compare" class="scale-compare">
+      <button class="scale-compare-toggle" id="scale-compare-toggle">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+        </svg>
+        Scale
+      </button>
+      <div class="scale-compare-info" id="scale-compare-info" style="display:none">
+        <div class="scale-item">
+          <span class="scale-dot" style="background:#4488ff"></span>
+          <span>Earth orbit (1 AU) — <em>invisible at this zoom</em></span>
+        </div>
+        <div class="scale-item">
+          <span class="scale-dot" style="background:#88aaff"></span>
+          <span>Pluto orbit (40 AU) — 0.06 × r<sub>horizon</sub></span>
+        </div>
+        <div class="scale-item">
+          <span class="scale-dot" style="background:#44ffaa"></span>
+          <span>Solar System (120 AU) — 0.18 × r<sub>horizon</sub></span>
+        </div>
+        <div class="scale-item scale-item-highlight">
+          <span class="scale-dot" style="background:#ff4444"></span>
+          <span>Event Horizon — 1 300 AU (≈ 0.02 ly)</span>
+        </div>
+        <div class="scale-item scale-item-highlight">
+          <span class="scale-dot" style="background:#ffaa44"></span>
+          <span>Shadow diameter — ~3 900 AU</span>
+        </div>
+        <p class="scale-note">Our entire Solar System would be a tiny dot inside the event horizon of TON 618</p>
+      </div>
+    </div>
+
     <div class="scroll-indicator">
       <div class="scroll-arrow"></div>
       <span>Scroll to explore</span>

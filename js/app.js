@@ -1,11 +1,19 @@
 // ============================================
 // BLACK HOLE — Main Application
-// Loader, scroll animations, creation mode
+// Loader, scroll animations, creation mode,
+// scale HUD, TON 618 supermassive simulation
 // ============================================
 
 import { BlackHoleRenderer } from './blackhole.js';
 import { BlackHoleAudio } from './audio.js';
 import { ParticleSystem } from './particles.js';
+
+// ---------- TON 618 Scale Constants ----------
+// TON 618: 66 billion solar masses
+// Rs = 2GM/c² ≈ 1.95 × 10^14 m ≈ 1300 AU
+// In shader: M = 1, so 1 unit = Rs/2 = 650 AU
+const AU_PER_UNIT = 650; // 1 shader unit = 650 AU for TON 618
+const LY_PER_AU = 1 / 63241; // 1 AU ≈ 1/63241 light-years
 
 // ---------- Loader ----------
 
@@ -45,7 +53,7 @@ function initScrollReveal() {
   reveals.forEach((el) => observer.observe(el));
 }
 
-// ---------- Hero Parallax ----------
+// ---------- Hero Parallax + HUD visibility ----------
 
 function initHeroParallax() {
   const hero = document.getElementById('hero');
@@ -64,6 +72,13 @@ function initHeroParallax() {
       if (scrollIndicator) {
         scrollIndicator.style.opacity = Math.max(0, 1 - progress * 3);
       }
+    }
+
+    // Toggle HUD visibility
+    if (scrollY > heroH * 0.5) {
+      document.body.classList.add('scrolled-past-hero');
+    } else {
+      document.body.classList.remove('scrolled-past-hero');
     }
   }, { passive: true });
 }
@@ -85,6 +100,60 @@ function initSound() {
 
   iconOn.style.display = 'none';
   iconOff.style.display = 'block';
+}
+
+// ---------- Scale Ruler ----------
+
+function initScaleRuler(bhRenderer) {
+  const scaleLabel = document.getElementById('scale-label');
+  if (!scaleLabel) return;
+
+  function updateScale() {
+    // Camera distance in shader units
+    const camDist = bhRenderer.camDist;
+    // Approximate visible width at center = 2 * camDist * tan(FOV/2)
+    // FOV vertical ≈ 53°, so tan(26.5°) ≈ 0.5
+    const visibleWidth = 2 * camDist * 0.5; // in shader units
+    // The ruler is ~120px, screen is ~window.innerWidth
+    const rulerFraction = 120 / window.innerWidth;
+    const rulerWidth = visibleWidth * rulerFraction; // shader units
+
+    const rulerAU = rulerWidth * AU_PER_UNIT;
+
+    let label;
+    if (rulerAU > 63241) {
+      // light-years
+      const ly = rulerAU / 63241;
+      label = ly >= 100 ? `${Math.round(ly).toLocaleString()} ly` : `${ly.toFixed(1)} ly`;
+    } else if (rulerAU > 100) {
+      label = `${Math.round(rulerAU).toLocaleString()} AU`;
+    } else if (rulerAU > 1) {
+      label = `${rulerAU.toFixed(1)} AU`;
+    } else {
+      const mkm = rulerAU * 149.598; // million km per AU
+      label = `${mkm.toFixed(0)} M km`;
+    }
+
+    scaleLabel.textContent = label;
+    requestAnimationFrame(updateScale);
+  }
+  updateScale();
+}
+
+// ---------- Scale Comparison Toggle ----------
+
+function initScaleCompare(particleSystem) {
+  const toggle = document.getElementById('scale-compare-toggle');
+  const info = document.getElementById('scale-compare-info');
+  if (!toggle || !info) return;
+
+  toggle.addEventListener('click', () => {
+    const visible = info.style.display !== 'none';
+    info.style.display = visible ? 'none' : 'flex';
+    toggle.classList.toggle('active', !visible);
+    // Also toggle 3D scale rings in the scene
+    particleSystem.toggleScaleRings(!visible);
+  });
 }
 
 // ---------- Creation Mode ----------
@@ -116,14 +185,6 @@ function initCreationMode(bhRenderer, particleSystem) {
     const ndcY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
 
     particleSystem.spawn(ndcX, ndcY);
-  });
-
-  // In create mode, prevent orbit rotation on click (only drag)
-  canvas.addEventListener('mousedown', (e) => {
-    if (createMode) {
-      // Don't start orbit drag on single click in create mode
-      // We'll let the existing drag logic work (it uses mousemove)
-    }
   });
 }
 
@@ -168,6 +229,8 @@ async function init() {
   initHeroParallax();
   initSound();
   initCreationMode(bhRenderer, particleSystem);
+  initScaleRuler(bhRenderer);
+  initScaleCompare(particleSystem);
 }
 
 if (document.readyState === 'loading') {

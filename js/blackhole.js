@@ -112,23 +112,45 @@ vec3 diskColor(float r, float angle, float t) {
   // Keplerian differential rotation: inner orbits MUCH faster
   float orbitalSpeed = sqrt(1.0 / max(r, DISK_INNER)) * 1.5;
   float rotatedAngle = angle - t * orbitalSpeed;
-
-  // Spiral arms — use rotated angle for visible spinning
   float logR = log(r + 1.0);
-  float sp1 = sin(rotatedAngle * 3.0 - logR * 5.0) * 0.5 + 0.5;
-  float sp2 = sin(rotatedAngle * 5.0 + logR * 4.0) * 0.5 + 0.5;
-  float sp3 = sin(rotatedAngle * 7.0 - logR * 8.0) * 0.5 + 0.5;
-  brightness *= 0.45 + 0.55 * (sp1 * 0.5 + sp2 * 0.35 + sp3 * 0.15);
 
-  // Turbulence — also rotated
-  float tb1 = noise(vec2(rotatedAngle * 10.0, r * 4.0));
-  float tb2 = noise(vec2(rotatedAngle * 25.0, r * 10.0));
-  brightness *= 0.65 + 0.25 * tb1 + 0.1 * tb2;
+  // Perturb radial coordinate with noise — breaks perfect concentric rings
+  float rPerturb = r + noise(vec2(rotatedAngle * 3.0, r * 1.5)) * 0.8
+                     + noise(vec2(rotatedAngle * 7.0, r * 3.0)) * 0.3;
+  float logRP = log(rPerturb + 1.0);
 
-  // Hot spots — bright clumps orbiting visibly
-  float hotSpot = sin(rotatedAngle * 2.0 - logR * 3.0) * 0.5 + 0.5;
-  hotSpot = pow(hotSpot, 4.0) * 0.6 * temp;
+  // Spiral arms — wide, organic, using perturbed radius
+  float sp1 = sin(rotatedAngle * 2.0 - logRP * 4.0) * 0.5 + 0.5;
+  float sp2 = sin(rotatedAngle * 3.0 + logRP * 3.0 + 1.7) * 0.5 + 0.5;
+  float sp3 = sin(rotatedAngle * 5.0 - logRP * 6.0 - 0.9) * 0.5 + 0.5;
+  float spirals = sp1 * 0.45 + sp2 * 0.30 + sp3 * 0.25;
+  brightness *= 0.35 + 0.65 * spirals;
+
+  // Multi-octave turbulence — MHD-like chaos
+  float tb1 = noise(vec2(rotatedAngle * 6.0, rPerturb * 2.0));
+  float tb2 = noise(vec2(rotatedAngle * 14.0, rPerturb * 5.0));
+  float tb3 = noise(vec2(rotatedAngle * 28.0 + r, rPerturb * 10.0));
+  float tb4 = noise(vec2(rotatedAngle * 4.0 - logR * 3.0, r * 1.2 + t * 0.08));
+  brightness *= 0.35 + 0.30 * tb1 + 0.18 * tb2 + 0.08 * tb3 + 0.14 * tb4;
+
+  // Large-scale radial variation — smooth density waves
+  float radWave = noise(vec2(r * 2.5 + rotatedAngle * 0.3, r * 0.8 - t * 0.03));
+  brightness *= 0.65 + 0.35 * radWave;
+
+  // Hot spots — bright turbulent clumps
+  float hs1 = sin(rotatedAngle * 2.0 - logRP * 3.0) * 0.5 + 0.5;
+  float hs2 = sin(rotatedAngle * 1.3 + logRP * 2.0 + 3.1) * 0.5 + 0.5;
+  float hotSpot = pow(hs1, 4.0) * 0.45 + pow(hs2, 5.0) * 0.25;
+  hotSpot *= temp;
   brightness += hotSpot;
+
+  // Filaments — thin bright streaks (magnetic field lines)
+  float fil = pow(abs(sin(rotatedAngle * 9.0 - logRP * 7.0)), 10.0) * 0.2 * temp;
+  brightness += fil;
+
+  // Subtle color variation — regions slightly more red/blue
+  float colorNoise = noise(vec2(rotatedAngle * 4.0, rPerturb * 1.5));
+  col = mix(col, col * vec3(1.15, 0.9, 0.8), colorNoise * 0.3);
 
   // Hot ISCO ring
   col += vec3(0.35, 0.6, 1.0) * exp(-pow((r - DISK_INNER) * 2.5, 2.0)) * 0.6;
@@ -287,16 +309,16 @@ void main() {
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
     if (absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
-      float thickness = mix(1.8, 0.35, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
-      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.055;
+      float thickness = mix(2.2, 0.45, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
+      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.07;
       float dAng = atan(newPos.z, newPos.x);
       // Use full diskColor so the glow ROTATES and has spiral structure
-      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.45;
+      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.55;
       // Fade glow when viewing edge-on (camera near disk plane)
       float edgeFade = 1.0 - smoothstep(0.3, 0.95, sin(uCamTheta));
       vol *= edgeFade;
       color     += vCol * vol * (1.0 - diskAlpha);
-      diskAlpha += vol * 0.12 * (1.0 - diskAlpha);
+      diskAlpha += vol * 0.15 * (1.0 - diskAlpha);
     }
 
     // Hot corona — bright glowing gas near photon sphere

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qC+YWhF3NPdIQ5KTB3TZrbgffn9kAvaLLFtTKaG1N4c=' https://cdn.jsdelivr.net https://ga.jspm.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://upload.wikimedia.org https://*.wikipedia.org data:; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qC+YWhF3NPdIQ5KTB3TZrbgffn9kAvaLLFtTKaG1N4c=' https://cdn.jsdelivr.net https://ga.jspm.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none';">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -28,6 +28,7 @@
 
   <!-- ============ FIXED BACKGROUND CANVAS ============ -->
   <canvas id="blackhole-canvas"></canvas>
+  <div class="webgl-fallback" id="webgl-fallback"></div>
 
   <!-- ============ SOUND TOGGLE ============ -->
   <button id="sound-toggle" class="sound-btn" aria-label="Звук">
@@ -198,7 +199,7 @@
         </div>
         <div class="section-visual reveal">
           <div class="section-image">
-            <img crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Crab_Nebula.jpg/800px-Crab_Nebula.jpg" alt="Крабовидная туманность — остаток сверхновой, снятый телескопом Хаббл. Взрыв наблюдали в 1054 году." loading="lazy">
+            <img src="img/crab_nebula.jpg" alt="Крабовидная туманность — остаток сверхновой, снятый телескопом Хаббл. Взрыв наблюдали в 1054 году." loading="lazy">
           </div>
           <p class="section-source" style="margin-top:12px;">Крабовидная туманность — остаток сверхновой 1054 года. NASA/ESA Hubble.</p>
         </div>
@@ -212,7 +213,7 @@
 
         <div class="famous-entry reveal">
           <div class="famous-image">
-            <img crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/800px-Black_hole_-_Messier_87_crop_max_res.jpg" alt="Первый снимок чёрной дыры M87*" loading="lazy">
+            <img src="img/m87_black_hole.jpg" alt="Первый снимок чёрной дыры M87*" loading="lazy">
           </div>
           <div class="famous-info">
             <h3>M87* <span class="famous-tag">Первая сфотографированная</span></h3>
@@ -229,7 +230,7 @@
 
         <div class="famous-entry reverse reveal">
           <div class="famous-image">
-            <img crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Sgr_A_star_EHT.jpg/800px-Sgr_A_star_EHT.jpg" alt="Стрелец A* — сверхмассивная ЧД Млечного Пути" loading="lazy">
+            <img src="img/sgr_a_star.jpg" alt="Стрелец A* — сверхмассивная ЧД Млечного Пути" loading="lazy">
           </div>
           <div class="famous-info">
             <h3>Стрелец A* <span class="famous-tag">Сердце Галактики</span></h3>
@@ -246,7 +247,7 @@
 
         <div class="famous-entry reveal">
           <div class="famous-image">
-            <img crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Cygnus_X-1.png/800px-Cygnus_X-1.png" alt="Лебедь X-1 — первая подтверждённая ЧД" loading="lazy">
+            <img src="img/cygnus_x1.jpg" alt="Лебедь X-1 — первая подтверждённая ЧД" loading="lazy">
           </div>
           <div class="famous-info">
             <h3>Лебедь X-1 <span class="famous-tag">Первая подтверждённая</span></h3>
@@ -263,7 +264,7 @@
 
         <div class="famous-entry reverse reveal">
           <div class="famous-image">
-            <img crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/BH_LMC.png/800px-BH_LMC.png" alt="Визуализация гравитационного линзирования ЧД" loading="lazy">
+            <img src="img/bh_interstellar.jpg" alt="Визуализация гравитационного линзирования ЧД" loading="lazy">
           </div>
           <div class="famous-info">
             <h3>TON 618 <span class="famous-tag">Одна из самых массивных</span></h3>
@@ -280,7 +281,7 @@
 
         <div class="famous-entry reveal">
           <div class="famous-image">
-            <img crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg/800px-Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg" alt="Gaia BH1 — ближайшая известная ЧД" loading="lazy">
+            <img src="img/binary_bh.jpg" alt="Gaia BH1 — ближайшая известная ЧД" loading="lazy">
           </div>
           <div class="famous-info">
             <h3>Gaia BH1 <span class="famous-tag">Ближайшая известная</span></h3>
@@ -362,11 +363,11 @@
           </div>
           <div class="timeline-sidebar reveal">
             <div class="timeline-sidebar-img">
-              <img crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Einstein_1921_by_F_Schmutzer_-_restoration.jpg/440px-Einstein_1921_by_F_Schmutzer_-_restoration.jpg" alt="Альберт Эйнштейн, 1921" loading="lazy">
+              <img src="img/bh_lensing.jpg" alt="Альберт Эйнштейн, 1921" loading="lazy">
             </div>
             <p class="timeline-sidebar-caption">Альберт Эйнштейн, 1921 — его ОТО предсказала существование чёрных дыр</p>
             <div class="timeline-sidebar-img">
-              <img crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/440px-Black_hole_-_Messier_87_crop_max_res.jpg" alt="Первый снимок ЧД — M87*, 2019" loading="lazy">
+              <img src="img/m87_black_hole.jpg" alt="Первый снимок ЧД — M87*, 2019" loading="lazy">
             </div>
             <p class="timeline-sidebar-caption">Первый снимок чёрной дыры — M87*, 10 апреля 2019</p>
           </div>
@@ -499,7 +500,7 @@
             <p class="section-source">James et al. «Gravitational Lensing by Spinning Black Holes…», CQG, 2015</p>
           </div>
           <div class="interstellar-image reveal">
-            <img crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/BH_LMC.png/800px-BH_LMC.png" alt="Симуляция гравитационного линзирования чёрной дыры на фоне Большого Магелланова Облака" loading="lazy">
+            <img src="img/bh_interstellar.jpg" alt="Симуляция гравитационного линзирования чёрной дыры на фоне Большого Магелланова Облака" loading="lazy">
           </div>
         </div>
       </div>

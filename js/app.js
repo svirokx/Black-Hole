@@ -160,10 +160,30 @@ async function init() {
 }
 
 function safeInit() {
+  // Проверяем WebGL перед запуском
+  const testCanvas = document.createElement('canvas');
+  const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
+  if (!gl) {
+    console.warn('[BH] WebGL не поддерживается — показываем fallback');
+    const fallback = document.getElementById('webgl-fallback');
+    if (fallback) fallback.classList.add('active');
+    const canvas = document.getElementById('blackhole-canvas');
+    if (canvas) canvas.style.display = 'none';
+    hideLoader();
+    initScrollReveal();
+    initHeroParallax();
+    initSound();
+    return;
+  }
+
   try { init(); }
   catch (e) {
     console.error('Black Hole init error:', e);
+    const fallback = document.getElementById('webgl-fallback');
+    if (fallback) fallback.classList.add('active');
     hideLoader();
+    initScrollReveal();
+    initHeroParallax();
   }
 }
 

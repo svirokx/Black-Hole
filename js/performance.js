@@ -163,7 +163,13 @@ export class StablePerformanceEngine {
     }
 
     // Начальный уровень — консервативный, НЕ максимальный
-    this.currentLevel = GPU_START_LEVEL[this.gpuTier] ?? 3;
+    // На мобильных устройствах: ещё ниже
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+                  || ('ontouchstart' in window && window.innerWidth < 1024);
+    const startMap = isMobile
+      ? { high: 3, medium: 2, low: 0 }  // Мобильные: начинаем ниже
+      : GPU_START_LEVEL;
+    this.currentLevel = startMap[this.gpuTier] ?? 2;
 
     console.log(`[Perf] GPU: ${this.gpuRenderer || 'неизвестно'}`);
     console.log(`[Perf] Тир: ${this.gpuTier} → начальный уровень: ${this.currentLevel} (${LEVELS[this.currentLevel].label})`);

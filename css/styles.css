@@ -577,4 +577,45 @@ body.scrolled-past-hero .scale-ruler {
 @media (max-width: 480px) {
   .numbers-grid { grid-template-columns: 1fr; }
   .famous-stats { grid-template-columns: 1fr; }
+  .content-section { padding: 48px 14px; }
+  .section-title { font-size: 1.5rem; }
+  .section-body { font-size: 0.9rem; }
+  .hero-title { font-size: 2.2rem; letter-spacing: 0.1em; }
+  .bh-hud { top: auto; bottom: 16px; left: 12px; right: 12px;
+    min-width: unset; padding: 8px 12px; }
+  .bh-hud-name { font-size: 1rem; }
+  .bh-hud-stats { gap: 4px; }
+  .bh-hud-stat { font-size: 0.75rem; }
+  .anatomy-card, .type-card, .physics-card {
+    padding: 20px 16px;
+  }
+  .famous-img { max-height: 200px; }
+  .timeline { padding-left: 28px; }
+  .timeline::before { left: 6px; }
+  .timeline-item::before { left: -28px; width: 12px; height: 12px; }
+  .scroll-indicator { bottom: 20px; }
+}
+
+/* ============ TOUCH DEVICE OPTIMIZATIONS ============ */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch-friendly: bigger tap targets, no hover effects */
+  #blackhole-canvas { cursor: default; }
+  .content-section { padding-left: 16px; padding-right: 16px; }
+  /* Ensure canvas doesn't block scrolling */
+  #hero { touch-action: pan-y; }
+}
+
+/* ============ WebGL FALLBACK ============ */
+.webgl-fallback {
+  position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse at center,
+    #1a0a2e 0%, #0d0520 30%, #060212 60%, #000 100%);
+  display: none;
+}
+.webgl-fallback.active { display: block; }
+
+/* ============ IMAGES RESPONSIVE ============ */
+.content-section img {
+  width: 100%; height: auto; border-radius: 12px;
+  object-fit: cover; max-height: 400px;
 }

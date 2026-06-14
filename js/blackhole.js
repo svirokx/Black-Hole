@@ -113,22 +113,22 @@ vec3 diskColor(float r, float angle, float t) {
   float orbitalSpeed = sqrt(1.0 / max(r, DISK_INNER)) * 1.5;
   float rotatedAngle = angle - t * orbitalSpeed;
 
-  // Convert to Cartesian for fbm — naturally aperiodic, no ring artifacts
-  float cx = r * cos(rotatedAngle);
-  float cy = r * sin(rotatedAngle);
+  // Spiral arms — use rotated angle for visible spinning
+  float logR = log(r + 1.0);
+  float sp1 = sin(rotatedAngle * 3.0 - logR * 5.0) * 0.5 + 0.5;
+  float sp2 = sin(rotatedAngle * 5.0 + logR * 4.0) * 0.5 + 0.5;
+  float sp3 = sin(rotatedAngle * 7.0 - logR * 8.0) * 0.5 + 0.5;
+  brightness *= 0.45 + 0.55 * (sp1 * 0.5 + sp2 * 0.35 + sp3 * 0.15);
 
-  // Main turbulence — fbm in rotated Cartesian (aperiodic = no rings)
-  float turb = fbm(vec2(cx * 0.5, cy * 0.5));
-  // Single noise for large-scale density variation (cheap)
-  float wave = noise(vec2(cx * 0.2 + 10.0, cy * 0.2 + 10.0));
-  brightness *= 0.40 + 0.35 * turb + 0.25 * wave;
+  // Turbulence — also rotated
+  float tb1 = noise(vec2(rotatedAngle * 10.0, r * 4.0));
+  float tb2 = noise(vec2(rotatedAngle * 25.0, r * 10.0));
+  brightness *= 0.65 + 0.25 * tb1 + 0.1 * tb2;
 
-  // Hot spots — bright clumps from fbm peaks
-  float hotSpot = pow(max(turb - 0.55, 0.0) * 3.3, 2.0) * temp;
+  // Hot spots — bright clumps orbiting visibly
+  float hotSpot = sin(rotatedAngle * 2.0 - logR * 3.0) * 0.5 + 0.5;
+  hotSpot = pow(hotSpot, 4.0) * 0.6 * temp;
   brightness += hotSpot;
-
-  // Color variation from turbulence
-  col = mix(col, col * vec3(1.15, 0.9, 0.8), turb * 0.3);
 
   // Hot ISCO ring
   col += vec3(0.35, 0.6, 1.0) * exp(-pow((r - DISK_INNER) * 2.5, 2.0)) * 0.6;
@@ -287,18 +287,16 @@ void main() {
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
     if (absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
-      float thickness = mix(1.8, 0.4, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
-      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.06;
+      float thickness = mix(1.8, 0.35, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
+      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.055;
       float dAng = atan(newPos.z, newPos.x);
       // Use full diskColor so the glow ROTATES and has spiral structure
-      // Simple temperature-based color for volumetric (no fbm — performance)
-      float vTemp = smoothstep(DISK_OUTER, DISK_INNER, diskR);
-      vec3 vCol = mix(vec3(0.5, 0.1, 0.02), vec3(1.0, 0.7, 0.35), vTemp) * 0.55;
+      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.45;
       // Fade glow when viewing edge-on (camera near disk plane)
       float edgeFade = 1.0 - smoothstep(0.3, 0.95, sin(uCamTheta));
       vol *= edgeFade;
       color     += vCol * vol * (1.0 - diskAlpha);
-      diskAlpha += vol * 0.15 * (1.0 - diskAlpha);
+      diskAlpha += vol * 0.12 * (1.0 - diskAlpha);
     }
 
     // Hot corona — bright glowing gas near photon sphere

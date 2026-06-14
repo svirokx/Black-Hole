@@ -260,15 +260,24 @@ void main() {
       }
     }
 
-    // Volumetric disk glow (near disk plane)
+    // Volumetric disk glow (near disk plane) — thicker near inner edge
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
-    if (absY < 0.4 && diskR > DISK_INNER && diskR < DISK_OUTER && diskAlpha < 0.95) {
-      float vol = exp(-absY * absY * 25.0) * 0.03;
+    if (absY < 1.0 && diskR > DISK_INNER * 0.9 && diskR < DISK_OUTER && diskAlpha < 0.95) {
+      float thickness = mix(0.7, 0.2, smoothstep(DISK_INNER, DISK_OUTER * 0.6, diskR));
+      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.035;
       float dAng = atan(newPos.z, newPos.x);
-      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.35;
+      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.4;
       color     += vCol * vol * (1.0 - diskAlpha);
-      diskAlpha += vol * 0.2 * (1.0 - diskAlpha);
+      diskAlpha += vol * 0.15 * (1.0 - diskAlpha);
+    }
+
+    // Hot corona — faint glow of infalling gas near photon sphere
+    if (r < 4.0 && r > R_HORIZON + 0.1 && diskAlpha < 0.95) {
+      float coronaDist = r - R_HORIZON;
+      float coronaGlow = exp(-coronaDist * 2.0) * 0.008;
+      vec3 coronaCol = mix(vec3(1.0, 0.55, 0.15), vec3(0.6, 0.75, 1.0), exp(-coronaDist * 4.0));
+      color += coronaCol * coronaGlow * (1.0 - diskAlpha);
     }
 
     prevY = newY;
@@ -331,49 +340,6 @@ void main() {
     // Тонкая яркая каустика у самого края тени (только для вылетевших лучей)
     float caustic = exp(-pow(rimDist * 8.0, 2.0)) * 0.05;
     color += vec3(1.0, 0.92, 0.75) * caustic;
-  }
-
-  // ---- Линзированный диск (обволакивание как в Интерстелларе) ----
-  // Задняя часть аккреционного диска видна сверху и снизу тени
-  // через гравитационное линзирование. Это полу-аналитический
-  // расчёт — работает на ЛЮБОМ количестве шагов.
-  if (!hitHorizon) {
-    float b_crit = 5.196;
-    float shadowR = b_crit / uCamDist;
-    float sR = length(uv);
-    float edgeDist = sR - shadowR;
-
-    if (edgeDist > 0.0 && edgeDist < 0.10) {
-      float sAngle = atan(uv.y, uv.x);
-
-      // Вертикальная компонента: максимум сверху/снизу тени,
-      // минимум по бокам (там диск виден напрямую)
-      float vert = abs(sin(sAngle));
-      float edgeness = sin(uCamTheta);
-      // Показываем обволакивание только при боковом ракурсе
-      float wrapVis = vert * smoothstep(0.2, 0.6, edgeness);
-
-      // Яркость: резкий экспоненциальный спад от края тени
-      float brightness = exp(-edgeDist * 22.0) * wrapVis * 0.45;
-
-      if (brightness > 0.005) {
-        // Приблизительная позиция на диске для линзированного луча
-        float dR = mix(DISK_INNER + 1.0, DISK_OUTER * 0.5,
-                      clamp(edgeDist / 0.12, 0.0, 1.0));
-        float dA = sAngle + PI + sin(sAngle * 2.0) * 0.3;
-
-        vec3 lCol = diskColor(dR, dA, uTime);
-
-        // Доплеровская асимметрия: приближающаяся сторона ярче
-        float dopplerHint = 1.0 + 0.35 * cos(sAngle - uCamPhi);
-        lCol *= dopplerHint;
-
-        // Гравитационное красное смещение
-        float grs = sqrt(max(0.0, 1.0 - 2.0 * M / (dR + 0.01)));
-
-        color += lCol * brightness * grs * (1.0 - diskAlpha * 0.5);
-      }
-    }
   }
 
   // ---- Горизонт событий → абсолютная чернота ----

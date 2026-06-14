@@ -70,7 +70,7 @@ const GPU_PATTERNS = {
   ],
   // Слабые GPU → начинаем с уровня 1
   low: [
-    /intel.*hd\s?\d/i, /intel.*uhd\s?\d/i,
+    /intel.*hd/i, /intel.*uhd/i,       // Intel HD/UHD (с номером или без)
     /mali-g[5-6]/i, /mali-t/i,
     /adreno\s?[3-5]\d{2}/i,
     /powervr/i, /vivante/i,
@@ -79,7 +79,7 @@ const GPU_PATTERNS = {
 };
 
 // Начальный уровень по GPU-тиру (консервативный — стабильность!)
-const GPU_START_LEVEL = { high: 5, medium: 3, low: 2 };
+const GPU_START_LEVEL = { high: 5, medium: 3, low: 1 };
 
 // ---------- Класс StablePerformanceEngine ----------
 
@@ -130,9 +130,16 @@ export class StablePerformanceEngine {
   // ==================== Определение GPU ====================
 
   _detectGPU() {
+    // Пробуем WEBGL_debug_renderer_info (deprecated в Firefox)
     const ext = this.gl.getExtension('WEBGL_debug_renderer_info');
     if (ext) {
-      this.gpuRenderer = this.gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '';
+      try {
+        this.gpuRenderer = this.gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '';
+      } catch (_) { /* deprecated — fallback ниже */ }
+    }
+    // Fallback: gl.RENDERER (менее детальный, но всегда работает)
+    if (!this.gpuRenderer) {
+      this.gpuRenderer = this.gl.getParameter(this.gl.RENDERER) || '';
     }
 
     // Классифицируем
@@ -173,7 +180,7 @@ export class StablePerformanceEngine {
       frames++;
       if (frames >= 30) {
         const avgMs = (ts - start) / (frames - 1);
-        this.displayHz = Math.round(1000 / avgMs);
+        this.displayHz = Math.max(30, Math.round(1000 / avgMs));
         this.targetFrameTime = 1000 / this.displayHz;
         this._hzDetected = true;
         console.log(`[Perf] Монитор: ${this.displayHz}Hz → целевой кадр: ${this.targetFrameTime.toFixed(1)}мс`);

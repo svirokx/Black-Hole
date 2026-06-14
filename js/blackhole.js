@@ -111,9 +111,9 @@ vec3 diskColor(float r, float angle, float t) {
 
   // Spiral arms
   float logR = log(r + 1.0);
-  float sp1 = sin(angle * 3.0 - logR * 5.0 + t * 0.2) * 0.5 + 0.5;
-  float sp2 = sin(angle * 5.0 + logR * 4.0 - t * 0.15) * 0.5 + 0.5;
-  float sp3 = sin(angle * 7.0 - logR * 8.0 + t * 0.3) * 0.5 + 0.5;
+  float sp1 = sin(angle * 3.0 - logR * 5.0 + t * 0.6) * 0.5 + 0.5;
+  float sp2 = sin(angle * 5.0 + logR * 4.0 - t * 0.45) * 0.5 + 0.5;
+  float sp3 = sin(angle * 7.0 - logR * 8.0 + t * 0.9) * 0.5 + 0.5;
   brightness *= 0.55 + 0.45 * (sp1 * 0.5 + sp2 * 0.35 + sp3 * 0.15);
 
   // Turbulence
@@ -182,10 +182,16 @@ void main() {
 
     // — Adaptive step size —
     // Tiny near BH (proper gravitational bending), large far away (speed)
+    // After periapsis (ray moving outward), use larger steps to save budget
+    float radVelStep = dot(normalize(pos), vel);
     float dt;
     if (r < 3.0) {
       // Критическая зона линзирования — мелкий шаг для изгиба лучей
       dt = max(0.008, (r - R_HORIZON) * 0.025 + 0.008);
+      // После прохождения ближайшей точки (луч уходит наружу) — крупнее шаг
+      if (radVelStep > 0.0 && r > closestR + 0.05) {
+        dt = max(dt, r * 0.035);
+      }
     } else if (r < 8.0) {
       dt = r * 0.04;
     } else {
@@ -260,23 +266,24 @@ void main() {
       }
     }
 
-    // Volumetric disk glow (near disk plane) — thicker near inner edge
+    // Volumetric disk glow — thick near inner edge for visible 3D volume
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
-    if (absY < 1.0 && diskR > DISK_INNER * 0.9 && diskR < DISK_OUTER && diskAlpha < 0.95) {
-      float thickness = mix(0.7, 0.2, smoothstep(DISK_INNER, DISK_OUTER * 0.6, diskR));
-      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.035;
+    if (absY < 2.0 && diskR > DISK_INNER * 0.85 && diskR < DISK_OUTER && diskAlpha < 0.95) {
+      // Disk is thickest at inner edge (hot, turbulent) → thins out at outer
+      float thickness = mix(1.2, 0.25, smoothstep(DISK_INNER, DISK_OUTER * 0.5, diskR));
+      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.05;
       float dAng = atan(newPos.z, newPos.x);
-      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.4;
+      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.5;
       color     += vCol * vol * (1.0 - diskAlpha);
-      diskAlpha += vol * 0.15 * (1.0 - diskAlpha);
+      diskAlpha += vol * 0.2 * (1.0 - diskAlpha);
     }
 
-    // Hot corona — faint glow of infalling gas near photon sphere
-    if (r < 4.0 && r > R_HORIZON + 0.1 && diskAlpha < 0.95) {
+    // Hot corona — glowing gas near photon sphere
+    if (r < 4.5 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
       float coronaDist = r - R_HORIZON;
-      float coronaGlow = exp(-coronaDist * 2.0) * 0.008;
-      vec3 coronaCol = mix(vec3(1.0, 0.55, 0.15), vec3(0.6, 0.75, 1.0), exp(-coronaDist * 4.0));
+      float coronaGlow = exp(-coronaDist * 1.5) * 0.012;
+      vec3 coronaCol = mix(vec3(1.0, 0.55, 0.15), vec3(0.6, 0.75, 1.0), exp(-coronaDist * 3.0));
       color += coronaCol * coronaGlow * (1.0 - diskAlpha);
     }
 
@@ -326,22 +333,21 @@ void main() {
     float rimDist = closestR - R_HORIZON;
 
     // --- Широкая мягкая пенумбра (объёмность тени) ---
-    // Тёплый тусклый свет, растекающийся от края тени
-    float softGlow = exp(-rimDist * 2.0) * 0.08;
-    // Угловая вариация: не равномерный круг → выглядит как 3D силуэт
+    // Тёплый тусклый свет, растекающийся от края тени.
+    // Угловая вариация ломает равномерный круг → ощущение 3D сферы.
     float uvAng = atan(uv.y, uv.x);
-    float angVar = 0.65 + 0.35 * sin(uvAng * 2.0 + 0.5);
-    softGlow *= angVar;
-    vec3 softColor = vec3(0.45, 0.25, 0.08);
+    float angVar = 0.6 + 0.4 * sin(uvAng * 2.0 + 0.5);
+    float softGlow = exp(-rimDist * 1.5) * 0.12 * angVar;
+    vec3 softColor = vec3(0.5, 0.28, 0.08);
     color += softColor * softGlow * (1.0 - diskAlpha * 0.5);
 
     // --- Фотонные кольца ---
-    // Первичное (1 оборот)
-    float ring1 = exp(-rimDist * 5.0) * 0.35 * (0.8 + 0.2 * angVar);
+    // Первичное (1 оборот) — модулировано углом для 3D-вида
+    float ring1 = exp(-rimDist * 4.5) * 0.40 * (0.75 + 0.25 * angVar);
     // Вторичное (2 оборота — тоньше)
-    float ring2 = exp(-rimDist * 10.0) * 0.18;
+    float ring2 = exp(-rimDist * 9.0) * 0.20 * (0.85 + 0.15 * angVar);
     // Третичное (каустика у самого края)
-    float ring3 = exp(-rimDist * 18.0) * 0.10;
+    float ring3 = exp(-rimDist * 16.0) * 0.12;
 
     vec3 ringColor = mix(
       vec3(1.0, 0.78, 0.4),
@@ -361,18 +367,20 @@ void main() {
   // Лучи, прошедшие близко к ЧД, видят заднюю сторону диска
   // через гравитационное линзирование — «обволакивание» как в Интерстелларе.
   // Используем closestR (реальная физика луча), а не экранные координаты.
-  if (!hitHorizon && closestR < 5.0 && diskAlpha < 0.9) {
+  if (!hitHorizon && closestR < 6.0 && diskAlpha < 0.9) {
     // Сила изгиба: чем ближе к ЧД, тем сильнее обволакивание
-    float bendStrength = exp(-(closestR - R_HORIZON) * 1.5);
+    float bendStrength = exp(-(closestR - R_HORIZON) * 1.2);
 
     // Вертикальная видимость: обволакивание видно сверху/снизу тени,
     // по бокам — прямой диск виден напрямую
     float uvAngle = atan(uv.y, uv.x);
     float vertFactor = abs(sin(uvAngle));
+    // Также добавим слабое обволакивание по бокам (диск закручивается)
+    vertFactor = 0.15 + 0.85 * vertFactor;
 
     // При боковом ракурсе (edge-on) обволакивание сильнее
     float edgeness = sin(uCamTheta);
-    float wrapVis = bendStrength * vertFactor * smoothstep(0.1, 0.45, edgeness) * 0.55;
+    float wrapVis = bendStrength * vertFactor * smoothstep(0.1, 0.4, edgeness) * 0.65;
 
     if (wrapVis > 0.005) {
       // Позиция на задней стороне диска: ближние лучи видят внутренний диск

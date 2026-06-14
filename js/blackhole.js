@@ -269,17 +269,51 @@ void main() {
 
   // ---- Background stars (gravitationally lensed direction) ----
   if (!hitHorizon) {
-    color += starField(normalize(vel)) * (1.0 - diskAlpha);
+    vec3 stars = starField(normalize(vel));
+
+    // Гравитационное усиление: звёзды у края тени ярче (фокусировка)
+    float rimDist = closestR - R_HORIZON;
+    if (rimDist < 5.0) {
+      float magnification = 1.0 + 0.6 * exp(-rimDist * 0.5);
+      stars *= magnification;
+    }
+
+    color += stars * (1.0 - diskAlpha);
   }
 
-  // ---- Photon ring glow ----
-  // Rays that grazed the photon sphere glow warmly
-  if (!hitHorizon && closestR < 4.0) {
-    float ringIntensity = exp(-(closestR - R_HORIZON) * 1.2) * 0.12;
-    color += vec3(1.0, 0.65, 0.25) * ringIntensity * (1.0 - diskAlpha * 0.5);
+  // ---- Фотонное кольцо (УСИЛЕННОЕ для объёма) ----
+  // Свет, который облетел ЧД 1-2-3 раза, формирует яркие тонкие кольца
+  // Это ГЛАВНЫЙ визуальный индикатор глубины — показывает сферу, не диск
+  if (!hitHorizon) {
+    float rimDist = closestR - R_HORIZON;
+
+    // Первичное фотонное кольцо (1 оборот вокруг ЧД)
+    float ring1 = exp(-rimDist * 2.0) * 0.55;
+
+    // Вторичное кольцо (2 оборота — тоньше, тусклее)
+    float ring2 = exp(-rimDist * 4.5) * 0.3;
+
+    // Третичное кольцо (3 оборота — каустика у самого края тени)
+    float ring3 = exp(-rimDist * 9.0) * 0.15;
+
+    // Цвет кольца = накопленный свет аккреционного диска (тёплый бело-золотой)
+    vec3 ringColor = mix(
+      vec3(1.0, 0.78, 0.4),      // тёплый золотой (внешнее кольцо)
+      vec3(0.85, 0.88, 1.0),     // холодный белый (каустика у края)
+      smoothstep(0.0, 0.5, ring3 / max(ring1 + 0.01, 0.01))
+    );
+
+    float totalRing = ring1 + ring2 + ring3;
+    color += ringColor * totalRing * (1.0 - diskAlpha * 0.3);
+
+    // Тонкая яркая каустика у самого края тени
+    float caustic = exp(-pow(rimDist * 5.0, 2.0)) * 0.08;
+    color += vec3(1.0, 0.92, 0.75) * caustic;
   }
 
-  // ---- Event horizon → pure black ----
+  // ---- Горизонт событий → абсолютная чернота ----
+  // Физически корректно: ни один фотон не выходит
+  // Глубину создаёт яркое фотонное кольцо ВОКРУГ тени
   if (hitHorizon) {
     color = vec3(0.0);
   }

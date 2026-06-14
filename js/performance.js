@@ -1,543 +1,483 @@
 // ============================================
-// PERFORMANCE ENGINE — Автоматическая оптимизация графики
+// PERFORMANCE ENGINE — «Стабильный FPS»
 // ============================================
 //
-// Модуль определяет возможности устройства и автоматически
-// подбирает оптимальный уровень графики для максимального FPS.
+// Приоритет: СТАБИЛЬНОСТЬ и ПЛАВНОСТЬ, а не максимальные эффекты.
+// Даже мощная видеокарта (RTX, Apple M) получит ровные 60+ FPS
+// без микро-дёрганий вместо 45 FPS с красивыми шейдерами.
 //
-// Принцип работы:
-// 1. При загрузке — определяем GPU по WEBGL_debug_renderer_info
-// 2. Первые 4 секунды — замеряем реальный FPS (бенчмарк)
-// 3. На основе GPU + реального FPS выбираем профиль графики
-// 4. В рантайме продолжаем мониторить — если просадки, понижаем
-// 5. Не ограничиваем FPS — стремимся к частоте монитора (144Hz+)
+// Алгоритм:
+// 1. Определяем GPU → выбираем начальный уровень (НЕ максимум, а средний)
+// 2. Бенчмарк 4 секунды — замеряем не средний FPS, а СТАБИЛЬНОСТЬ:
+//    jitter (дрожание), дропы кадров, percentile 1%
+// 3. Рантайм: каждые 3 секунды проверяем стабильность
+//    - Если дёргается (jitter > порога ИЛИ дропы) → понижаем НА ОДИН ШАГ
+//    - Повышаем ТОЛЬКО при идеально ровном FPS в течение 10+ секунд
+// 4. Плавная деградация (8 уровней):
+//    Сначала пост-эффекты → потом pixelRatio → потом шаги → тени в последнюю
+//
+// НЕ ограничиваем FPS — requestAnimationFrame стремится к Hz монитора
 // ============================================
 
-// ---------- Профили графики ----------
-// Каждый профиль содержит настройки, которые передаются в рендерер
+// ---------- 8 уровней деградации ----------
+// Порядок снижения: пост-эффекты → разрешение (pixelRatio) → шаги → тени
+//
+// dpr = null → использовать window.devicePixelRatio (до 2.0)
+// dpr = число → фиксированный pixelRatio
 
-export const PROFILES = {
-  low: {
-    key: 'low',
-    label: 'Низкие',
-    steps: 90,          // шагов трассировки луча
-    resMul: 0.5,        // множитель разрешения
-    pixelRatio: 1.0,    // фиксированный pixelRatio
-    shadows: false,     // тени выключены
-    postEffects: false,  // пост-обработка выключена
-    starLayers: 1,      // слоёв звёзд
-    diskDetail: 0.5,    // детализация аккреционного диска
-  },
-  medium: {
-    key: 'medium',
-    label: 'Средние',
-    steps: 180,
-    resMul: 0.8,
-    pixelRatio: null,   // null = использовать devicePixelRatio
-    shadows: true,
-    postEffects: true,
-    starLayers: 2,
-    diskDetail: 0.8,
-  },
-  high: {
-    key: 'high',
-    label: 'Катастрофа',
-    steps: 300,
-    resMul: 1.0,
-    pixelRatio: null,   // null = devicePixelRatio (до 2.0)
-    shadows: true,
-    postEffects: true,
-    starLayers: 3,
-    diskDetail: 1.0,
-  },
-};
-
-// ---------- Классификация GPU ----------
-// Ключевые слова из WEBGL_debug_renderer_info → предварительная оценка
-
-const GPU_TIERS = [
-  // === Мощные GPU ===
-  {
-    tier: 'high',
-    patterns: [
-      /rtx\s?\d/i,                // NVIDIA RTX 2060–5090
-      /rx\s?[67]\d{3}/i,          // AMD Radeon RX 6000 / 7000
-      /radeon\s?pro\s?w/i,        // AMD Radeon Pro (рабочие станции)
-      /apple\s?m[1-9]/i,          // Apple M1 / M2 / M3 / M4
-      /arc\s?a[7-9]/i,            // Intel Arc A770, A780
-      /geforce\s?rtx/i,           // RTX обобщённый
-      /a100|h100|l40/i,           // серверные (вдруг)
-    ],
-  },
-  // === Средние GPU ===
-  {
-    tier: 'medium',
-    patterns: [
-      /gtx\s?1[0-9]{3}/i,        // NVIDIA GTX 1060–1660
-      /gtx\s?[2-9][0-9]{2}/i,    // NVIDIA GTX 960, 980
-      /rx\s?5[5-9]\d{1}/i,       // AMD RX 580, 590
-      /rx\s?6[0-4]\d{2}/i,       // AMD RX 6400–6500
-      /iris\s?xe/i,               // Intel Iris Xe
-      /intel\s?arc\s?a[3-5]/i,   // Intel Arc A380–A580
-      /radeon\s?rx\s?vega/i,     // Vega серия
-      /adreno\s?[6-7]\d{2}/i,    // Qualcomm Adreno 6xx–7xx (мощные мобильные)
-      /mali-g7[7-9]/i,           // ARM Mali-G78+ (мощные мобильные)
-      /apple\s?gpu/i,            // Generic Apple (iPhone / iPad)
-    ],
-  },
-  // === Слабые GPU ===
-  {
-    tier: 'low',
-    patterns: [
-      /intel.*hd\s?\d/i,          // Intel HD Graphics
-      /intel.*uhd\s?\d/i,         // Intel UHD Graphics
-      /mali-g[5-6]/i,            // ARM Mali-G51–G68
-      /mali-t/i,                  // ARM Mali-T (старые)
-      /adreno\s?[3-5]\d{2}/i,   // Qualcomm Adreno 3xx–5xx
-      /powervr/i,                // Imagination PowerVR
-      /vivante/i,                // Vivante (бюджетные устройства)
-      /mesa/i,                   // Mesa (программный рендер Linux)
-      /swiftshader/i,            // Google SwiftShader (программный)
-      /llvmpipe/i,               // LLVM программный рендер
-    ],
-  },
+export const LEVELS = [
+  // === Уровень 0: Абсолютный минимум (экстренный) ===
+  { level: 0, label: 'Минимум',     steps:  60, dpr: 0.75, resMul: 0.50, shadows: false, postFX: 'off' },
+  // === Уровень 1: Низкие ===
+  { level: 1, label: 'Низкие',      steps:  90, dpr: 1.0,  resMul: 0.70, shadows: false, postFX: 'off' },
+  // === Уровень 2: Средне-Низкие (тени включаются) ===
+  { level: 2, label: 'Ср-Низкие',   steps: 120, dpr: 1.0,  resMul: 0.85, shadows: true,  postFX: 'off' },
+  // === Уровень 3: Средние (базовое качество) ===
+  { level: 3, label: 'Средние',     steps: 150, dpr: 1.0,  resMul: 1.0,  shadows: true,  postFX: 'off' },
+  // === Уровень 4: Средне-Высокие (повышаем разрешение) ===
+  { level: 4, label: 'Ср-Высокие',  steps: 180, dpr: 1.25, resMul: 1.0,  shadows: true,  postFX: 'basic' },
+  // === Уровень 5: Высокие (pixelRatio 1.5) ===
+  { level: 5, label: 'Высокие',     steps: 220, dpr: 1.5,  resMul: 1.0,  shadows: true,  postFX: 'full' },
+  // === Уровень 6: Очень Высокие (нативный pixelRatio) ===
+  { level: 6, label: 'Оч.Высокие',  steps: 260, dpr: null, resMul: 1.0,  shadows: true,  postFX: 'full' },
+  // === Уровень 7: Ультра (максимум всего) ===
+  { level: 7, label: 'Ультра',      steps: 300, dpr: null, resMul: 1.0,  shadows: true,  postFX: 'full' },
 ];
 
-// ---------- Класс PerformanceEngine ----------
+// ---------- GPU-классификация ----------
 
-export class PerformanceEngine {
+const GPU_PATTERNS = {
+  // Мощные GPU → начинаем с уровня 4 (НЕ с максимума!)
+  // Стабильность важнее красоты
+  high: [
+    /rtx\s?\d/i, /geforce\s?rtx/i,
+    /rx\s?[67]\d{3}/i,
+    /radeon\s?pro\s?w/i,
+    /apple\s?m[2-9]/i,          // M2+ мощнее
+    /arc\s?a[7-9]/i,
+    /a100|h100|l40/i,
+  ],
+  // Средние GPU → начинаем с уровня 3
+  medium: [
+    /gtx\s?1[0-9]{3}/i,
+    /rx\s?5[5-9]/i, /rx\s?6[0-4]/i,
+    /iris\s?xe/i,
+    /apple\s?m1/i,              // M1 — среднее
+    /apple\s?gpu/i,
+    /adreno\s?[6-7]\d{2}/i,
+    /mali-g7[7-9]/i,
+    /radeon\s?rx\s?vega/i,
+  ],
+  // Слабые GPU → начинаем с уровня 1
+  low: [
+    /intel.*hd\s?\d/i, /intel.*uhd\s?\d/i,
+    /mali-g[5-6]/i, /mali-t/i,
+    /adreno\s?[3-5]\d{2}/i,
+    /powervr/i, /vivante/i,
+    /mesa/i, /swiftshader/i, /llvmpipe/i,
+  ],
+};
+
+// Начальный уровень по GPU-тиру (консервативный — стабильность!)
+const GPU_START_LEVEL = { high: 4, medium: 3, low: 1 };
+
+// ---------- Класс StablePerformanceEngine ----------
+
+export class StablePerformanceEngine {
   /**
-   * @param {WebGLRenderingContext | WebGL2RenderingContext} gl — контекст WebGL
-   * @param {Object} callbacks — колбэки для переключения графики:
-   *   { onLow: Function, onMedium: Function, onHigh: Function }
+   * @param {WebGLRenderingContext} gl — WebGL контекст
+   * @param {Function} onChange — колбэк (settings) вызывается при смене уровня
    */
-  constructor(gl, callbacks = {}) {
-    // WebGL контекст
+  constructor(gl, onChange) {
     this.gl = gl;
+    this.onChange = onChange || (() => {});
 
-    // Колбэки для каждого уровня графики
-    this.callbacks = {
-      onLow:    callbacks.onLow    || (() => {}),
-      onMedium: callbacks.onMedium || (() => {}),
-      onHigh:   callbacks.onHigh   || (() => {}),
-    };
+    // Текущий уровень (индекс в массиве LEVELS)
+    this.currentLevel = 3; // по умолчанию — средний
 
-    // Текущий профиль
-    this.currentProfile = null;
+    // Информация о GPU
+    this.gpuRenderer = '';
+    this.gpuTier = 'medium';
 
-    // Информация об устройстве
-    this.gpuInfo = { vendor: '', renderer: '', tier: 'unknown' };
+    // Частота обновления монитора
+    this.displayHz = 60;
+    this._hzDetected = false;
 
-    // Бенчмарк
-    this.benchmarkActive    = false;
-    this.benchmarkStartTime = 0;
-    this.benchmarkDuration  = 4000;  // 4 секунды бенчмарка
-    this.benchmarkFrames    = 0;
-    this.benchmarkComplete  = false;
+    // Целевое время кадра (мс)
+    this.targetFrameTime = 1000 / 60;
 
-    // Рантайм-мониторинг FPS
-    this.runtimeFrames   = 0;
-    this.runtimeStart    = 0;
-    this.runtimeReadings = [];   // история средних FPS за 2-секундные окна
-    this.runtimeLocked   = false;
+    // --- Бенчмарк ---
+    this._benchmarkActive = false;
+    this._benchmarkStart  = 0;
+    this._benchmarkFrameTimes = [];
+    this._benchmarkDone   = false;
 
-    // Частота обновления монитора (определяется автоматически)
-    this.displayRefreshRate = 60;
-    this.refreshRateDetected = false;
+    // --- Рантайм-мониторинг ---
+    this._lastFrameTime   = 0;
+    this._windowFrameTimes = [];  // дельты кадров за текущее 3-секундное окно
+    this._windowStart     = 0;
+    this._stableCount     = 0;    // счётчик стабильных окон подряд
+    this._locked          = false; // заблокирован ли авто-тюнинг
 
-    // UI-элемент для отображения профиля
-    this._badgeTimer = null;
+    // --- UI ---
+    this._badgeTimeout = null;
 
-    // Запускаем определение GPU
+    // Определяем GPU и частоту монитора
     this._detectGPU();
-
-    // Определяем частоту монитора
-    this._detectRefreshRate();
+    this._detectHz();
   }
 
   // ==================== Определение GPU ====================
 
   _detectGPU() {
     const ext = this.gl.getExtension('WEBGL_debug_renderer_info');
-
     if (ext) {
-      this.gpuInfo.vendor   = this.gl.getParameter(ext.UNMASKED_VENDOR_WEBGL)   || '';
-      this.gpuInfo.renderer = this.gl.getParameter(ext.UNMASAGED_RENDERER_WEBGL) || '';
-
-      // Фоллбэк на правильное имя параметра (в разных браузерах разное)
-      if (!this.gpuInfo.renderer) {
-        this.gpuInfo.renderer = this.gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '';
-      }
+      this.gpuRenderer = this.gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '';
     }
 
-    // Дополнительная информация
-    this.gpuInfo.maxTextureSize   = this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE);
-    this.gpuInfo.maxViewportDims  = this.gl.getParameter(this.gl.MAX_VIEWPORT_DIMS);
-    this.gpuInfo.maxRenderbuffer   = this.gl.getParameter(this.gl.MAX_RENDERBUFFER_SIZE);
-
-    // Определяем тир GPU по паттернам
-    this.gpuInfo.tier = this._classifyGPU(this.gpuInfo.renderer);
-
-    console.log(`[Perf] GPU: ${this.gpuInfo.renderer}`);
-    console.log(`[Perf] Vendor: ${this.gpuInfo.vendor}`);
-    console.log(`[Perf] Предварительная оценка: ${this.gpuInfo.tier}`);
-    console.log(`[Perf] Max Texture: ${this.gpuInfo.maxTextureSize}px`);
-  }
-
-  /**
-   * Классифицирует GPU по строке рендерера
-   * @param {string} renderer — строка из WEBGL_debug_renderer_info
-   * @returns {'high'|'medium'|'low'} — тир устройства
-   */
-  _classifyGPU(renderer) {
-    if (!renderer) return 'medium'; // неизвестно → среднее
-
-    for (const tier of GPU_TIERS) {
-      for (const pattern of tier.patterns) {
-        if (pattern.test(renderer)) {
-          return tier.tier;
+    // Классифицируем
+    this.gpuTier = 'medium';
+    for (const [tier, patterns] of Object.entries(GPU_PATTERNS)) {
+      for (const pat of patterns) {
+        if (pat.test(this.gpuRenderer)) {
+          this.gpuTier = tier;
+          break;
         }
       }
+      if (this.gpuTier !== 'medium' || tier === 'medium') {
+        // Если уже нашли совпадение в high или low — выходим
+        // Для medium проверяем все паттерны
+        let found = false;
+        for (const pat of patterns) {
+          if (pat.test(this.gpuRenderer)) { found = true; break; }
+        }
+        if (found && tier !== 'medium') break;
+      }
     }
 
-    // Если ничего не совпало — считаем средним
-    return 'medium';
+    // Начальный уровень — консервативный, НЕ максимальный
+    this.currentLevel = GPU_START_LEVEL[this.gpuTier] ?? 3;
+
+    console.log(`[Perf] GPU: ${this.gpuRenderer || 'неизвестно'}`);
+    console.log(`[Perf] Тир: ${this.gpuTier} → начальный уровень: ${this.currentLevel} (${LEVELS[this.currentLevel].label})`);
   }
 
   // ==================== Определение частоты монитора ====================
 
-  _detectRefreshRate() {
-    // Замеряем интервал между 10 кадрами requestAnimationFrame
-    // чтобы определить реальную частоту обновления экрана
+  _detectHz() {
     let frames = 0;
-    let startTime = 0;
+    let start = 0;
 
-    const measure = (timestamp) => {
-      if (frames === 0) {
-        startTime = timestamp;
-      }
+    const measure = (ts) => {
+      if (frames === 0) start = ts;
       frames++;
-
-      if (frames >= 20) {
-        const elapsed = timestamp - startTime;
-        const avgFrameTime = elapsed / (frames - 1);
-        this.displayRefreshRate = Math.round(1000 / avgFrameTime);
-        this.refreshRateDetected = true;
-        console.log(`[Perf] Частота монитора: ${this.displayRefreshRate}Hz`);
-        return; // прекращаем замер
+      if (frames >= 30) {
+        const avgMs = (ts - start) / (frames - 1);
+        this.displayHz = Math.round(1000 / avgMs);
+        this.targetFrameTime = 1000 / this.displayHz;
+        this._hzDetected = true;
+        console.log(`[Perf] Монитор: ${this.displayHz}Hz → целевой кадр: ${this.targetFrameTime.toFixed(1)}мс`);
+        return;
       }
-
       requestAnimationFrame(measure);
     };
-
     requestAnimationFrame(measure);
   }
 
-  // ==================== Бенчмарк (первые 4 секунды) ====================
+  // ==================== Бенчмарк ====================
 
-  /**
-   * Начинает бенчмарк. Вызывать ПОСЛЕ первого рендер-кадра.
-   * Устанавливает профиль на основе GPU-тира, затем
-   * уточняет по реальному FPS за 4 секунды.
-   */
+  /** Вызвать после первого рендер-кадра */
   startBenchmark() {
-    // Устанавливаем начальный профиль по GPU
-    const initialProfile = this.gpuInfo.tier;
-    this._applyProfile(initialProfile);
+    // Применяем начальный уровень
+    this._applyLevel(this.currentLevel);
 
-    // Начинаем замер реального FPS
-    this.benchmarkActive    = true;
-    this.benchmarkStartTime = performance.now();
-    this.benchmarkFrames    = 0;
+    this._benchmarkActive = true;
+    this._benchmarkStart  = performance.now();
+    this._benchmarkFrameTimes = [];
+    this._lastFrameTime   = this._benchmarkStart;
 
-    console.log(`[Perf] Бенчмарк начат (${this.benchmarkDuration / 1000}с)...`);
+    console.log('[Perf] Бенчмарк (4с) — замеряем стабильность...');
   }
 
   /**
-   * Вызывать каждый кадр из цикла анимации.
-   * Во время бенчмарка — считает кадры.
-   * После бенчмарка — мониторит FPS в реальном времени.
+   * Вызывать КАЖДЫЙ КАДР из анимационного цикла.
+   * Автоматически переключается между бенчмарком и рантайм-мониторингом.
    */
   tick() {
     const now = performance.now();
 
-    // === Фаза бенчмарка ===
-    if (this.benchmarkActive) {
-      this.benchmarkFrames++;
-      const elapsed = now - this.benchmarkStartTime;
+    if (this._lastFrameTime === 0) {
+      this._lastFrameTime = now;
+      return;
+    }
 
-      if (elapsed >= this.benchmarkDuration) {
-        this._finishBenchmark(elapsed);
+    const dt = now - this._lastFrameTime; // дельта кадра в мс
+    this._lastFrameTime = now;
+
+    // === Фаза бенчмарка ===
+    if (this._benchmarkActive) {
+      this._benchmarkFrameTimes.push(dt);
+      if (now - this._benchmarkStart >= 4000) {
+        this._finishBenchmark();
       }
       return;
     }
 
     // === Рантайм-мониторинг ===
-    if (!this.runtimeLocked) {
-      this._runtimeMonitor(now);
+    if (!this._locked) {
+      this._runtimeTick(now, dt);
     }
   }
 
-  _finishBenchmark(elapsed) {
-    this.benchmarkActive   = false;
-    this.benchmarkComplete = true;
+  _finishBenchmark() {
+    this._benchmarkActive = false;
+    this._benchmarkDone   = true;
 
-    const benchFps = (this.benchmarkFrames / elapsed) * 1000;
-    console.log(`[Perf] Бенчмарк завершён: ${benchFps.toFixed(1)} FPS (${this.benchmarkFrames} кадров за ${(elapsed / 1000).toFixed(1)}с)`);
+    const times = this._benchmarkFrameTimes;
+    const analysis = this._analyzeStability(times);
 
-    // Определяем целевой FPS на основе монитора
-    const targetFps = Math.max(this.displayRefreshRate * 0.75, 45);
+    console.log(`[Perf] Бенчмарк завершён:`);
+    console.log(`  Средний FPS: ${analysis.avgFps.toFixed(1)}`);
+    console.log(`  1% Low FPS:  ${analysis.p1Fps.toFixed(1)}`);
+    console.log(`  Jitter:      ${analysis.jitter.toFixed(2)}мс`);
+    console.log(`  Дропы:       ${analysis.drops} из ${times.length} кадров`);
 
-    // Решаем профиль на основе реальной производительности
-    let finalProfile;
+    // Определяем оптимальный уровень
+    let level = this.currentLevel;
 
-    if (benchFps >= targetFps * 1.2) {
-      // FPS значительно выше цели → можем повысить
-      const tiers = ['low', 'medium', 'high'];
-      const currentIdx = tiers.indexOf(this.currentProfile?.key || 'medium');
-      finalProfile = tiers[Math.min(currentIdx + 1, 2)];
-    } else if (benchFps < targetFps * 0.7) {
-      // FPS значительно ниже цели → понижаем
-      const tiers = ['low', 'medium', 'high'];
-      const currentIdx = tiers.indexOf(this.currentProfile?.key || 'medium');
-      finalProfile = tiers[Math.max(currentIdx - 1, 0)];
+    if (!analysis.stable) {
+      // Нестабильно на текущем уровне → понижаем
+      level = Math.max(0, level - 1);
+      console.log(`[Perf] Бенчмарк нестабилен → понижаем до ${LEVELS[level].label}`);
+    } else if (analysis.headroom) {
+      // Есть запас → осторожно повышаем НА ОДИН шаг
+      level = Math.min(LEVELS.length - 1, level + 1);
+      console.log(`[Perf] Бенчмарк стабилен с запасом → повышаем до ${LEVELS[level].label}`);
     } else {
-      // FPS в норме → оставляем текущий
-      finalProfile = this.currentProfile?.key || 'medium';
+      console.log(`[Perf] Бенчмарк стабилен → оставляем ${LEVELS[level].label}`);
     }
 
-    // Применяем финальный профиль
-    this._applyProfile(finalProfile);
+    this._applyLevel(level);
 
-    // Запускаем рантайм-мониторинг
-    this.runtimeStart  = performance.now();
-    this.runtimeFrames = 0;
+    // Сбрасываем для рантайм-мониторинга
+    this._windowFrameTimes = [];
+    this._windowStart = performance.now();
+    this._stableCount = 0;
+  }
 
-    console.log(`[Perf] Итоговый профиль: ${PROFILES[finalProfile].label}`);
+  // ==================== Анализ стабильности ====================
+
+  /**
+   * Анализирует массив дельт кадров (мс) и определяет стабильность.
+   * @param {number[]} frameTimes — массив дельт кадров в мс
+   * @returns {{ avgFps, p1Fps, jitter, drops, stable, headroom }}
+   */
+  _analyzeStability(frameTimes) {
+    if (frameTimes.length < 10) {
+      return { avgFps: 60, p1Fps: 60, jitter: 0, drops: 0, stable: true, headroom: false };
+    }
+
+    // Средний FPS
+    const avgDt = frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
+    const avgFps = 1000 / avgDt;
+
+    // 1% percentile (худшие кадры)
+    const sorted = [...frameTimes].sort((a, b) => b - a); // по убыванию (худшие первые)
+    const p1Index = Math.max(0, Math.floor(frameTimes.length * 0.01));
+    const p1Dt = sorted[p1Index];
+    const p1Fps = 1000 / p1Dt;
+
+    // Jitter — стандартное отклонение дельт кадров
+    const variance = frameTimes.reduce((sum, dt) => sum + (dt - avgDt) ** 2, 0) / frameTimes.length;
+    const jitter = Math.sqrt(variance);
+
+    // Дропы — кадры, которые заняли > 150% от целевого времени
+    const dropThreshold = this.targetFrameTime * 1.5;
+    const drops = frameTimes.filter(dt => dt > dropThreshold).length;
+
+    // Стабильность: FPS выше 55 (или 92% от монитора), jitter < 5мс, мало дропов
+    const targetMin = Math.min(55, this.displayHz * 0.92);
+    const stable = avgFps >= targetMin && jitter < 5.0 && drops < frameTimes.length * 0.03;
+
+    // Есть запас: средний FPS > 95% от монитора, jitter < 2мс, 0 дропов
+    const headroom = avgFps >= this.displayHz * 0.95 && jitter < 2.5 && drops === 0;
+
+    return { avgFps, p1Fps, jitter, drops, stable, headroom };
   }
 
   // ==================== Рантайм-мониторинг ====================
 
-  _runtimeMonitor(now) {
-    this.runtimeFrames++;
-
-    if (this.runtimeStart === 0) {
-      this.runtimeStart = now;
-      return;
+  _runtimeTick(now, dt) {
+    // Инициализация окна
+    if (this._windowStart === 0) {
+      this._windowStart = now;
     }
 
-    const elapsed = now - this.runtimeStart;
+    this._windowFrameTimes.push(dt);
 
-    // Каждые 3 секунды проверяем средний FPS
-    if (elapsed >= 3000) {
-      const fps = (this.runtimeFrames / elapsed) * 1000;
-      this.runtimeReadings.push(fps);
-      this.runtimeFrames = 0;
-      this.runtimeStart  = now;
+    // Каждые 3 секунды — анализ окна
+    if (now - this._windowStart >= 3000) {
+      const analysis = this._analyzeStability(this._windowFrameTimes);
 
-      // Нужно минимум 2 замера для принятия решения
-      if (this.runtimeReadings.length >= 2) {
-        const avgFps = this.runtimeReadings.reduce((a, b) => a + b, 0)
-                     / this.runtimeReadings.length;
-        const tiers = ['low', 'medium', 'high'];
-        const idx   = tiers.indexOf(this.currentProfile?.key || 'medium');
+      // Сбрасываем окно
+      this._windowFrameTimes = [];
+      this._windowStart = now;
 
-        if (avgFps < 24 && idx > 0) {
-          // Сильные просадки → понижаем
-          console.log(`[Perf] FPS просел (${avgFps.toFixed(0)}) → понижаем графику`);
-          this._applyProfile(tiers[idx - 1]);
-          this.runtimeReadings = [];
-        } else if (avgFps > 55 && idx < 2) {
-          // Запас производительности → повышаем
-          console.log(`[Perf] FPS высокий (${avgFps.toFixed(0)}) → повышаем графику`);
-          this._applyProfile(tiers[idx + 1]);
-          this.runtimeReadings = [];
-        } else if (this.runtimeReadings.length >= 5) {
-          // 5 стабильных замеров → блокируем дальнейшие изменения
-          this.runtimeLocked = true;
-          console.log(`[Perf] Графика стабильна (${avgFps.toFixed(0)} FPS) → заблокировано на «${this.currentProfile.label}»`);
+      if (!analysis.stable && this.currentLevel > 0) {
+        // === НЕСТАБИЛЬНО → мгновенно понижаем на 1 шаг ===
+        const newLevel = this.currentLevel - 1;
+        console.log(
+          `[Perf] Нестабильно (FPS:${analysis.avgFps.toFixed(0)}, ` +
+          `jitter:${analysis.jitter.toFixed(1)}мс, drops:${analysis.drops}) ` +
+          `→ понижаем: ${LEVELS[this.currentLevel].label} → ${LEVELS[newLevel].label}`
+        );
+        this._applyLevel(newLevel);
+        this._stableCount = 0;
+
+      } else if (analysis.headroom && this.currentLevel < LEVELS.length - 1) {
+        // === Есть запас — повышаем ТОЛЬКО после 4 стабильных окон подряд (12с) ===
+        this._stableCount++;
+        if (this._stableCount >= 4) {
+          const newLevel = this.currentLevel + 1;
+          console.log(
+            `[Perf] Стабильно 12с+ (FPS:${analysis.avgFps.toFixed(0)}) ` +
+            `→ повышаем: ${LEVELS[this.currentLevel].label} → ${LEVELS[newLevel].label}`
+          );
+          this._applyLevel(newLevel);
+          this._stableCount = 0;
         }
+
+      } else if (analysis.stable) {
+        // Стабильно, но без запаса — не меняем, считаем стабильные окна
+        this._stableCount++;
+
+        // После 6 стабильных окон подряд (18с) — блокируем
+        if (this._stableCount >= 6) {
+          this._locked = true;
+          console.log(
+            `[Perf] Стабильно 18с → заблокировано на «${LEVELS[this.currentLevel].label}» ` +
+            `(${analysis.avgFps.toFixed(0)} FPS, jitter ${analysis.jitter.toFixed(1)}мс)`
+          );
+        }
+
+      } else {
+        // Пограничный случай — сбрасываем счётчик
+        this._stableCount = 0;
       }
     }
   }
 
-  // ==================== Применение профиля ====================
+  // ==================== Применение уровня ====================
 
-  _applyProfile(profileKey) {
-    const profile = PROFILES[profileKey];
-    if (!profile) return;
+  _applyLevel(level) {
+    level = Math.max(0, Math.min(LEVELS.length - 1, level));
+    this.currentLevel = level;
+    const settings = LEVELS[level];
 
-    this.currentProfile = profile;
+    // Вычисляем реальный pixelRatio
+    const resolvedDpr = settings.dpr === null
+      ? Math.min(window.devicePixelRatio, 2.0)
+      : settings.dpr;
 
-    // Вызываем соответствующий колбэк
-    switch (profileKey) {
-      case 'low':
-        this.callbacks.onLow(profile);
-        break;
-      case 'medium':
-        this.callbacks.onMedium(profile);
-        break;
-      case 'high':
-        this.callbacks.onHigh(profile);
-        break;
-    }
+    // Передаём настройки в колбэк (app.js применит к рендереру)
+    this.onChange({
+      ...settings,
+      resolvedDpr,
+    });
 
-    // Показываем бейдж
-    this._showBadge(profile.label);
+    this._showBadge(settings.label);
   }
 
-  // ==================== UI: бейдж качества ====================
+  // ==================== UI: бейдж ====================
 
   _showBadge(label) {
-    let badge = document.getElementById('perf-badge');
-    if (!badge) {
-      badge = document.createElement('div');
-      badge.id = 'perf-badge';
-      badge.style.cssText = `
-        position: fixed;
-        bottom: 12px;
-        left: 12px;
-        z-index: 900;
-        padding: 5px 12px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.07);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        color: rgba(255, 255, 255, 0.5);
-        font: 500 11px/1 'Inter', system-ui, sans-serif;
-        letter-spacing: 0.6px;
-        text-transform: uppercase;
-        pointer-events: none;
-        transition: opacity 1.5s ease;
+    let el = document.getElementById('perf-badge');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'perf-badge';
+      el.style.cssText = `
+        position:fixed; bottom:12px; left:12px; z-index:900;
+        padding:5px 12px; border-radius:8px;
+        background:rgba(255,255,255,0.07);
+        backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+        color:rgba(255,255,255,0.5);
+        font:500 11px/1 'Inter',system-ui,sans-serif;
+        letter-spacing:0.6px; text-transform:uppercase;
+        pointer-events:none; transition:opacity 1.5s ease;
       `;
-      document.body.appendChild(badge);
+      document.body.appendChild(el);
     }
-
-    badge.textContent = label;
-    badge.style.opacity = '1';
-
-    clearTimeout(this._badgeTimer);
-    this._badgeTimer = setTimeout(() => {
-      badge.style.opacity = '0';
-    }, 6000);
+    el.textContent = label;
+    el.style.opacity = '1';
+    clearTimeout(this._badgeTimeout);
+    this._badgeTimeout = setTimeout(() => { el.style.opacity = '0'; }, 6000);
   }
 
   // ==================== Публичные методы ====================
 
-  /** Получить текущий профиль */
-  getProfile()   { return this.currentProfile; }
+  /** Текущий уровень (объект из LEVELS) */
+  getLevel() { return LEVELS[this.currentLevel]; }
 
-  /** Получить информацию о GPU */
-  getGPUInfo()   { return { ...this.gpuInfo }; }
-
-  /** Получить текущий FPS (приблизительно) */
+  /** Текущий FPS (приблизительно) */
   getCurrentFPS() {
-    if (this.runtimeStart === 0 || this.runtimeFrames < 2) return 0;
-    return (this.runtimeFrames / (performance.now() - this.runtimeStart)) * 1000;
+    if (this._windowFrameTimes.length < 2) return 0;
+    const avg = this._windowFrameTimes.reduce((a, b) => a + b, 0) / this._windowFrameTimes.length;
+    return 1000 / avg;
   }
 
-  /** Получить определённую частоту монитора */
-  getRefreshRate() { return this.displayRefreshRate; }
+  /** Частота монитора */
+  getRefreshRate() { return this.displayHz; }
 
-  /** Принудительно установить профиль (для отладки / настроек) */
-  forceProfile(key) {
-    this.runtimeLocked = true;
-    this._applyProfile(key);
-    console.log(`[Perf] Принудительный профиль: ${PROFILES[key]?.label || key}`);
+  /** GPU информация */
+  getGPUInfo() { return { renderer: this.gpuRenderer, tier: this.gpuTier }; }
+
+  /** Принудительно установить уровень (0–7) */
+  forceLevel(level) {
+    this._locked = true;
+    this._applyLevel(level);
+    console.log(`[Perf] Принудительный уровень: ${LEVELS[this.currentLevel].label}`);
   }
 
-  /** Разблокировать авто-настройку */
-  unlockAutoTuning() {
-    this.runtimeLocked   = false;
-    this.runtimeReadings = [];
-    this.runtimeFrames   = 0;
-    this.runtimeStart    = 0;
-    console.log('[Perf] Авто-настройка разблокирована');
+  /** Разблокировать авто-тюнинг */
+  unlock() {
+    this._locked = false;
+    this._stableCount = 0;
+    this._windowFrameTimes = [];
+    this._windowStart = 0;
+    console.log('[Perf] Авто-тюнинг разблокирован');
   }
 }
 
-// ==================== Функции-заглушки (колбэки) ====================
-// Эти функции показывают, что именно меняется на каждом уровне.
-// Интегрируйте их со своим рендерером (Three.js / собственный шейдер).
+// ==================== Функция применения настроек к рендереру ====================
+// Вызывается из app.js как колбэк onChange
 
 /**
- * Низкая графика — максимальная производительность.
- * Отключает тени, снижает разрешение, минимум шагов трассировки.
- * @param {THREE.WebGLRenderer} renderer — Three.js рендерер
- * @param {Object} uniforms — юниформы шейдера чёрной дыры
- */
-export function setLowGraphics(renderer, uniforms, profile) {
-  // Разрешение: фиксированный pixelRatio = 1 (без ретины)
-  renderer.setPixelRatio(1.0);
-
-  // Отключаем тени
-  renderer.shadowMap.enabled = false;
-
-  // Шейдер: минимум шагов трассировки
-  if (uniforms.uMaxSteps) uniforms.uMaxSteps.value = profile.steps;
-
-  // Обновляем разрешение в шейдере
-  const w = window.innerWidth, h = window.innerHeight;
-  if (uniforms.uResolution) {
-    uniforms.uResolution.value.set(w * 1.0, h * 1.0);
-  }
-
-  renderer.setSize(w, h);
-
-  console.log('[Perf] → Применены НИЗКИЕ настройки графики');
-}
-
-/**
- * Средняя графика — баланс качества и производительности.
- * Включает тени, нативный pixelRatio, базовые эффекты.
+ * Применяет настройки уровня к Three.js рендереру и юниформам шейдера.
  * @param {THREE.WebGLRenderer} renderer
- * @param {Object} uniforms
+ * @param {Object} uniforms — юниформы шейдера (uMaxSteps, uResolution)
+ * @param {Object} settings — объект из LEVELS + resolvedDpr
  */
-export function setMediumGraphics(renderer, uniforms, profile) {
-  // Разрешение: нативный pixelRatio, но не выше 2.0
-  const dpr = Math.min(window.devicePixelRatio, 2.0) * profile.resMul;
-  renderer.setPixelRatio(dpr);
+export function applyGraphicsSettings(renderer, uniforms, settings) {
+  const { steps, resolvedDpr, resMul, shadows } = settings;
 
-  // Тени: включены (средняя карта теней)
-  renderer.shadowMap.enabled = true;
-
-  // Шейдер: средние шаги
-  if (uniforms.uMaxSteps) uniforms.uMaxSteps.value = profile.steps;
-
-  const w = window.innerWidth, h = window.innerHeight;
-  if (uniforms.uResolution) {
-    uniforms.uResolution.value.set(w * dpr, h * dpr);
+  // Шаги трассировки лучей
+  if (uniforms.uMaxSteps) {
+    uniforms.uMaxSteps.value = steps;
   }
 
+  // Разрешение рендера
+  const effectiveDpr = resolvedDpr * resMul;
+  renderer.setPixelRatio(effectiveDpr);
+
+  // Тени
+  renderer.shadowMap.enabled = shadows;
+
+  // Обновляем размер и юниформу разрешения
+  const w = window.innerWidth;
+  const h = window.innerHeight;
   renderer.setSize(w, h);
 
-  console.log('[Perf] → Применены СРЕДНИЕ настройки графики');
-}
-
-/**
- * Высокая графика — «Катастрофа».
- * Максимальные тени, все пост-эффекты, максимум шагов,
- * полное разрешение с ретиной.
- * @param {THREE.WebGLRenderer} renderer
- * @param {Object} uniforms
- */
-export function setHighGraphics(renderer, uniforms, profile) {
-  // Разрешение: максимальный pixelRatio (до 2.0 — выше бессмысленно)
-  const dpr = Math.min(window.devicePixelRatio, 2.0);
-  renderer.setPixelRatio(dpr);
-
-  // Тени: включены (максимальные)
-  renderer.shadowMap.enabled = true;
-
-  // Шейдер: максимум шагов трассировки
-  if (uniforms.uMaxSteps) uniforms.uMaxSteps.value = profile.steps;
-
-  const w = window.innerWidth, h = window.innerHeight;
   if (uniforms.uResolution) {
-    uniforms.uResolution.value.set(w * dpr, h * dpr);
+    uniforms.uResolution.value.set(w * effectiveDpr, h * effectiveDpr);
   }
-
-  renderer.setSize(w, h);
-
-  console.log('[Perf] → Применены ВЫСОКИЕ настройки графики (Катастрофа)');
 }

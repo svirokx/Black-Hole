@@ -8,10 +8,8 @@ import { BlackHoleRenderer } from './blackhole.js';
 import { BlackHoleAudio } from './audio.js';
 import { ParticleSystem } from './particles.js';
 import {
-  PerformanceEngine,
-  setLowGraphics,
-  setMediumGraphics,
-  setHighGraphics,
+  StablePerformanceEngine,
+  applyGraphicsSettings,
 } from './performance.js';
 
 // ---------- TON 618 Scale Constants ----------
@@ -203,21 +201,17 @@ async function init() {
   const bhRenderer = new BlackHoleRenderer(canvas);
   const particleSystem = new ParticleSystem(bhRenderer);
 
-  // Движок производительности — подключаем колбэки графики
+  // Движок производительности «Стабильный FPS»
+  // Колбэк onChange вызывается при каждой смене уровня графики
   const gl = bhRenderer.renderer.getContext();
-  const uniforms = bhRenderer.uniforms;
-  const renderer3 = bhRenderer.renderer;
-
-  const perfEngine = new PerformanceEngine(gl, {
-    onLow:    (profile) => setLowGraphics(renderer3, uniforms, profile),
-    onMedium: (profile) => setMediumGraphics(renderer3, uniforms, profile),
-    onHigh:   (profile) => setHighGraphics(renderer3, uniforms, profile),
+  const perfEngine = new StablePerformanceEngine(gl, (settings) => {
+    applyGraphicsSettings(bhRenderer.renderer, bhRenderer.uniforms, settings);
   });
 
   // Запускаем бенчмарк (первые 4 секунды)
   perfEngine.startBenchmark();
 
-  // Цикл анимации — без ограничения FPS (следует за частотой монитора)
+  // Цикл анимации — без ограничения FPS (стремится к частоте монитора)
   const startTime = performance.now();
   let lastTime = startTime;
 
@@ -234,7 +228,7 @@ async function init() {
     particleSystem.update(dt);
     particleSystem.render(bhRenderer.renderer);
 
-    // Тик движка производительности (бенчмарк + рантайм-мониторинг)
+    // Тик стабилизатора (бенчмарк → рантайм-мониторинг)
     perfEngine.tick();
 
     requestAnimationFrame(animate);

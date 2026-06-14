@@ -220,8 +220,19 @@ void main() {
 
     vel = normalize(vel_half + nAcc * dt * 0.5);
 
-    // Disk crossing
+    // Disk volumetric glow — rays skimming the disk plane
     float newY = newPos.y;
+    float absY = abs(newPos.y);
+    float diskR = length(newPos.xz);
+    if (absY < 0.5 && diskR > DISK_INNER && diskR < DISK_OUTER && diskAlpha < 0.98) {
+      float volDensity = exp(-absY * absY * 20.0) * 0.04;
+      float dAngle = atan(newPos.z, newPos.x);
+      vec3 volCol = diskColor(diskR, dAngle, uTime) * 0.4;
+      color += volCol * volDensity * (1.0 - diskAlpha);
+      diskAlpha += volDensity * 0.3 * (1.0 - diskAlpha);
+    }
+
+    // Disk crossing (y sign change)
     if (prevY * newY < 0.0 && diskAlpha < 0.98) {
       float frac = abs(prevY) / (abs(prevY) + abs(newY) + 0.0001);
       vec3 crossPos = mix(pos, newPos, frac);
@@ -295,9 +306,10 @@ void main() {
 export class BlackHoleRenderer {
   constructor(canvas) {
     this.canvas = canvas;
-    this.targetTheta = Math.PI * 0.42;
+    // Near edge-on view: ~85° from pole (Interstellar Gargantua angle)
+    this.targetTheta = Math.PI * 0.47;
     this.targetPhi = 0;
-    this.currentTheta = Math.PI * 0.42;
+    this.currentTheta = Math.PI * 0.47;
     this.currentPhi = 0;
     this.camDist = 25;
     this.isDragging = false;

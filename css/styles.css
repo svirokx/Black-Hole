@@ -9,7 +9,7 @@
   --glass-card: rgba(255, 255, 255, 0.04);
   --glass-card-hover: rgba(255, 255, 255, 0.07);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: 28px;
+  --glass-blur: 12px;
   --text-primary: #f0f0f8;
   --text-secondary: #a8a8c8;
   --text-dim: #6a6a8a;
@@ -198,6 +198,7 @@ body.scrolled-past-hero .scale-ruler {
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border-top: 1px solid var(--glass-border);
+  will-change: transform;
 }
 /* Slightly different tint for alternating sections */
 .content-section:nth-child(even) {
@@ -247,6 +248,12 @@ body.scrolled-past-hero .scale-ruler {
 }
 
 /* ============ REVEAL ANIMATIONS ============ */
+/* GPU-heavy backdrop-filter OFF on low-end / reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .content-section { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  .reveal { transition: none !important; }
+}
+
 .reveal {
   opacity: 0; transform: translateY(30px);
   transition: opacity 0.8s ease, transform 0.8s ease;

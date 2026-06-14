@@ -12,7 +12,7 @@ import {
   applyGraphicsSettings,
 } from './performance.js';
 
-// ---------- TON 618 Scale Constants ----------
+// ---------- Scale Constants ----------
 const AU_PER_UNIT = 650;
 
 // ---------- Loader ----------

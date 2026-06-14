@@ -109,17 +109,26 @@ vec3 diskColor(float r, float angle, float t) {
 
   float brightness = 0.15 + 0.85 * pow(temp, 0.35);
 
-  // Spiral arms
-  float logR = log(r + 1.0);
-  float sp1 = sin(angle * 3.0 - logR * 5.0 + t * 0.6) * 0.5 + 0.5;
-  float sp2 = sin(angle * 5.0 + logR * 4.0 - t * 0.45) * 0.5 + 0.5;
-  float sp3 = sin(angle * 7.0 - logR * 8.0 + t * 0.9) * 0.5 + 0.5;
-  brightness *= 0.55 + 0.45 * (sp1 * 0.5 + sp2 * 0.35 + sp3 * 0.15);
+  // Keplerian differential rotation: inner orbits MUCH faster
+  float orbitalSpeed = sqrt(1.0 / max(r, DISK_INNER)) * 1.5;
+  float rotatedAngle = angle - t * orbitalSpeed;
 
-  // Turbulence
-  float tb1 = noise(vec2(angle * 10.0, r * 4.0 + t * 0.04));
-  float tb2 = noise(vec2(angle * 25.0, r * 10.0 - t * 0.08));
-  brightness *= 0.7 + 0.2 * tb1 + 0.1 * tb2;
+  // Spiral arms — use rotated angle for visible spinning
+  float logR = log(r + 1.0);
+  float sp1 = sin(rotatedAngle * 3.0 - logR * 5.0) * 0.5 + 0.5;
+  float sp2 = sin(rotatedAngle * 5.0 + logR * 4.0) * 0.5 + 0.5;
+  float sp3 = sin(rotatedAngle * 7.0 - logR * 8.0) * 0.5 + 0.5;
+  brightness *= 0.45 + 0.55 * (sp1 * 0.5 + sp2 * 0.35 + sp3 * 0.15);
+
+  // Turbulence — also rotated
+  float tb1 = noise(vec2(rotatedAngle * 10.0, r * 4.0));
+  float tb2 = noise(vec2(rotatedAngle * 25.0, r * 10.0));
+  brightness *= 0.65 + 0.25 * tb1 + 0.1 * tb2;
+
+  // Hot spots — bright clumps orbiting visibly
+  float hotSpot = sin(rotatedAngle * 2.0 - logR * 3.0) * 0.5 + 0.5;
+  hotSpot = pow(hotSpot, 4.0) * 0.6 * temp;
+  brightness += hotSpot;
 
   // Hot ISCO ring
   col += vec3(0.35, 0.6, 1.0) * exp(-pow((r - DISK_INNER) * 2.5, 2.0)) * 0.6;
@@ -127,7 +136,7 @@ vec3 diskColor(float r, float angle, float t) {
   float innerFade = smoothstep(DISK_INNER - 0.1, DISK_INNER + 0.4, r);
   float outerFade = smoothstep(DISK_OUTER, DISK_OUTER - 3.0, r);
 
-  return col * brightness * innerFade * outerFade * 2.2;
+  return col * brightness * innerFade * outerFade * 2.5;
 }
 
 // ==================== Main ====================
@@ -266,23 +275,23 @@ void main() {
       }
     }
 
-    // Volumetric disk glow — thick near inner edge for visible 3D volume
+    // Volumetric disk glow — FAT glowing torus, very visible
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
-    if (absY < 2.0 && diskR > DISK_INNER * 0.85 && diskR < DISK_OUTER && diskAlpha < 0.95) {
-      // Disk is thickest at inner edge (hot, turbulent) → thins out at outer
-      float thickness = mix(1.2, 0.25, smoothstep(DISK_INNER, DISK_OUTER * 0.5, diskR));
-      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.05;
+    if (absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
+      // Disk is FAT at inner edge (turbulent puffed up) → thins toward outer
+      float thickness = mix(1.8, 0.3, smoothstep(DISK_INNER, DISK_OUTER * 0.4, diskR));
+      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.07;
       float dAng = atan(newPos.z, newPos.x);
-      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.5;
+      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.6;
       color     += vCol * vol * (1.0 - diskAlpha);
-      diskAlpha += vol * 0.2 * (1.0 - diskAlpha);
+      diskAlpha += vol * 0.25 * (1.0 - diskAlpha);
     }
 
-    // Hot corona — glowing gas near photon sphere
-    if (r < 4.5 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
+    // Hot corona — bright glowing gas near photon sphere
+    if (r < 5.0 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
       float coronaDist = r - R_HORIZON;
-      float coronaGlow = exp(-coronaDist * 1.5) * 0.012;
+      float coronaGlow = exp(-coronaDist * 1.2) * 0.015;
       vec3 coronaCol = mix(vec3(1.0, 0.55, 0.15), vec3(0.6, 0.75, 1.0), exp(-coronaDist * 3.0));
       color += coronaCol * coronaGlow * (1.0 - diskAlpha);
     }

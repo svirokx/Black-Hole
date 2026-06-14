@@ -112,45 +112,25 @@ vec3 diskColor(float r, float angle, float t) {
   // Keplerian differential rotation: inner orbits MUCH faster
   float orbitalSpeed = sqrt(1.0 / max(r, DISK_INNER)) * 1.5;
   float rotatedAngle = angle - t * orbitalSpeed;
-  float logR = log(r + 1.0);
 
-  // Perturb radial coordinate with noise — breaks perfect concentric rings
-  float rPerturb = r + noise(vec2(rotatedAngle * 3.0, r * 1.5)) * 0.8
-                     + noise(vec2(rotatedAngle * 7.0, r * 3.0)) * 0.3;
-  float logRP = log(rPerturb + 1.0);
+  // Convert to Cartesian for fbm — naturally aperiodic, no ring artifacts
+  float cx = r * cos(rotatedAngle);
+  float cy = r * sin(rotatedAngle);
 
-  // Spiral arms — wide, organic, using perturbed radius
-  float sp1 = sin(rotatedAngle * 2.0 - logRP * 4.0) * 0.5 + 0.5;
-  float sp2 = sin(rotatedAngle * 3.0 + logRP * 3.0 + 1.7) * 0.5 + 0.5;
-  float sp3 = sin(rotatedAngle * 5.0 - logRP * 6.0 - 0.9) * 0.5 + 0.5;
-  float spirals = sp1 * 0.45 + sp2 * 0.30 + sp3 * 0.25;
-  brightness *= 0.35 + 0.65 * spirals;
+  // Main turbulence — fbm in rotated polar coords (4 octaves inside)
+  float turb = fbm(vec2(cx * 0.6, cy * 0.6));
+  brightness *= 0.45 + 0.55 * turb;
 
-  // Multi-octave turbulence — MHD-like chaos
-  float tb1 = noise(vec2(rotatedAngle * 6.0, rPerturb * 2.0));
-  float tb2 = noise(vec2(rotatedAngle * 14.0, rPerturb * 5.0));
-  float tb3 = noise(vec2(rotatedAngle * 28.0 + r, rPerturb * 10.0));
-  float tb4 = noise(vec2(rotatedAngle * 4.0 - logR * 3.0, r * 1.2 + t * 0.08));
-  brightness *= 0.35 + 0.30 * tb1 + 0.18 * tb2 + 0.08 * tb3 + 0.14 * tb4;
+  // Large-scale density waves
+  float wave = fbm(vec2(cx * 0.25 + 10.0, cy * 0.25 + 10.0));
+  brightness *= 0.6 + 0.4 * wave;
 
-  // Large-scale radial variation — smooth density waves
-  float radWave = noise(vec2(r * 2.5 + rotatedAngle * 0.3, r * 0.8 - t * 0.03));
-  brightness *= 0.65 + 0.35 * radWave;
-
-  // Hot spots — bright turbulent clumps
-  float hs1 = sin(rotatedAngle * 2.0 - logRP * 3.0) * 0.5 + 0.5;
-  float hs2 = sin(rotatedAngle * 1.3 + logRP * 2.0 + 3.1) * 0.5 + 0.5;
-  float hotSpot = pow(hs1, 4.0) * 0.45 + pow(hs2, 5.0) * 0.25;
-  hotSpot *= temp;
+  // Hot spots — bright clumps from fbm peaks
+  float hotSpot = pow(max(turb - 0.55, 0.0) * 3.3, 2.0) * temp;
   brightness += hotSpot;
 
-  // Filaments — thin bright streaks (magnetic field lines)
-  float fil = pow(abs(sin(rotatedAngle * 9.0 - logRP * 7.0)), 10.0) * 0.2 * temp;
-  brightness += fil;
-
-  // Subtle color variation — regions slightly more red/blue
-  float colorNoise = noise(vec2(rotatedAngle * 4.0, rPerturb * 1.5));
-  col = mix(col, col * vec3(1.15, 0.9, 0.8), colorNoise * 0.3);
+  // Color variation from turbulence
+  col = mix(col, col * vec3(1.15, 0.9, 0.8), turb * 0.3);
 
   // Hot ISCO ring
   col += vec3(0.35, 0.6, 1.0) * exp(-pow((r - DISK_INNER) * 2.5, 2.0)) * 0.6;

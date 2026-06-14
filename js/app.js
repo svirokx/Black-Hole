@@ -1,10 +1,11 @@
 // ============================================
 // BLACK HOLE — Main Application
-// Loader, scroll animations, initialization
+// Loader, scroll animations, creation mode
 // ============================================
 
 import { BlackHoleRenderer } from './blackhole.js';
 import { BlackHoleAudio } from './audio.js';
+import { ParticleSystem } from './particles.js';
 
 // ---------- Loader ----------
 
@@ -25,17 +26,7 @@ function initScrollReveal() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        // Staggered reveal for siblings
         const parent = entry.target.parentElement;
-        const siblings = parent.querySelectorAll('.reveal');
-        let delay = 0;
-        siblings.forEach((sib) => {
-          if (sib === entry.target || entry.target.contains(sib)) return;
-        });
-
-        entry.target.style.transitionDelay = '0s';
-
-        // Check if parent has multiple reveal children for stagger
         const allReveals = Array.from(parent.children).filter(c =>
           c.classList.contains('reveal') && !c.classList.contains('visible')
         );
@@ -43,7 +34,6 @@ function initScrollReveal() {
         if (idx > 0) {
           entry.target.style.transitionDelay = `${idx * 0.1}s`;
         }
-
         entry.target.classList.add('visible');
       }
     });
@@ -93,9 +83,48 @@ function initSound() {
     btn.classList.toggle('active', playing);
   });
 
-  // Initially show "off" icon
   iconOn.style.display = 'none';
   iconOff.style.display = 'block';
+}
+
+// ---------- Creation Mode ----------
+
+function initCreationMode(bhRenderer, particleSystem) {
+  const btn = document.getElementById('create-toggle');
+  const canvas = document.getElementById('blackhole-canvas');
+  const indicator = document.getElementById('create-indicator');
+  let createMode = false;
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    createMode = !createMode;
+    btn.classList.toggle('active', createMode);
+    canvas.classList.toggle('create-mode', createMode);
+
+    if (indicator) {
+      indicator.style.display = createMode ? 'flex' : 'none';
+    }
+  });
+
+  // Spawn object on click in create mode
+  canvas.addEventListener('click', (e) => {
+    if (!createMode) return;
+
+    // Convert click to NDC (-1 to 1)
+    const rect = canvas.getBoundingClientRect();
+    const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const ndcY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+
+    particleSystem.spawn(ndcX, ndcY);
+  });
+
+  // In create mode, prevent orbit rotation on click (only drag)
+  canvas.addEventListener('mousedown', (e) => {
+    if (createMode) {
+      // Don't start orbit drag on single click in create mode
+      // We'll let the existing drag logic work (it uses mousemove)
+    }
+  });
 }
 
 // ---------- Main Init ----------
@@ -103,32 +132,44 @@ function initSound() {
 async function init() {
   const canvas = document.getElementById('blackhole-canvas');
 
-  // Initialize black hole renderer
+  // Initialize renderers
   const bhRenderer = new BlackHoleRenderer(canvas);
+  const particleSystem = new ParticleSystem(bhRenderer);
 
   // Animation loop
   const startTime = performance.now();
+  let lastTime = startTime;
+
   function animate() {
-    const elapsed = (performance.now() - startTime) / 1000;
+    const now = performance.now();
+    const elapsed = (now - startTime) / 1000;
+    const dt = Math.min((now - lastTime) / 1000, 0.05); // cap dt
+    lastTime = now;
+
+    // Update black hole shader
     bhRenderer.update(elapsed);
+
+    // Update and render particles on top
+    particleSystem.update(dt);
+    particleSystem.render(bhRenderer.renderer);
+
     requestAnimationFrame(animate);
   }
 
-  // Start rendering immediately (behind loader)
   animate();
 
-  // Wait a moment for first frame, then hide loader
+  // Hide loader after first frame renders
   setTimeout(() => {
     hideLoader();
   }, 2500);
 
-  // Init other features
+  // Init features
   initScrollReveal();
   initHeroParallax();
   initSound();
+  initCreationMode(bhRenderer, particleSystem);
 }
 
-// Start when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {

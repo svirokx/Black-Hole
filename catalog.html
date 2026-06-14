@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black Hole Catalog — All Known Black Holes</title>
+  <meta name="description" content="A comprehensive catalog of all known and confirmed black holes — stellar-mass, intermediate-mass, and supermassive — with data from NASA, ESA, EHT, and LIGO.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/catalog.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="index.html" class="nav-link">← Main</a>
+    <span class="nav-title">BLACK HOLE CATALOG</span>
+    <span class="nav-spacer"></span>
+  </nav>
+
+  <!-- HERO -->
+  <header class="catalog-hero">
+    <h1 class="catalog-hero-title">Known Black Holes</h1>
+    <p class="catalog-hero-sub">A comprehensive catalog of confirmed and candidate black holes across the universe, organized by class. All data sourced from NASA, ESA, EHT, LIGO/Virgo, and peer-reviewed astrophysical journals.</p>
+  </header>
+
+  <!-- FILTER TABS -->
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="supermassive">Supermassive</button>
+    <button class="filter-btn" data-filter="intermediate">Intermediate</button>
+    <button class="filter-btn" data-filter="stellar">Stellar-Mass</button>
+    <button class="filter-btn" data-filter="merger">GW Mergers</button>
+  </div>
+
+  <main class="catalog-main">
+
+    <!-- ========== SUPERMASSIVE ========== -->
+    <section class="catalog-class" id="supermassive">
+      <div class="class-header reveal">
+        <h2 class="class-title">Supermassive Black Holes</h2>
+        <p class="class-desc">10⁶ – 10¹¹ solar masses. Found at the centers of most large galaxies. They power quasars, AGN, and shape galaxy evolution.</p>
+      </div>
+      <div class="catalog-grid">
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/600px-Black_hole_-_Messier_87_crop_max_res.jpg" alt="M87* — first image of a black hole" loading="lazy">
+          </div>
+          <div class="bh-card-body">
+            <h3>M87* <span class="bh-badge badge-first">First Image</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 6.5 × 10⁹ M☉</div>
+              <div><strong>Distance:</strong> 55 Mly</div>
+              <div><strong>Galaxy:</strong> Messier 87</div>
+              <div><strong>Type:</strong> Active AGN</div>
+            </div>
+            <p>First black hole ever directly imaged (April 10, 2019) by the Event Horizon Telescope. A supermassive giant at the heart of the elliptical galaxy Virgo A, powering a relativistic jet extending 5,000 light-years. Its shadow diameter is ~42 micro-arcseconds.</p>
+            <div class="bh-source">EHT Collaboration, ApJL, 2019</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Sgr_A_star_EHT.jpg/600px-Sgr_A_star_EHT.jpg" alt="Sagittarius A* EHT image" loading="lazy">
+          </div>
+          <div class="bh-card-body">
+            <h3>Sagittarius A* <span class="bh-badge badge-home">Our Galaxy</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 4.15 × 10⁶ M☉</div>
+              <div><strong>Distance:</strong> 26,000 ly</div>
+              <div><strong>Galaxy:</strong> Milky Way</div>
+              <div><strong>Type:</strong> Quiescent SMBH</div>
+            </div>
+            <p>The supermassive black hole at the center of our Milky Way. Its mass was determined by tracking orbiting stars (S2/S0-2), earning Andrea Ghez and Reinhard Genzel the 2020 Nobel Prize. EHT imaged it in May 2022. Despite its mass, it is remarkably quiet — accreting at a tiny fraction of its Eddington limit.</p>
+            <div class="bh-source">EHT Collaboration, 2022; Genzel, Ghez et al.</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a0a2e, #0d0d30);">
+            <span class="placeholder-label">~100 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>Phoenix A <span class="bh-badge badge-record">Most Massive Known</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~1 × 10¹¹ M☉</div>
+              <div><strong>Distance:</strong> 5.7 Bly</div>
+              <div><strong>Galaxy:</strong> Phoenix Cluster BCG</div>
+              <div><strong>Type:</strong> Ultramassive</div>
+            </div>
+            <p>The most massive black hole discovered to date (announced 2022). Located at the center of the brightest cluster galaxy in the Phoenix Cluster, it has approximately 100 billion solar masses. Its event horizon would engulf our entire solar system many times over.</p>
+            <div class="bh-source">Hlavacek-Larrondo et al., ApJ, 2022</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #2a0a1e, #150530);">
+            <span class="placeholder-label">66 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>TON 618</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 6.6 × 10¹⁰ M☉</div>
+              <div><strong>Distance:</strong> 10.4 Bly</div>
+              <div><strong>Type:</strong> Hyperluminous quasar</div>
+              <div><strong>Schwarzschild radius:</strong> ~1,300 AU</div>
+            </div>
+            <p>A hyperluminous quasar powered by one of the most massive black holes known. Its event horizon radius is ~1,300 AU — far beyond Pluto's orbit. The quasar shines with a luminosity of 1.4 × 10⁴¹ W, making it one of the most luminous objects in the universe.</p>
+            <div class="bh-source">Shemmer et al., ApJ, 2004</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a1a2e, #0d0d30);">
+            <span class="placeholder-label">40 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>Holm 15A*</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 4 × 10¹⁰ M☉</div>
+              <div><strong>Distance:</strong> ~700 Mly</div>
+              <div><strong>Galaxy:</strong> Holm 15A (Abell 85)</div>
+              <div><strong>Type:</strong> Ultramassive</div>
+            </div>
+            <p>Located in the central galaxy of galaxy cluster Abell 85. Its mass was determined through stellar orbit modeling. The galaxy itself has an unusually large, depleted core — likely carved out by the merger of two previous supermassive black holes.</p>
+            <div class="bh-source">Mehrgan et al., ApJ, 2019</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a0a0e, #200a30);">
+            <span class="placeholder-label">40 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>S5 0014+81</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 4 × 10¹⁰ M☉</div>
+              <div><strong>Distance:</strong> 12.07 Bly</div>
+              <div><strong>Type:</strong> Blazar / Quasar</div>
+              <div><strong>Luminosity:</strong> 10⁴¹ W</div>
+            </div>
+            <p>One of the most massive and luminous quasars known, classified as a blazar (jet pointed toward Earth). Its extreme brightness makes it visible across most of the observable universe. The accretion disk alone outshines many entire galaxies.</p>
+            <div class="bh-source">Ghisellini et al., MNRAS, 2010</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a0a2e, #1a0d30);">
+            <span class="placeholder-label">21 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>NGC 4889</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 2.1 × 10¹⁰ M☉</div>
+              <div><strong>Distance:</strong> 336 Mly</div>
+              <div><strong>Galaxy:</strong> NGC 4889 (Coma Cluster)</div>
+              <div><strong>Type:</strong> Quiescent SMBH</div>
+            </div>
+            <p>One of the most massive black holes in the nearby universe, sitting at the center of the giant elliptical galaxy NGC 4889 in the Coma Cluster. Despite its enormous mass, it is currently dormant — not actively accreting matter. Its event horizon is roughly the size of our solar system.</p>
+            <div class="bh-source">McConnell et al., Nature, 2011</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a1a0e, #100d30);">
+            <span class="placeholder-label">18 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>OJ 287 <span class="bh-badge badge-binary">Binary System</span></h3>
+            <div class="bh-stats">
+              <div><strong>Primary mass:</strong> 1.8 × 10¹⁰ M☉</div>
+              <div><strong>Secondary mass:</strong> ~1.5 × 10⁸ M☉</div>
+              <div><strong>Distance:</strong> 3.5 Bly</div>
+              <div><strong>Type:</strong> BL Lac / binary SMBH</div>
+            </div>
+            <p>One of the best-studied binary supermassive black hole systems. The smaller black hole orbits the larger one with a ~12-year period, plunging through the primary's accretion disk twice per orbit and producing bright optical outbursts. This system provides one of the strongest tests of general relativity in the strong-field regime.</p>
+            <div class="bh-source">Valtonen et al., Nature, 2008</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a2a1e, #0d1030);">
+            <span class="placeholder-label">17 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>NGC 1277</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 1.7 × 10¹⁰ M☉</div>
+              <div><strong>Distance:</strong> 220 Mly</div>
+              <div><strong>Galaxy:</strong> NGC 1277 (Perseus)</div>
+              <div><strong>BH/Galaxy mass:</strong> ~14%</div>
+            </div>
+            <p>A compact lenticular galaxy in the Perseus Cluster containing an unusually massive black hole — about 14% of the galaxy's total mass (typical is &lt;1%). This extreme ratio challenges our understanding of how black holes and galaxies co-evolve.</p>
+            <div class="bh-source">van den Bosch et al., Nature, 2012</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a0a1e, #1a0d20);">
+            <span class="placeholder-label">17 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>NGC 1600</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 1.7 × 10¹⁰ M☉</div>
+              <div><strong>Distance:</strong> ~200 Mly</div>
+              <div><strong>Galaxy:</strong> NGC 1600</div>
+              <div><strong>Type:</strong> Quiescent</div>
+            </div>
+            <p>An elliptical galaxy hosting a surprisingly massive black hole for its environment — it resides in a relatively sparse galaxy group rather than a dense cluster. This suggests that ultra-massive black holes can form even outside the densest cosmic environments.</p>
+            <div class="bh-source">Thomas et al., Nature, 2016</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a0a1e, #0d0520);">
+            <span class="placeholder-label">12 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>SDSS J0100+2802</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 1.2 × 10¹⁰ M☉</div>
+              <div><strong>Distance:</strong> 12.8 Bly (z ≈ 6.3)</div>
+              <div><strong>Type:</strong> High-redshift quasar</div>
+              <div><strong>Age of universe at emission:</strong> ~900 Myr</div>
+            </div>
+            <p>One of the most massive black holes at very high redshift. It existed when the universe was less than 1 billion years old, posing serious challenges to models of early black hole growth — it's unclear how such a massive object could form so quickly after the Big Bang.</p>
+            <div class="bh-source">Wu et al., Nature, 2015</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a1a0e, #0d0d20);">
+            <span class="placeholder-label">9.7 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>NGC 3842</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 9.7 × 10⁹ M☉</div>
+              <div><strong>Distance:</strong> ~331 Mly</div>
+              <div><strong>Galaxy:</strong> NGC 3842 (Leo Cluster)</div>
+              <div><strong>Type:</strong> BCG SMBH</div>
+            </div>
+            <p>The central galaxy of the Leo Cluster harboring a near-10-billion-solar-mass black hole. It was among the first "ultra-massive" black holes discovered through stellar dynamics, expanding the known upper mass limit.</p>
+            <div class="bh-source">McConnell et al., Nature, 2011</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a100e, #0d0a20);">
+            <span class="placeholder-label">886 million M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>3C 273 <span class="bh-badge badge-first">First Quasar</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 8.86 × 10⁸ M☉</div>
+              <div><strong>Distance:</strong> 2.4 Bly</div>
+              <div><strong>Type:</strong> Quasar</div>
+              <div><strong>Discovery:</strong> 1963</div>
+            </div>
+            <p>The first quasar ever identified (by Maarten Schmidt in 1963) and one of the closest. Despite being 2.4 billion light-years away, it is bright enough to be seen in amateur telescopes. It demonstrated that immensely luminous objects exist at cosmological distances, powered by supermassive black holes.</p>
+            <div class="bh-source">Schmidt, Nature, 1963; Peterson et al., ApJ, 2004</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a0a2e, #1a0d10);">
+            <span class="placeholder-label">800 million M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>ULAS J1342+0928</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 8 × 10⁸ M☉</div>
+              <div><strong>Redshift:</strong> z = 7.54</div>
+              <div><strong>Type:</strong> High-z quasar</div>
+              <div><strong>Age of universe:</strong> ~690 Myr</div>
+            </div>
+            <p>One of the most distant quasars known. It existed when the universe was only 690 million years old — during the epoch of reionization when the first stars and galaxies were forming. Its existence at such an early time is a major puzzle for black hole formation theories.</p>
+            <div class="bh-source">Bañados et al., Nature, 2018</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #2a0a0e, #100a30);">
+            <span class="placeholder-label">2.5 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>Cygnus A</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 2.5 × 10⁹ M☉</div>
+              <div><strong>Distance:</strong> ~760 Mly</div>
+              <div><strong>Galaxy:</strong> Cygnus A</div>
+              <div><strong>Type:</strong> Radio galaxy AGN</div>
+            </div>
+            <p>One of the strongest radio sources in the sky. Its supermassive black hole powers immense relativistic jets that create spectacular radio lobes extending ~300,000 light-years on each side. It was one of the first extragalactic radio sources discovered (1939).</p>
+            <div class="bh-source">Tadhunter et al.; Carilli & Barthel, 1996</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a2a2e, #0d0d20);">
+            <span class="placeholder-label">140 million M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>Andromeda (M31*)</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 1.4 × 10⁸ M☉</div>
+              <div><strong>Distance:</strong> 2.5 Mly</div>
+              <div><strong>Galaxy:</strong> Andromeda (M31)</div>
+              <div><strong>Type:</strong> Quiescent SMBH</div>
+            </div>
+            <p>The supermassive black hole in the center of the Andromeda galaxy — the nearest major galaxy to the Milky Way. It is about 35 times more massive than Sgr A*. When the Milky Way and Andromeda merge in ~4.5 billion years, these two SMBHs will eventually spiral together and merge.</p>
+            <div class="bh-source">Bender et al., ApJ, 2005</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a1a0e, #0d0520);">
+            <span class="placeholder-label">55 million M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>Centaurus A (NGC 5128)</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 5.5 × 10⁷ M☉</div>
+              <div><strong>Distance:</strong> 13 Mly</div>
+              <div><strong>Galaxy:</strong> NGC 5128</div>
+              <div><strong>Type:</strong> Active radio galaxy</div>
+            </div>
+            <p>The nearest active galaxy and one of the closest radio galaxies. Its distinctive dark dust lane (visible in optical images) is the result of a past galaxy merger. Its jets extend over a million light-years. In 2021, the EHT resolved the jet launching region near the black hole.</p>
+            <div class="bh-source">Cappellari et al., 2009; EHT, Nature Astronomy, 2021</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a0a1e, #200a20);">
+            <span class="placeholder-label">~40 million M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>UHZ1 <span class="bh-badge badge-record">Earliest Known</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~4 × 10⁷ M☉</div>
+              <div><strong>Redshift:</strong> z ≈ 10.1</div>
+              <div><strong>Discovered:</strong> 2023 (JWST + Chandra)</div>
+              <div><strong>Age of universe:</strong> ~470 Myr</div>
+            </div>
+            <p>Discovered by combining JWST infrared and Chandra X-ray data behind galaxy cluster Abell 2744 (gravitational lensing). This is one of the earliest known accreting black holes, existing when the universe was only ~470 million years old. It may represent a "heavy seed" — a direct-collapse black hole from the early universe.</p>
+            <div class="bh-source">Bogdan et al., Nature Astronomy, 2024</div>
+          </div>
+        </article>
+
+        <article class="bh-card supermassive reveal" data-category="supermassive">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a0a2e, #0d1030);">
+            <span class="placeholder-label">23 billion M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>APM 08279+5255</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 2.3 × 10¹⁰ M☉</div>
+              <div><strong>Distance:</strong> ~12 Bly (z ≈ 3.9)</div>
+              <div><strong>Type:</strong> Gravitationally lensed quasar</div>
+              <div><strong>Luminosity:</strong> ~10⁴¹ W (lensing magnified)</div>
+            </div>
+            <p>An extremely luminous quasar whose light is magnified by gravitational lensing from a foreground galaxy. It contains enormous reservoirs of water vapor — equivalent to 140 trillion times all Earth's oceans — making it one of the most water-rich environments in the universe.</p>
+            <div class="bh-source">Irwin et al., ApJ, 1998; Bradford et al., ApJL, 2011</div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ========== INTERMEDIATE-MASS ========== -->
+    <section class="catalog-class" id="intermediate">
+      <div class="class-header reveal">
+        <h2 class="class-title">Intermediate-Mass Black Holes</h2>
+        <p class="class-desc">10² – 10⁵ solar masses. The "missing link" between stellar and supermassive black holes. Their existence was long debated until recent confirmations.</p>
+      </div>
+      <div class="catalog-grid">
+
+        <article class="bh-card intermediate reveal" data-category="intermediate">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a1a3e, #1a0d30);">
+            <span class="placeholder-label">~20,000 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>HLX-1 <span class="bh-badge badge-first">Best IMBH Candidate</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~2 × 10⁴ M☉</div>
+              <div><strong>Distance:</strong> ~290 Mly</div>
+              <div><strong>Host:</strong> ESO 243-49 (edge-on galaxy)</div>
+              <div><strong>Type:</strong> Hyper-luminous X-ray source</div>
+            </div>
+            <p>The strongest intermediate-mass black hole candidate. Discovered in 2009, it is located off-center in its host galaxy, suggesting it may be the remnant core of a dwarf galaxy being absorbed. Its X-ray luminosity exceeds 10⁴² erg/s — too bright for a stellar-mass black hole.</p>
+            <div class="bh-source">Farrell et al., Nature, 2009</div>
+          </div>
+        </article>
+
+        <article class="bh-card intermediate reveal" data-category="intermediate">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a2a2e, #0d1030);">
+            <span class="placeholder-label">~8,200+ M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>Omega Centauri IMBH <span class="bh-badge badge-new">2024</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ≥8,200 M☉</div>
+              <div><strong>Distance:</strong> 17,090 ly</div>
+              <div><strong>Host:</strong> ω Centauri (globular cluster)</div>
+              <div><strong>Discovery:</strong> 2024 (Hubble)</div>
+            </div>
+            <p>In 2024, Hubble Space Telescope data revealed fast-moving stars in the core of the globular cluster Omega Centauri, confirming the presence of an intermediate-mass black hole. This is significant because Omega Centauri is likely the stripped nucleus of a dwarf galaxy absorbed by the Milky Way billions of years ago.</p>
+            <div class="bh-source">Häberle et al., Nature, 2024</div>
+          </div>
+        </article>
+
+        <article class="bh-card intermediate reveal" data-category="intermediate">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a1a1e, #0d0d30);">
+            <span class="placeholder-label">142 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GW190521 Remnant <span class="bh-badge badge-first">First Confirmed IMBH</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 142 M☉</div>
+              <div><strong>Progenitors:</strong> 85 + 66 M☉</div>
+              <div><strong>Distance:</strong> ~5.3 Gly</div>
+              <div><strong>Type:</strong> Merger remnant</div>
+            </div>
+            <p>The merger remnant from the gravitational wave event GW190521 (detected September 2019, announced 2020). This is the first black hole definitively in the intermediate-mass range, formed by the merger of two unusually heavy stellar-mass black holes. The 85 M☉ component falls in the "pair-instability mass gap" (65–120 M☉), where stars are expected to blow themselves apart completely.</p>
+            <div class="bh-source">LIGO/Virgo Collaboration, PRL, 2020</div>
+          </div>
+        </article>
+
+        <article class="bh-card intermediate reveal" data-category="intermediate">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a1a2e, #1a0a30);">
+            <span class="placeholder-label">~50,000 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>3XMM J215022.4−055108</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~5 × 10⁴ M☉</div>
+              <div><strong>Distance:</strong> ~740 Mly</div>
+              <div><strong>Host:</strong> Off-center in a large galaxy</div>
+              <div><strong>Discovery:</strong> 2020 (XMM-Newton + Hubble)</div>
+            </div>
+            <p>A strong IMBH candidate discovered via an X-ray flare consistent with a tidal disruption event (a star being torn apart by the black hole). The X-ray luminosity and spectral properties indicate a black hole far too massive to be stellar but much less massive than supermassive.</p>
+            <div class="bh-source">Lin et al., ApJL, 2020</div>
+          </div>
+        </article>
+
+        <article class="bh-card intermediate reveal" data-category="intermediate">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a0a1e, #0d1a30);">
+            <span class="placeholder-label">~400 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>M82 X-1</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~400 M☉ (debated)</div>
+              <div><strong>Distance:</strong> ~12 Mly</div>
+              <div><strong>Host:</strong> Messier 82 (starburst galaxy)</div>
+              <div><strong>Type:</strong> Ultra-luminous X-ray source</div>
+            </div>
+            <p>An ultra-luminous X-ray source (ULX) in the starburst galaxy M82. Quasi-periodic oscillations in its X-ray emission suggest an intermediate-mass black hole, though the mass estimate remains debated. Some models suggest it could be a stellar-mass BH with super-Eddington accretion.</p>
+            <div class="bh-source">Pasham et al., Nature, 2014</div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ========== STELLAR-MASS ========== -->
+    <section class="catalog-class" id="stellar">
+      <div class="class-header reveal">
+        <h2 class="class-title">Stellar-Mass Black Holes</h2>
+        <p class="class-desc">~3 – 100 solar masses. Formed from collapsed massive stars or discovered as dormant objects through astrometry. The most common type.</p>
+      </div>
+      <div class="catalog-grid">
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Cygnus_X-1.png/600px-Cygnus_X-1.png" alt="Cygnus X-1 artist impression" loading="lazy">
+          </div>
+          <div class="bh-card-body">
+            <h3>Cygnus X-1 <span class="bh-badge badge-first">First Confirmed</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 21.2 M☉</div>
+              <div><strong>Distance:</strong> 6,070 ly</div>
+              <div><strong>Constellation:</strong> Cygnus</div>
+              <div><strong>Companion:</strong> HDE 226868 (O9.7 Iab)</div>
+            </div>
+            <p>The first widely accepted black hole (1971). It accretes matter from its blue supergiant companion star, producing intense X-rays. Subject of a famous bet between Hawking (against) and Thorne (for) — Hawking conceded in 1990. Recent measurements revised its mass upward to 21.2 M☉ and distance to 6,070 ly.</p>
+            <div class="bh-source">Bolton 1972; Miller-Jones et al., Science, 2021</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #2a1a0e, #100530);">
+            <span class="placeholder-label">32.7 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>Gaia BH3 <span class="bh-badge badge-record">Most Massive in MW</span><span class="bh-badge badge-new">2024</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 32.7 M☉</div>
+              <div><strong>Distance:</strong> 1,926 ly</div>
+              <div><strong>Constellation:</strong> Aquila</div>
+              <div><strong>Companion:</strong> Metal-poor giant star</div>
+            </div>
+            <p>Discovered in April 2024 using ESA's Gaia spacecraft data. The most massive stellar-mass black hole found in the Milky Way and the second closest known. It is dormant (no X-ray emission) and was found by tracking the wobble of its companion star. Its companion is very metal-poor, hinting the BH formed from one of the galaxy's earliest massive stars.</p>
+            <div class="bh-source">Gaia Collaboration, A&A, 2024</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a1a2e, #0d0a30);">
+            <span class="placeholder-label">9.62 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>Gaia BH1 <span class="bh-badge badge-record">Nearest Known</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 9.62 M☉</div>
+              <div><strong>Distance:</strong> 1,560 ly</div>
+              <div><strong>Constellation:</strong> Ophiuchus</div>
+              <div><strong>Companion:</strong> Sun-like star (G-type)</div>
+            </div>
+            <p>The closest known black hole to Earth (discovered 2022). Entirely dormant — invisible in X-rays and radio. Found through the gravitational wobble of its Sun-like companion using Gaia astrometry. The orbital period is ~186 days. Its close proximity surprised astronomers.</p>
+            <div class="bh-source">El-Badry et al., MNRAS, 2023</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a2a1e, #0d0d30);">
+            <span class="placeholder-label">8.9 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>Gaia BH2</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 8.9 M☉</div>
+              <div><strong>Distance:</strong> 3,800 ly</div>
+              <div><strong>Constellation:</strong> Centaurus</div>
+              <div><strong>Discovery:</strong> 2023</div>
+            </div>
+            <p>The second dormant black hole discovered using Gaia astrometry. It has a remarkably wide orbit (~1,277-day period) with its red giant companion — one of the widest known for a black hole binary. This challenges models of binary stellar evolution.</p>
+            <div class="bh-source">El-Badry et al., MNRAS, 2023</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #2a0a1e, #0d1030);">
+            <span class="placeholder-label">~9 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>V404 Cygni (GS 2023+338)</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~9 M☉</div>
+              <div><strong>Distance:</strong> ~7,800 ly</div>
+              <div><strong>Constellation:</strong> Cygnus</div>
+              <div><strong>Companion:</strong> K-type star</div>
+            </div>
+            <p>A low-mass X-ray binary that undergoes dramatic X-ray outbursts. Its 1989 outburst was one of the brightest X-ray events ever recorded. In 2015 it erupted again, producing rapid X-ray variability and jet ejections visible across the electromagnetic spectrum — providing an unprecedented view of black hole accretion physics.</p>
+            <div class="bh-source">Casares et al., 1992; Motta et al., MNRAS, 2017</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a0a0e, #0d0d30);">
+            <span class="placeholder-label">6.6 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>A0620-00 (V616 Mon)</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~6.6 M☉</div>
+              <div><strong>Distance:</strong> ~3,500 ly</div>
+              <div><strong>Constellation:</strong> Monoceros</div>
+              <div><strong>Companion:</strong> K-type dwarf</div>
+            </div>
+            <p>One of the nearest X-ray black holes. It produced the brightest X-ray nova ever observed when it erupted in 1975 (briefly the brightest X-ray source in the sky). Now in quiescence, it is used to study black hole X-ray binary physics in the "off" state.</p>
+            <div class="bh-source">McClintock & Remillard, 1986</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a1a1e, #0d0530);">
+            <span class="placeholder-label">12.4 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GRS 1915+105 <span class="bh-badge badge-first">First MW Superluminal Jets</span></h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~12.4 M☉</div>
+              <div><strong>Distance:</strong> ~36,000 ly</div>
+              <div><strong>Constellation:</strong> Aquila</div>
+              <div><strong>Spin:</strong> a > 0.98</div>
+            </div>
+            <p>The first Milky Way object observed with apparent superluminal (faster-than-light) radio jets — an illusion caused by the jet's near-light-speed motion directed partially toward us. It is one of the most rapidly spinning known black holes and was continuously active in X-rays for over 25 years (1992–2018) before dimming.</p>
+            <div class="bh-source">Mirabel & Rodríguez, Nature, 1994; Reid et al., 2014</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a0a2e, #1a0d20);">
+            <span class="placeholder-label">6.3 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GRO J1655-40</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~6.3 M☉</div>
+              <div><strong>Distance:</strong> ~11,000 ly</div>
+              <div><strong>Constellation:</strong> Scorpius</div>
+              <div><strong>Type:</strong> Microquasar</div>
+            </div>
+            <p>A "microquasar" — a stellar-mass black hole exhibiting scaled-down versions of the jets and accretion processes seen in quasars. It was the second galactic source observed with superluminal jets. The black hole is thought to have received a natal kick during the supernova, giving the system a high space velocity.</p>
+            <div class="bh-source">Hjellming & Rupen, 1995; Greene et al., ApJ, 2001</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a0a2e, #0d1020);">
+            <span class="placeholder-label">~15.65 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>M33 X-7</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> 15.65 M☉</div>
+              <div><strong>Distance:</strong> ~3 Mly</div>
+              <div><strong>Host:</strong> Triangulum Galaxy (M33)</div>
+              <div><strong>Companion:</strong> 70 M☉ O-star</div>
+            </div>
+            <p>The most massive stellar-mass black hole in an eclipsing X-ray binary. Located in the nearby Triangulum Galaxy, it orbits a massive O-type star with a 3.45-day period. The eclipse allows precise mass measurements, making it a benchmark for stellar evolution models.</p>
+            <div class="bh-source">Orosz et al., Nature, 2007</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a1a1e, #0d0d30);">
+            <span class="placeholder-label">~10 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>VFTS 243</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ≥10 M☉</div>
+              <div><strong>Distance:</strong> 160,000 ly (LMC)</div>
+              <div><strong>Companion:</strong> 25 M☉ O-star</div>
+              <div><strong>Discovery:</strong> 2022</div>
+            </div>
+            <p>The first dormant stellar-mass black hole discovered outside the Milky Way, found in the Large Magellanic Cloud. Remarkably, the binary orbit is nearly circular, suggesting the star collapsed directly into a black hole without a strong supernova kick — evidence for "direct collapse" black hole formation.</p>
+            <div class="bh-source">Shenar et al., Nature Astronomy, 2022</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #2a1a0e, #0d0d30);">
+            <span class="placeholder-label">~10-20 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>SS 433</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~10–20 M☉ (debated)</div>
+              <div><strong>Distance:</strong> ~18,000 ly</div>
+              <div><strong>Constellation:</strong> Aquila</div>
+              <div><strong>Type:</strong> Microquasar with precessing jets</div>
+            </div>
+            <p>One of the most exotic stellar systems known. Its twin jets precess like a spinning top with a 162-day period, tracing out corkscrew patterns in space. The jets travel at 26% of the speed of light. The system sits inside the W50 nebula ("Manatee Nebula"), which is being shaped by the jets.</p>
+            <div class="bh-source">Margon, 1984; Blundell et al., ApJL, 2004</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a0a1e, #1a0d30);">
+            <span class="placeholder-label">~6.8 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>XTE J1118+480</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~6.8 M☉</div>
+              <div><strong>Distance:</strong> ~5,500 ly</div>
+              <div><strong>Constellation:</strong> Ursa Major</div>
+              <div><strong>Type:</strong> Halo black hole</div>
+            </div>
+            <p>An unusual "halo" black hole — located far above the galactic plane rather than in the disk where most stars reside. Its high galactic latitude and space velocity suggest it was kicked out of the disk by the supernova that created it, or it formed in a globular cluster.</p>
+            <div class="bh-source">Wagner et al., 2001; McClintock et al., ApJ, 2001</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #1a1a2e, #0d0d10);">
+            <span class="placeholder-label">~7 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>LMC X-3</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~7 M☉</div>
+              <div><strong>Distance:</strong> ~160,000 ly (LMC)</div>
+              <div><strong>Host:</strong> Large Magellanic Cloud</div>
+              <div><strong>Companion:</strong> B-type star</div>
+            </div>
+            <p>One of the first extragalactic black hole candidates, located in the Large Magellanic Cloud. It is a persistent X-ray source (unlike most transient BH binaries) and has been used extensively to study accretion disk physics and black hole spin measurements.</p>
+            <div class="bh-source">Cowley et al., 1983; Steiner et al., 2014</div>
+          </div>
+        </article>
+
+        <article class="bh-card stellar reveal" data-category="stellar">
+          <div class="bh-card-img placeholder-img" style="background: linear-gradient(135deg, #0a2a0e, #0d0d30);">
+            <span class="placeholder-label">~8.5 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>MAXI J1820+070</h3>
+            <div class="bh-stats">
+              <div><strong>Mass:</strong> ~8.5 M☉</div>
+              <div><strong>Distance:</strong> ~10,000 ly</div>
+              <div><strong>Constellation:</strong> Ophiuchus</div>
+              <div><strong>Outburst:</strong> 2018</div>
+            </div>
+            <p>A transient X-ray binary that underwent a spectacular outburst in March 2018, briefly becoming one of the brightest X-ray sources in the sky. Observations captured relativistic jet ejections in unprecedented detail, with apparent superluminal motion. The jets were also detected in radio, optical, and infrared.</p>
+            <div class="bh-source">Tucker et al., ApJL, 2018; Bright et al., Nature Astro., 2020</div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ========== GW MERGERS ========== -->
+    <section class="catalog-class" id="merger">
+      <div class="class-header reveal">
+        <h2 class="class-title">Gravitational Wave Detections</h2>
+        <p class="class-desc">Black hole mergers detected by LIGO, Virgo, and KAGRA through gravitational waves — ripples in spacetime predicted by Einstein in 1916 and first detected in 2015.</p>
+      </div>
+      <div class="catalog-grid">
+
+        <article class="bh-card merger reveal" data-category="merger">
+          <div class="bh-card-img placeholder-img gw-img" style="background: linear-gradient(135deg, #1a0a3e, #0d0a20);">
+            <span class="placeholder-label">36 + 29 → 62 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GW150914 <span class="bh-badge badge-first">First Ever Detection</span></h3>
+            <div class="bh-stats">
+              <div><strong>Masses:</strong> 36 + 29 → 62 M☉</div>
+              <div><strong>Energy radiated:</strong> 3 M☉c²</div>
+              <div><strong>Distance:</strong> 1.3 Bly</div>
+              <div><strong>Date:</strong> Sept 14, 2015</div>
+            </div>
+            <p>The first direct detection of gravitational waves and the first observation of a binary black hole merger. The signal lasted only 0.2 seconds but released more energy than all stars in the observable universe combined. This earned Kip Thorne, Rainer Weiss, and Barry Barish the 2017 Nobel Prize in Physics.</p>
+            <div class="bh-source">LIGO/Virgo Collaboration, PRL, 2016</div>
+          </div>
+        </article>
+
+        <article class="bh-card merger reveal" data-category="merger">
+          <div class="bh-card-img placeholder-img gw-img" style="background: linear-gradient(135deg, #0a1a3e, #100a30);">
+            <span class="placeholder-label">14 + 8 → 21 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GW151226</h3>
+            <div class="bh-stats">
+              <div><strong>Masses:</strong> 14.2 + 7.5 → 20.8 M☉</div>
+              <div><strong>Energy radiated:</strong> 1 M☉c²</div>
+              <div><strong>Distance:</strong> 1.4 Bly</div>
+              <div><strong>Date:</strong> Dec 26, 2015</div>
+            </div>
+            <p>The second confirmed gravitational wave detection ("Boxing Day event"). The lower masses meant the signal lasted much longer (~1 second, ~55 orbits in LIGO's band), allowing measurement of the spins — at least one black hole was spinning.</p>
+            <div class="bh-source">LIGO/Virgo Collaboration, PRL, 2016</div>
+          </div>
+        </article>
+
+        <article class="bh-card merger reveal" data-category="merger">
+          <div class="bh-card-img placeholder-img gw-img" style="background: linear-gradient(135deg, #1a0a2e, #0d1030);">
+            <span class="placeholder-label">31 + 19 → 49 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GW170104</h3>
+            <div class="bh-stats">
+              <div><strong>Masses:</strong> 31.2 + 19.4 → 48.7 M☉</div>
+              <div><strong>Energy radiated:</strong> 2 M☉c²</div>
+              <div><strong>Distance:</strong> 2.8 Bly</div>
+              <div><strong>Date:</strong> Jan 4, 2017</div>
+            </div>
+            <p>A merger at cosmological distances. Analysis suggested at least one of the black holes may have had its spin misaligned with the orbital angular momentum — possible evidence that the binary formed through dynamical capture in a dense stellar environment rather than from a binary star system.</p>
+            <div class="bh-source">LIGO/Virgo Collaboration, PRL, 2017</div>
+          </div>
+        </article>
+
+        <article class="bh-card merger reveal" data-category="merger">
+          <div class="bh-card-img placeholder-img gw-img" style="background: linear-gradient(135deg, #0a0a3e, #1a0a20);">
+            <span class="placeholder-label">31 + 25 → 53 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GW170814 <span class="bh-badge badge-first">First 3-Detector</span></h3>
+            <div class="bh-stats">
+              <div><strong>Masses:</strong> 30.5 + 25.3 → 53.2 M☉</div>
+              <div><strong>Distance:</strong> 1.8 Bly</div>
+              <div><strong>Date:</strong> Aug 14, 2017</div>
+              <div><strong>Detectors:</strong> LIGO H + L + Virgo</div>
+            </div>
+            <p>The first gravitational wave event detected by three observatories (both LIGO detectors plus Virgo in Italy). The addition of Virgo dramatically improved sky localization from ~1,200 deg² to ~60 deg², beginning the era of precision gravitational wave astronomy.</p>
+            <div class="bh-source">LIGO/Virgo Collaboration, PRL, 2017</div>
+          </div>
+        </article>
+
+        <article class="bh-card merger reveal" data-category="merger">
+          <div class="bh-card-img placeholder-img gw-img" style="background: linear-gradient(135deg, #2a0a1e, #0d0d30);">
+            <span class="placeholder-label">85 + 66 → 142 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GW190521 <span class="bh-badge badge-record">Most Massive Merger</span></h3>
+            <div class="bh-stats">
+              <div><strong>Masses:</strong> 85 + 66 → 142 M☉</div>
+              <div><strong>Energy radiated:</strong> 9 M☉c²</div>
+              <div><strong>Distance:</strong> 5.3 Gly</div>
+              <div><strong>Date:</strong> May 21, 2019</div>
+            </div>
+            <p>The most massive binary black hole merger detected. Both components fall in or near the "pair-instability mass gap" (65–130 M☉), where stellar theory predicts no black holes should form from normal stellar evolution. This suggests they may have formed from previous mergers or in unusual environments. The remnant (142 M☉) is the first confirmed IMBH.</p>
+            <div class="bh-source">LIGO/Virgo Collaboration, PRL & ApJL, 2020</div>
+          </div>
+        </article>
+
+        <article class="bh-card merger reveal" data-category="merger">
+          <div class="bh-card-img placeholder-img gw-img" style="background: linear-gradient(135deg, #0a1a2e, #1a0d30);">
+            <span class="placeholder-label">23 + 2.6 M☉</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GW190814 <span class="bh-badge badge-record">Lightest Secondary</span></h3>
+            <div class="bh-stats">
+              <div><strong>Masses:</strong> 23.2 + 2.59 M☉</div>
+              <div><strong>Mass ratio:</strong> ~9:1 (most asymmetric)</div>
+              <div><strong>Distance:</strong> 800 Mly</div>
+              <div><strong>Date:</strong> Aug 14, 2019</div>
+            </div>
+            <p>Notable for its extreme mass asymmetry and its mysterious secondary component of 2.59 M☉ — too heavy to be a neutron star by most models, too light to be a typical black hole. This falls in the "mass gap" (2.2–5 M☉) between neutron stars and black holes, and its nature remains debated.</p>
+            <div class="bh-source">LIGO/Virgo Collaboration, ApJL, 2020</div>
+          </div>
+        </article>
+
+        <article class="bh-card merger reveal" data-category="merger">
+          <div class="bh-card-img placeholder-img gw-img" style="background: linear-gradient(135deg, #0a2a1e, #0d0a30);">
+            <span class="placeholder-label">NSBH Merger</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GW200105 & GW200115 <span class="bh-badge badge-first">First NS–BH</span></h3>
+            <div class="bh-stats">
+              <div><strong>GW200105:</strong> 8.9 + 1.9 M☉</div>
+              <div><strong>GW200115:</strong> 5.7 + 1.5 M☉</div>
+              <div><strong>Distances:</strong> 900 & 300 Mly</div>
+              <div><strong>Dates:</strong> Jan 5 & 15, 2020</div>
+            </div>
+            <p>The first confirmed detections of neutron star–black hole mergers. These events proved that such mixed binary systems exist and merge within a Hubble time. No electromagnetic counterpart was detected, likely because the neutron stars were swallowed whole without being tidally disrupted.</p>
+            <div class="bh-source">LIGO/Virgo/KAGRA Collaboration, ApJL, 2021</div>
+          </div>
+        </article>
+
+        <article class="bh-card merger reveal" data-category="merger">
+          <div class="bh-card-img placeholder-img gw-img" style="background: linear-gradient(135deg, #1a1a0e, #0d0d30);">
+            <span class="placeholder-label">90+ BBH events</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>GWTC-3 Catalog (O1–O3)</h3>
+            <div class="bh-stats">
+              <div><strong>Total events:</strong> ~90 confident detections</div>
+              <div><strong>BBH mergers:</strong> ~80+</div>
+              <div><strong>NSBH mergers:</strong> 2–4</div>
+              <div><strong>Runs:</strong> O1 (2015), O2 (2017), O3 (2019–2020)</div>
+            </div>
+            <p>The third Gravitational-Wave Transient Catalog contains ~90 confident detections from the first three observing runs of LIGO/Virgo. These events have revealed the mass distribution of merging black holes, provided tests of general relativity, measured the Hubble constant, and constrained models of stellar evolution and binary formation.</p>
+            <div class="bh-source">LIGO/Virgo/KAGRA Collaboration, PRX, 2023</div>
+          </div>
+        </article>
+
+        <article class="bh-card merger reveal" data-category="merger">
+          <div class="bh-card-img placeholder-img gw-img" style="background: linear-gradient(135deg, #0a0a2e, #2a0a30);">
+            <span class="placeholder-label">O4 Run: 2023–2025</span>
+          </div>
+          <div class="bh-card-body">
+            <h3>O4 Observing Run <span class="bh-badge badge-new">2023–2025</span></h3>
+            <div class="bh-stats">
+              <div><strong>Status:</strong> O4a + O4b completed</div>
+              <div><strong>Sensitivity:</strong> ~160–190 Mpc (BNS range)</div>
+              <div><strong>New candidates:</strong> Hundreds of alerts</div>
+              <div><strong>Detectors:</strong> LIGO H + L + Virgo + KAGRA</div>
+            </div>
+            <p>The fourth observing run of LIGO/Virgo/KAGRA ran from May 2023 to June 2025 with significantly improved sensitivity. Hundreds of candidate events were publicly alerted in real-time. Notable results include additional NSBH mergers, high-mass events, and improved constraints on the neutron star equation of state. Full catalog publication is forthcoming.</p>
+            <div class="bh-source">LIGO/Virgo/KAGRA Collaboration, public alerts (GraceDB)</div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- SOURCES -->
+    <section class="catalog-sources reveal">
+      <h2>Sources & References</h2>
+      <p>All data sourced from peer-reviewed publications and official collaboration releases:</p>
+      <ul>
+        <li>Event Horizon Telescope Collaboration — <em>The Astrophysical Journal Letters</em> (2019, 2022)</li>
+        <li>LIGO/Virgo/KAGRA Collaboration — <em>Physical Review Letters</em>, <em>Physical Review X</em>, <em>ApJL</em> (2016–2025)</li>
+        <li>ESA Gaia Collaboration — <em>Astronomy & Astrophysics</em> (2023, 2024)</li>
+        <li>NASA Chandra, NuSTAR, XMM-Newton archives</li>
+        <li>Individual papers cited with each entry</li>
+      </ul>
+      <p>Black hole masses, distances, and properties may be revised as new observations become available.</p>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-title">BLACK HOLE</div>
+      <p class="footer-text">All scientific information sourced from NASA, ESA, EHT, LIGO/Virgo/KAGRA, and peer-reviewed journals.</p>
+      <p class="footer-text"><a href="index.html" style="color: var(--accent); text-decoration: none;">← Back to Main Page & 3D Simulation</a></p>
+      <div class="footer-credits">
+        <p>Images: NASA, ESA, EHT Collaboration, ESO — public domain / CC BY 4.0</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Filter script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Filter buttons
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const cards = document.querySelectorAll('.bh-card');
+      const sections = document.querySelectorAll('.catalog-class');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const filter = btn.dataset.filter;
+
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          if (filter === 'all') {
+            sections.forEach(s => s.style.display = '');
+            cards.forEach(c => c.style.display = '');
+          } else {
+            sections.forEach(s => {
+              s.style.display = s.id === filter ? '' : 'none';
+            });
+            cards.forEach(c => {
+              c.style.display = c.dataset.category === filter ? '' : 'none';
+            });
+          }
+        });
+      });
+
+      // Scroll reveal
+      const reveals = document.querySelectorAll('.reveal');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
+      reveals.forEach(el => observer.observe(el));
+    });
+  </script>
+</body>
+</html>

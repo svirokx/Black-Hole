@@ -39,6 +39,16 @@
     </svg>
   </button>
 
+  <!-- ============ CREATE MODE TOGGLE ============ -->
+  <button id="create-toggle" class="create-btn" aria-label="Toggle creation mode">
+    <svg class="create-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+    </svg>
+  </button>
+  <div id="create-indicator" class="create-indicator" style="display:none">
+    <span>🪐 Click anywhere to spawn an object</span>
+  </div>
+
   <!-- ============ HERO SECTION ============ -->
   <section id="hero">
     <canvas id="blackhole-canvas"></canvas>
@@ -491,7 +501,7 @@
           <h2 class="section-title">Black Holes in Cinema: Interstellar</h2>
           <p class="section-body">The 2014 film <em>Interstellar</em>, directed by Christopher Nolan, featured the most scientifically accurate depiction of a black hole ever created for cinema. Working with theoretical physicist Kip Thorne, the visual effects team at Double Negative developed a new ray-tracing renderer called DNGR (Double Negative Gravitational Renderer) that solved the equations of general relativity for tens of millions of light rays.</p>
           <p class="section-body">The resulting image of the fictional black hole "Gargantua" revealed unexpected visual features — particularly the warped appearance of the accretion disk, which wraps around the black hole due to gravitational lensing. Light from the back of the disk curves over the top and under the bottom, creating the distinctive halo.</p>
-          <p class="section-body">The simulation on this page uses similar (though simplified) ray-tracing principles, solving photon trajectories in Schwarzschild spacetime to produce the lensing effect you see.</p>
+          <p class="section-body">The simulation on this page uses similar ray-tracing principles, solving photon trajectories in Kerr spacetime (rotating black hole, spin a ≈ 0.97) to produce the lensing, frame-dragging, and Doppler beaming effects you see. You can drag the mouse to orbit around the black hole and see how the accretion disk appearance changes from different angles — just like the Double Negative team explored with Gargantua.</p>
           <p class="section-source">Source: James et al. "Gravitational Lensing by Spinning Black Holes in Astrophysics, and in the Movie Interstellar," 2015, Classical and Quantum Gravity</p>
         </div>
       </div>
@@ -543,7 +553,8 @@
       <div class="footer-inner">
         <div class="footer-title">BLACK HOLE</div>
         <p class="footer-text">All scientific information sourced from NASA, ESA, the Event Horizon Telescope Collaboration, and peer-reviewed astrophysical journals.</p>
-        <p class="footer-text">3D simulation uses ray-tracing in Schwarzschild spacetime with Three.js and WebGL.</p>
+        <p class="footer-text">3D simulation uses ray-tracing in Kerr spacetime (rotating black hole) with Three.js and WebGL.</p>
+      <p class="footer-text"><a href="catalog.html" style="color: var(--accent); text-decoration: none;">📚 Browse the full catalog of all known black holes →</a></p>
         <div class="footer-credits">
           <p>Images: NASA, ESA, EHT Collaboration, ESO — used under public domain / CC BY 4.0</p>
         </div>

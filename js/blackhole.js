@@ -136,7 +136,7 @@ vec3 diskColor(float r, float angle, float t) {
   float innerFade = smoothstep(DISK_INNER - 0.1, DISK_INNER + 0.4, r);
   float outerFade = smoothstep(DISK_OUTER, DISK_OUTER - 3.0, r);
 
-  return col * brightness * innerFade * outerFade * 2.5;
+  return col * brightness * innerFade * outerFade * 2.8;
 }
 
 // ==================== Main ====================
@@ -278,20 +278,20 @@ void main() {
     // Volumetric disk glow — FAT glowing torus, very visible
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
-    if (absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
-      // Disk is FAT at inner edge (turbulent puffed up) → thins toward outer
-      float thickness = mix(1.8, 0.3, smoothstep(DISK_INNER, DISK_OUTER * 0.4, diskR));
-      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.07;
+    if (absY < 5.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
+      // Disk is VERY FAT at inner edge (turbulent puffed up) → thins toward outer
+      float thickness = mix(2.8, 0.5, smoothstep(DISK_INNER, DISK_OUTER * 0.5, diskR));
+      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.10;
       float dAng = atan(newPos.z, newPos.x);
-      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.6;
+      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.7;
       color     += vCol * vol * (1.0 - diskAlpha);
-      diskAlpha += vol * 0.25 * (1.0 - diskAlpha);
+      diskAlpha += vol * 0.3 * (1.0 - diskAlpha);
     }
 
     // Hot corona — bright glowing gas near photon sphere
-    if (r < 5.0 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
+    if (r < 6.0 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
       float coronaDist = r - R_HORIZON;
-      float coronaGlow = exp(-coronaDist * 1.2) * 0.015;
+      float coronaGlow = exp(-coronaDist * 1.0) * 0.018;
       vec3 coronaCol = mix(vec3(1.0, 0.55, 0.15), vec3(0.6, 0.75, 1.0), exp(-coronaDist * 3.0));
       color += coronaCol * coronaGlow * (1.0 - diskAlpha);
     }

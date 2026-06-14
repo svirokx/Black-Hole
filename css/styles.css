@@ -381,9 +381,19 @@ body.scrolled-past-hero .scale-ruler {
 .timeline-sidebar-img img {
   width: 100%; display: block; object-fit: cover;
 }
+.timeline-sidebar-img.small {
+  max-height: 180px;
+}
+.timeline-sidebar-img.small img {
+  max-height: 180px;
+}
 .timeline-sidebar-caption {
   font-size: 0.78rem; color: var(--text-dim);
   text-align: center; line-height: 1.4;
+}
+.footer-github {
+  margin-top: 18px;
+  padding-top: 12px;
 }
 .timeline { position: relative; padding-left: 60px; }
 .timeline::before {
@@ -548,8 +558,10 @@ body.scrolled-past-hero .scale-ruler {
   .anatomy-grid { grid-template-columns: repeat(2, 1fr); }
   .numbers-grid { grid-template-columns: repeat(2, 1fr); }
   .timeline-layout { grid-template-columns: 1fr; }
-  .timeline-sidebar { position: static; flex-direction: row; }
+  .timeline-sidebar { position: static; flex-direction: row; flex-wrap: wrap; justify-content: center; }
   .timeline-sidebar-img { max-width: 280px; }
+  .timeline-sidebar-img.small { max-width: 200px; max-height: 150px; }
+  .timeline-sidebar-img.small img { max-height: 150px; }
 }
 
 @media (max-width: 768px) {
@@ -584,7 +596,7 @@ body.scrolled-past-hero .scale-ruler {
 @media (max-width: 480px) {
   .numbers-grid { grid-template-columns: 1fr; }
   .famous-stats { grid-template-columns: 1fr; }
-  .content-section { padding: 48px 14px; }
+  .content-section { padding: 48px 14px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
   .section-title { font-size: 1.5rem; }
   .section-body { font-size: 0.9rem; }
   .hero-title { font-size: 2.2rem; letter-spacing: 0.1em; }
@@ -610,6 +622,9 @@ body.scrolled-past-hero .scale-ruler {
   .content-section { padding-left: 16px; padding-right: 16px; }
   /* Ensure canvas doesn't block scrolling */
   #hero { touch-action: pan-y; }
+  #blackhole-canvas { touch-action: manipulation; }
+  /* Prevent iOS rubber-band bounce hiding the BH */
+  html, body { overscroll-behavior: none; }
 }
 
 /* ============ WebGL FALLBACK ============ */

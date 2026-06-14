@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +9,11 @@
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()">
-  <title>Black Hole — TON 618 Supermassive Simulation</title>
-  <meta name="description" content="Experience TON 618, one of the most massive black holes ever discovered (66 billion solar masses), through a realistic Kerr-metric 3D simulation with gravitational lensing, Doppler beaming, and scale comparison.">
-  <meta name="keywords" content="black hole, simulation, 3D, gravitational lensing, accretion disk, event horizon, Interstellar, M87, Sagittarius A, NASA, astrophysics">
-  <meta property="og:title" content="Black Hole — Interactive 3D Simulation">
-  <meta property="og:description" content="Experience a realistic black hole simulation and explore the science of the universe's most extreme objects.">
+  <title>Black Hole — Симуляция сверхмассивной чёрной дыры TON 618</title>
+  <meta name="description" content="Интерактивная 3D-симуляция сверхмассивной чёрной дыры TON 618 (66 миллиардов солнечных масс) с гравитационным линзированием, доплеровским излучением и метрикой Керра.">
+  <meta name="keywords" content="чёрная дыра, симуляция, 3D, гравитационное линзирование, аккреционный диск, горизонт событий, Интерстеллар, M87, Стрелец A, NASA, астрофизика">
+  <meta property="og:title" content="Black Hole — Интерактивная 3D-симуляция">
+  <meta property="og:description" content="Реалистичная симуляция чёрной дыры и наука о самых экстремальных объектах Вселенной.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/1200px-Black_hole_-_Messier_87_crop_max_res.jpg">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -31,12 +31,12 @@
         <div class="loader-ring-inner"></div>
       </div>
       <div class="loader-text">BLACK HOLE</div>
-      <div class="loader-sub">Bending spacetime…</div>
+      <div class="loader-sub">Искривляем пространство-время…</div>
     </div>
   </div>
 
   <!-- ============ SOUND TOGGLE ============ -->
-  <button id="sound-toggle" class="sound-btn" aria-label="Toggle sound">
+  <button id="sound-toggle" class="sound-btn" aria-label="Включить/выключить звук">
     <svg class="sound-icon sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
     </svg>
@@ -46,13 +46,13 @@
   </button>
 
   <!-- ============ CREATE MODE TOGGLE ============ -->
-  <button id="create-toggle" class="create-btn" aria-label="Toggle creation mode">
+  <button id="create-toggle" class="create-btn" aria-label="Режим создания объектов">
     <svg class="create-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
     </svg>
   </button>
   <div id="create-indicator" class="create-indicator" style="display:none">
-    <span>🪐 Click anywhere to spawn an object</span>
+    <span>🪐 Нажмите, чтобы создать объект</span>
   </div>
 
   <!-- ============ HERO SECTION ============ -->
@@ -60,29 +60,28 @@
     <canvas id="blackhole-canvas"></canvas>
     <div class="hero-overlay">
       <h1 class="hero-title">BLACK HOLE</h1>
-      <p class="hero-subtitle">A journey into the darkest corners of the universe</p>
     </div>
 
     <!-- ============ BH INFO HUD ============ -->
     <div id="bh-hud" class="bh-hud">
       <div class="bh-hud-name">TON 618</div>
-      <div class="bh-hud-type">SUPERMASSIVE · QUASAR</div>
+      <div class="bh-hud-type">СВЕРХМАССИВНАЯ · КВАЗАР</div>
       <div class="bh-hud-stats">
         <div class="bh-hud-stat">
-          <span class="bh-hud-label">Mass</span>
-          <span class="bh-hud-value">66 billion M<sub>☉</sub></span>
+          <span class="bh-hud-label">Масса</span>
+          <span class="bh-hud-value">66 млрд M<sub>☉</sub></span>
         </div>
         <div class="bh-hud-stat">
-          <span class="bh-hud-label">Event Horizon</span>
-          <span class="bh-hud-value">~1 300 AU</span>
+          <span class="bh-hud-label">Горизонт событий</span>
+          <span class="bh-hud-value">~1 300 а.е.</span>
         </div>
         <div class="bh-hud-stat">
-          <span class="bh-hud-label">Distance</span>
-          <span class="bh-hud-value">10.4 Gly</span>
+          <span class="bh-hud-label">Расстояние</span>
+          <span class="bh-hud-value">10,4 млрд св. лет</span>
         </div>
         <div class="bh-hud-stat">
-          <span class="bh-hud-label">Constellation</span>
-          <span class="bh-hud-value">Canes Venatici</span>
+          <span class="bh-hud-label">Созвездие</span>
+          <span class="bh-hud-value">Гончие Псы</span>
         </div>
       </div>
     </div>
@@ -96,45 +95,12 @@
           <div class="scale-tick"></div>
         </div>
       </div>
-      <div class="scale-label" id="scale-label">— AU</div>
-    </div>
-
-    <!-- ============ SCALE COMPARISON ============ -->
-    <div id="scale-compare" class="scale-compare">
-      <button class="scale-compare-toggle" id="scale-compare-toggle">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
-        </svg>
-        Scale
-      </button>
-      <div class="scale-compare-info" id="scale-compare-info" style="display:none">
-        <div class="scale-item">
-          <span class="scale-dot" style="background:#4488ff"></span>
-          <span>Earth orbit (1 AU) — <em>invisible at this zoom</em></span>
-        </div>
-        <div class="scale-item">
-          <span class="scale-dot" style="background:#88aaff"></span>
-          <span>Pluto orbit (40 AU) — 0.06 × r<sub>horizon</sub></span>
-        </div>
-        <div class="scale-item">
-          <span class="scale-dot" style="background:#44ffaa"></span>
-          <span>Solar System (120 AU) — 0.18 × r<sub>horizon</sub></span>
-        </div>
-        <div class="scale-item scale-item-highlight">
-          <span class="scale-dot" style="background:#ff4444"></span>
-          <span>Event Horizon — 1 300 AU (≈ 0.02 ly)</span>
-        </div>
-        <div class="scale-item scale-item-highlight">
-          <span class="scale-dot" style="background:#ffaa44"></span>
-          <span>Shadow diameter — ~3 900 AU</span>
-        </div>
-        <p class="scale-note">Our entire Solar System would be a tiny dot inside the event horizon of TON 618</p>
-      </div>
+      <div class="scale-label" id="scale-label">— а.е.</div>
     </div>
 
     <div class="scroll-indicator">
       <div class="scroll-arrow"></div>
-      <span>Scroll to explore</span>
+      <span>Листайте вниз</span>
     </div>
   </section>
 
@@ -145,15 +111,15 @@
     <section class="content-section" id="intro">
       <div class="section-inner">
         <div class="section-text reveal">
-          <h2 class="section-title">What Is a Black Hole?</h2>
-          <p class="section-body">A black hole is a region of spacetime where gravity is so immensely strong that nothing — no particles, not even electromagnetic radiation such as light — can escape once it crosses the boundary known as the <strong>event horizon</strong>.</p>
-          <p class="section-body">The theory of general relativity predicts that a sufficiently compact mass can deform spacetime to form a black hole. The boundary beyond which no escape is possible is called the event horizon. Although it has a great effect on the fate and circumstances of an object crossing it, it has no locally detectable features according to general relativity.</p>
-          <p class="section-source">Source: NASA Science, General Relativity — A. Einstein, 1915</p>
+          <h2 class="section-title">Что такое чёрная дыра?</h2>
+          <p class="section-body">Чёрная дыра — это область пространства-времени, гравитация в которой настолько чудовищно сильна, что ничто — ни частицы, ни электромагнитное излучение, включая свет — не может покинуть её, пересекув границу, известную как <strong>горизонт событий</strong>.</p>
+          <p class="section-body">Общая теория относительности предсказывает, что достаточно компактная масса способна деформировать пространство-время, образуя чёрную дыру. Граница, за которой побег невозможен, называется горизонтом событий. Несмотря на колоссальное влияние на судьбу любого объекта, пересекающего её, по общей теории относительности она не обладает никакими локально наблюдаемыми особенностями.</p>
+          <p class="section-source">Источник: NASA Science; Общая теория относительности — А. Эйнштейн, 1915</p>
         </div>
         <div class="section-visual reveal">
           <div class="stat-card">
-            <div class="stat-number">100,000,000,000</div>
-            <div class="stat-label">Estimated black holes in the Milky Way alone</div>
+            <div class="stat-number">100 000 000 000</div>
+            <div class="stat-label">Примерное количество чёрных дыр только в Млечном Пути</div>
           </div>
         </div>
       </div>
@@ -162,37 +128,37 @@
     <!-- ANATOMY -->
     <section class="content-section dark-section" id="anatomy">
       <div class="section-inner full-width">
-        <h2 class="section-title center reveal">The Anatomy of a Black Hole</h2>
+        <h2 class="section-title center reveal">Анатомия чёрной дыры</h2>
         <div class="anatomy-grid">
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">◉</div>
-            <h3>Singularity</h3>
-            <p>The very center of a black hole, where matter is crushed to infinite density and the laws of physics as we know them break down. It is a one-dimensional point containing a huge mass in an infinitely small space.</p>
+            <h3>Сингулярность</h3>
+            <p>Самый центр чёрной дыры, где материя сжата до бесконечной плотности, а известные законы физики перестают работать. Это одномерная точка, содержащая огромную массу в бесконечно малом пространстве.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">◎</div>
-            <h3>Event Horizon</h3>
-            <p>The boundary around a black hole beyond which nothing can escape. It is not a physical surface but a mathematically defined boundary. At this point, the escape velocity equals the speed of light — 299,792 km/s.</p>
+            <h3>Горизонт событий</h3>
+            <p>Граница вокруг чёрной дыры, за которой ничто не может вырваться. Это не физическая поверхность, а математически определённый рубеж. В этой точке вторая космическая скорость равна скорости света — 299 792 км/с.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">◌</div>
-            <h3>Photon Sphere</h3>
-            <p>A spherical region at 1.5 times the Schwarzschild radius where gravity is strong enough that photons are forced to travel in orbits. Any photon entering this sphere tangentially will orbit the black hole.</p>
+            <h3>Фотонная сфера</h3>
+            <p>Сферическая область на расстоянии 1,5 шварцшильдовского радиуса, где гравитация настолько сильна, что фотоны вынуждены двигаться по орбитам. Любой фотон, вошедший в эту сферу по касательной, будет вращаться вокруг чёрной дыры.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">≋</div>
-            <h3>Accretion Disk</h3>
-            <p>A flat, disk-shaped structure of gas and dust spiraling into the black hole. Friction heats the material to millions of degrees, making it glow brilliantly in X-rays and visible light. The disk can outshine entire galaxies.</p>
+            <h3>Аккреционный диск</h3>
+            <p>Плоская дискообразная структура из газа и пыли, вращающаяся вокруг чёрной дыры по спирали. Трение нагревает материал до миллионов градусов, заставляя его ярко светиться в рентгеновском и видимом диапазонах. Диск может затмевать целые галактики.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">↕</div>
-            <h3>Relativistic Jets</h3>
-            <p>Powerful beams of ionized matter ejected at nearly the speed of light from the poles of some black holes. These jets can extend thousands of light-years and are powered by magnetic fields twisted by the rotating spacetime.</p>
+            <h3>Релятивистские джеты</h3>
+            <p>Мощные пучки ионизированной материи, выбрасываемые от полюсов некоторых чёрных дыр со скоростью, близкой к скорости света. Эти джеты могут простираться на тысячи световых лет и формируются магнитными полями, закрученными вращающимся пространством-временем.</p>
           </div>
           <div class="anatomy-card reveal">
             <div class="anatomy-icon">◐</div>
-            <h3>Ergosphere</h3>
-            <p>A region outside the event horizon of a rotating (Kerr) black hole where spacetime itself is dragged along. Objects in the ergosphere cannot remain stationary — they are forced to co-rotate with the black hole.</p>
+            <h3>Эргосфера</h3>
+            <p>Область за пределами горизонта событий вращающейся (керровской) чёрной дыры, в которой само пространство-время увлекается за собой. Объекты в эргосфере не могут оставаться неподвижными — они вынуждены вращаться вместе с чёрной дырой.</p>
           </div>
         </div>
       </div>
@@ -201,31 +167,31 @@
     <!-- TYPES -->
     <section class="content-section" id="types">
       <div class="section-inner full-width">
-        <h2 class="section-title center reveal">Types of Black Holes</h2>
+        <h2 class="section-title center reveal">Типы чёрных дыр</h2>
         <div class="types-grid">
           <div class="type-card reveal">
             <div class="type-mass">5 – 100 M☉</div>
-            <h3>Stellar-Mass</h3>
-            <p>Formed when massive stars (more than about 25 solar masses) exhaust their nuclear fuel and collapse under their own gravity in a supernova explosion. The most common type of black hole.</p>
-            <div class="type-example">Example: Cygnus X-1 (~21 M☉)</div>
+            <h3>Звёздной массы</h3>
+            <p>Образуются при коллапсе массивных звёзд (более 25 солнечных масс), исчерпавших ядерное топливо. Ядро обрушивается под собственной гравитацией в результате взрыва сверхновой. Самый распространённый тип чёрных дыр.</p>
+            <div class="type-example">Пример: Лебедь X-1 (~21 M☉)</div>
           </div>
           <div class="type-card reveal">
-            <div class="type-mass">100 – 100,000 M☉</div>
-            <h3>Intermediate-Mass</h3>
-            <p>Their existence was long debated until recent evidence confirmed them. They may form through the merger of stellar-mass black holes or by direct collapse of massive gas clouds in the early universe.</p>
-            <div class="type-example">Example: HLX-1 (~20,000 M☉)</div>
+            <div class="type-mass">100 – 100 000 M☉</div>
+            <h3>Промежуточной массы</h3>
+            <p>Их существование долгое время оставалось под вопросом, пока недавние наблюдения не подтвердили его. Могут формироваться при слиянии чёрных дыр звёздной массы или при прямом коллапсе массивных газовых облаков в ранней Вселенной.</p>
+            <div class="type-example">Пример: HLX-1 (~20 000 M☉)</div>
           </div>
           <div class="type-card reveal">
             <div class="type-mass">10⁶ – 10¹⁰ M☉</div>
-            <h3>Supermassive</h3>
-            <p>Found at the center of nearly every large galaxy, including our own Milky Way. How they grow so massive is one of the biggest open questions in astrophysics. They may have formed from massive seed black holes in the early universe.</p>
-            <div class="type-example">Example: Sagittarius A* (~4 million M☉)</div>
+            <h3>Сверхмассивные</h3>
+            <p>Находятся в центре почти каждой крупной галактики, включая наш Млечный Путь. Механизм их роста до таких масс — один из главных открытых вопросов астрофизики. Возможно, они выросли из массивных «зародышей» в ранней Вселенной.</p>
+            <div class="type-example">Пример: Стрелец A* (~4 миллиона M☉)</div>
           </div>
           <div class="type-card reveal">
-            <div class="type-mass">≤ 1 M☉ (theoretical)</div>
-            <h3>Primordial</h3>
-            <p>Hypothetical black holes that may have formed in the extreme density and pressure of the early universe, within the first second after the Big Bang. They could range from microscopic to stellar sizes.</p>
-            <div class="type-example">Not yet observed — predicted by Zel'dovich & Hawking (1966–1971)</div>
+            <div class="type-mass">≤ 1 M☉ (теория)</div>
+            <h3>Первичные</h3>
+            <p>Гипотетические чёрные дыры, которые могли образоваться при экстремальной плотности и давлении в ранней Вселенной — в первую секунду после Большого взрыва. Их размеры могут варьироваться от микроскопических до звёздных.</p>
+            <div class="type-example">Пока не обнаружены — предсказаны Зельдовичем и Хокингом (1966–1971)</div>
           </div>
         </div>
       </div>
@@ -235,34 +201,34 @@
     <section class="content-section dark-section" id="formation">
       <div class="section-inner">
         <div class="section-text reveal">
-          <h2 class="section-title">How Black Holes Form</h2>
+          <h2 class="section-title">Как рождаются чёрные дыры</h2>
           <div class="formation-steps">
             <div class="formation-step">
               <div class="step-num">01</div>
               <div class="step-content">
-                <h4>Massive Star</h4>
-                <p>A star at least 25 times the mass of our Sun burns through its hydrogen fuel in its core, fusing heavier and heavier elements up to iron over millions of years.</p>
+                <h4>Массивная звезда</h4>
+                <p>Звезда, масса которой как минимум в 25 раз превышает массу Солнца, сжигает водородное топливо в ядре. На протяжении миллионов лет она синтезирует всё более тяжёлые элементы — вплоть до железа.</p>
               </div>
             </div>
             <div class="formation-step">
               <div class="step-num">02</div>
               <div class="step-content">
-                <h4>Core Collapse</h4>
-                <p>When the iron core exceeds the Chandrasekhar limit (~1.4 solar masses), electron degeneracy pressure can no longer support it. The core collapses in milliseconds, falling inward at up to 70,000 km/s.</p>
+                <h4>Коллапс ядра</h4>
+                <p>Когда железное ядро превышает предел Чандрасекара (~1,4 солнечных масс), давление вырожденного электронного газа больше не может удерживать его. Ядро коллапсирует за миллисекунды, падая внутрь со скоростью до 70 000 км/с.</p>
               </div>
             </div>
             <div class="formation-step">
               <div class="step-num">03</div>
               <div class="step-content">
-                <h4>Supernova Explosion</h4>
-                <p>The infalling matter bounces off the ultra-dense core, creating a shockwave that tears the outer layers apart in a spectacular supernova — briefly outshining an entire galaxy.</p>
+                <h4>Взрыв сверхновой</h4>
+                <p>Падающая материя отскакивает от сверхплотного ядра, создавая ударную волну, которая разрывает внешние слои звезды в грандиозном взрыве сверхновой — на мгновение затмевающем целую галактику.</p>
               </div>
             </div>
             <div class="formation-step">
               <div class="step-num">04</div>
               <div class="step-content">
-                <h4>Black Hole Birth</h4>
-                <p>If the remaining core exceeds ~3 solar masses (the Tolman–Oppenheimer–Volkoff limit), no known force can halt the collapse. The matter compresses to a singularity, and an event horizon forms — a black hole is born.</p>
+                <h4>Рождение чёрной дыры</h4>
+                <p>Если оставшееся ядро превышает ~3 солнечных масс (предел Толмана — Оппенгеймера — Волкова), никакая известная сила не может остановить коллапс. Материя сжимается в сингулярность, формируется горизонт событий — чёрная дыра рождена.</p>
               </div>
             </div>
           </div>
@@ -273,90 +239,90 @@
     <!-- FAMOUS BLACK HOLES -->
     <section class="content-section" id="famous">
       <div class="section-inner full-width">
-        <h2 class="section-title center reveal">Famous Black Holes</h2>
+        <h2 class="section-title center reveal">Знаменитые чёрные дыры</h2>
 
         <div class="famous-entry reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/800px-Black_hole_-_Messier_87_crop_max_res.jpg" alt="First ever image of a black hole — M87* captured by the Event Horizon Telescope in 2019" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Black_hole_-_Messier_87_crop_max_res.jpg/800px-Black_hole_-_Messier_87_crop_max_res.jpg" alt="Первый в истории снимок чёрной дыры — M87*, полученный телескопом горизонта событий в 2019 году" loading="lazy">
           </div>
           <div class="famous-info">
-            <h3>M87* <span class="famous-tag">First Ever Photographed</span></h3>
+            <h3>M87* <span class="famous-tag">Первая сфотографированная</span></h3>
             <div class="famous-stats">
-              <div><strong>Mass:</strong> 6.5 billion M☉</div>
-              <div><strong>Distance:</strong> 55 million light-years</div>
-              <div><strong>Galaxy:</strong> Messier 87 (Virgo A)</div>
-              <div><strong>Shadow diameter:</strong> ~42 μas (micro-arcseconds)</div>
+              <div><strong>Масса:</strong> 6,5 млрд M☉</div>
+              <div><strong>Расстояние:</strong> 55 млн св. лет</div>
+              <div><strong>Галактика:</strong> Messier 87 (Дева A)</div>
+              <div><strong>Диаметр тени:</strong> ~42 мкс (микросекунды дуги)</div>
             </div>
-            <p>On April 10, 2019, the Event Horizon Telescope (EHT) collaboration revealed the first-ever direct image of a black hole's shadow. This supermassive black hole sits at the center of the giant elliptical galaxy Messier 87. The bright ring is emission from hot gas swirling around the black hole, with the dark center being the black hole's shadow. The image required eight radio telescopes across the globe working together as an Earth-sized virtual telescope.</p>
-            <p class="section-source">Source: Event Horizon Telescope Collaboration, The Astrophysical Journal Letters, 2019</p>
+            <p>10 апреля 2019 года коллаборация Телескопа горизонта событий (EHT) представила первый в истории прямой снимок тени чёрной дыры. Эта сверхмассивная чёрная дыра находится в центре гигантской эллиптической галактики Messier 87. Яркое кольцо — это излучение раскалённого газа, вращающегося вокруг чёрной дыры, а тёмный центр — её тень. Для получения снимка потребовалось восемь радиотелескопов по всему миру, работающих как единый виртуальный телескоп размером с Землю.</p>
+            <p class="section-source">Источник: Event Horizon Telescope Collaboration, The Astrophysical Journal Letters, 2019</p>
           </div>
         </div>
 
         <div class="famous-entry reverse reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Sgr_A_star_EHT.jpg/800px-Sgr_A_star_EHT.jpg" alt="Image of Sagittarius A* — the supermassive black hole at the center of the Milky Way" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Sgr_A_star_EHT.jpg/800px-Sgr_A_star_EHT.jpg" alt="Снимок Стрельца A* — сверхмассивной чёрной дыры в центре Млечного Пути" loading="lazy">
           </div>
           <div class="famous-info">
-            <h3>Sagittarius A* <span class="famous-tag">Our Galaxy's Heart</span></h3>
+            <h3>Стрелец A* <span class="famous-tag">Сердце нашей Галактики</span></h3>
             <div class="famous-stats">
-              <div><strong>Mass:</strong> 4 million M☉</div>
-              <div><strong>Distance:</strong> 26,000 light-years</div>
-              <div><strong>Galaxy:</strong> Milky Way</div>
-              <div><strong>Schwarzschild radius:</strong> ~12 million km</div>
+              <div><strong>Масса:</strong> 4 млн M☉</div>
+              <div><strong>Расстояние:</strong> 26 000 св. лет</div>
+              <div><strong>Галактика:</strong> Млечный Путь</div>
+              <div><strong>Радиус Шварцшильда:</strong> ~12 млн км</div>
             </div>
-            <p>Sagittarius A* (Sgr A*) is the supermassive black hole at the center of our Milky Way galaxy. Its existence was confirmed by tracking stars orbiting the galactic center — work that earned Andrea Ghez and Reinhard Genzel the 2020 Nobel Prize in Physics. The EHT captured its image in May 2022, confirming it matched predictions from general relativity. Despite its immense mass, Sgr A* is relatively quiet compared to M87*.</p>
-            <p class="section-source">Source: EHT Collaboration, The Astrophysical Journal Letters, 2022; Nobel Prize Committee, 2020</p>
+            <p>Стрелец A* (Sgr A*) — сверхмассивная чёрная дыра в центре нашей Галактики. Её существование было подтверждено отслеживанием звёзд, вращающихся вокруг галактического центра — эта работа принесла Андреа Гез и Райнхарду Генцелю Нобелевскую премию по физике 2020 года. EHT получил её снимок в мае 2022 года, подтвердив предсказания общей теории относительности.</p>
+            <p class="section-source">Источник: EHT Collaboration, 2022; Нобелевский комитет, 2020</p>
           </div>
         </div>
 
         <div class="famous-entry reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Cygnus_X-1.png/800px-Cygnus_X-1.png" alt="Artist impression of Cygnus X-1 — the first confirmed black hole" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Cygnus_X-1.png/800px-Cygnus_X-1.png" alt="Художественное изображение Лебедя X-1 — первой подтверждённой чёрной дыры" loading="lazy">
           </div>
           <div class="famous-info">
-            <h3>Cygnus X-1 <span class="famous-tag">First Confirmed Black Hole</span></h3>
+            <h3>Лебедь X-1 <span class="famous-tag">Первая подтверждённая</span></h3>
             <div class="famous-stats">
-              <div><strong>Mass:</strong> ~21 M☉</div>
-              <div><strong>Distance:</strong> 6,070 light-years</div>
-              <div><strong>Constellation:</strong> Cygnus</div>
-              <div><strong>Companion star:</strong> HDE 226868 (blue supergiant)</div>
+              <div><strong>Масса:</strong> ~21 M☉</div>
+              <div><strong>Расстояние:</strong> 6 070 св. лет</div>
+              <div><strong>Созвездие:</strong> Лебедь</div>
+              <div><strong>Звезда-компаньон:</strong> HDE 226868 (голубой сверхгигант)</div>
             </div>
-            <p>Discovered as an X-ray source in 1964, Cygnus X-1 became the first widely accepted black hole candidate. It is a stellar-mass black hole in a binary system, actively stripping matter from its companion star. This system was the subject of a famous bet between Stephen Hawking and Kip Thorne — Hawking bet against it being a black hole, and conceded in 1990.</p>
-            <p class="section-source">Source: NASA, Webster & Murdin 1972, Bolton 1972</p>
+            <p>Обнаруженный в 1964 году как рентгеновский источник, Лебедь X-1 стал первым общепризнанным кандидатом в чёрные дыры. Это чёрная дыра звёздной массы в двойной системе, активно «обдирающая» материю своей звезды-компаньона. Эта система стала предметом знаменитого пари между Стивеном Хокингом и Кипом Торном — Хокинг ставил против того, что это чёрная дыра, и признал поражение в 1990 году.</p>
+            <p class="section-source">Источник: NASA, Webster & Murdin 1972, Bolton 1972</p>
           </div>
         </div>
 
         <div class="famous-entry reverse reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/BH_LMC.png/800px-BH_LMC.png" alt="Simulated view of a black hole with gravitational lensing" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/BH_LMC.png/800px-BH_LMC.png" alt="Симуляция вида чёрной дыры с гравитационным линзированием" loading="lazy">
           </div>
           <div class="famous-info">
-            <h3>TON 618 <span class="famous-tag">One of the Most Massive Known</span></h3>
+            <h3>TON 618 <span class="famous-tag">Одна из самых массивных</span></h3>
             <div class="famous-stats">
-              <div><strong>Mass:</strong> ~66 billion M☉</div>
-              <div><strong>Distance:</strong> 10.4 billion light-years</div>
-              <div><strong>Type:</strong> Ultraluminous quasar</div>
-              <div><strong>Schwarzschild radius:</strong> ~1,300 AU</div>
+              <div><strong>Масса:</strong> ~66 млрд M☉</div>
+              <div><strong>Расстояние:</strong> 10,4 млрд св. лет</div>
+              <div><strong>Тип:</strong> Ультраяркий квазар</div>
+              <div><strong>Радиус Шварцшильда:</strong> ~1 300 а.е.</div>
             </div>
-            <p>TON 618 is a hyperluminous quasar powered by one of the most massive black holes ever discovered. Its Schwarzschild radius extends to about 1,300 times the distance from the Earth to the Sun. The sheer scale is almost incomprehensible — if placed in our solar system, its event horizon would extend far beyond the orbit of Pluto.</p>
-            <p class="section-source">Source: Shemmer et al. 2004, The Astrophysical Journal</p>
+            <p>TON 618 — это гиперяркий квазар, питаемый одной из самых массивных чёрных дыр, когда-либо обнаруженных. Её радиус Шварцшильда простирается примерно на 1 300 расстояний от Земли до Солнца. Масштаб практически непостижим — если бы она оказалась в нашей Солнечной системе, горизонт событий простирался бы далеко за орбиту Плутона.</p>
+            <p class="section-source">Источник: Shemmer et al. 2004, The Astrophysical Journal</p>
           </div>
         </div>
 
         <div class="famous-entry reveal">
           <div class="famous-image">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg/800px-Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg" alt="Artist impression of Gaia BH1 - the nearest known black hole" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg/800px-Artist%27s_impression_of_a_binary_star_system_and_black_hole.jpg" alt="Художественное изображение Gaia BH1 — ближайшей известной чёрной дыры" loading="lazy">
           </div>
           <div class="famous-info">
-            <h3>Gaia BH1 <span class="famous-tag">Nearest Known</span></h3>
+            <h3>Gaia BH1 <span class="famous-tag">Ближайшая известная</span></h3>
             <div class="famous-stats">
-              <div><strong>Mass:</strong> ~10 M☉</div>
-              <div><strong>Distance:</strong> ~1,560 light-years</div>
-              <div><strong>Constellation:</strong> Ophiuchus</div>
-              <div><strong>Discovery:</strong> 2022 (Gaia spacecraft)</div>
+              <div><strong>Масса:</strong> ~10 M☉</div>
+              <div><strong>Расстояние:</strong> ~1 560 св. лет</div>
+              <div><strong>Созвездие:</strong> Змееносец</div>
+              <div><strong>Открытие:</strong> 2022 (космический аппарат Gaia)</div>
             </div>
-            <p>Gaia BH1 is the closest known black hole to Earth, discovered using the European Space Agency's Gaia spacecraft. It is a dormant black hole — meaning it is not actively consuming matter, making it invisible in X-rays. It was found by tracking the wobble of its Sun-like companion star as it orbits the invisible black hole.</p>
-            <p class="section-source">Source: El-Badry et al. 2023, Monthly Notices of the Royal Astronomical Society</p>
+            <p>Gaia BH1 — ближайшая к Земле известная чёрная дыра, обнаруженная с помощью космического аппарата Gaia Европейского космического агентства. Это «спящая» чёрная дыра — она не поглощает материю, поэтому невидима в рентгеновских лучах. Её обнаружили по колебаниям звезды-компаньона солнечного типа, вращающейся вокруг невидимого объекта.</p>
+            <p class="section-source">Источник: El-Badry et al. 2023, Monthly Notices of the Royal Astronomical Society</p>
           </div>
         </div>
       </div>
@@ -365,104 +331,69 @@
     <!-- HISTORY TIMELINE -->
     <section class="content-section dark-section" id="history">
       <div class="section-inner full-width">
-        <h2 class="section-title center reveal">History of Discovery</h2>
+        <h2 class="section-title center reveal">История открытия</h2>
         <div class="timeline">
           <div class="timeline-item reveal">
             <div class="timeline-year">1783</div>
             <div class="timeline-content">
-              <h4>John Michell's "Dark Stars"</h4>
-              <p>English geologist John Michell proposes the idea of a body so massive that even light could not escape its gravitational pull, calling them "dark stars." He calculated that such an object with the density of the Sun would have a radius 500 times that of the Sun.</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1796</div>
-            <div class="timeline-content">
-              <h4>Laplace Refines the Concept</h4>
-              <p>French mathematician Pierre-Simon Laplace independently arrives at a similar conclusion in his work "Exposition du système du monde," predicting invisible stars based on Newtonian gravity.</p>
+              <h4>«Тёмные звёзды» Джона Мичелла</h4>
+              <p>Английский геолог Джон Мичелл предположил существование тела настолько массивного, что даже свет не мог бы покинуть его. Он рассчитал, что объект с плотностью Солнца должен иметь радиус в 500 раз больше солнечного.</p>
             </div>
           </div>
           <div class="timeline-item reveal">
             <div class="timeline-year">1915</div>
             <div class="timeline-content">
-              <h4>Einstein's General Relativity</h4>
-              <p>Albert Einstein publishes his field equations of general relativity, fundamentally changing our understanding of gravity as the curvature of spacetime caused by mass and energy.</p>
+              <h4>Общая теория относительности Эйнштейна</h4>
+              <p>Альберт Эйнштейн публикует уравнения поля, фундаментально изменив наше понимание гравитации как искривления пространства-времени массой и энергией.</p>
             </div>
           </div>
           <div class="timeline-item reveal">
             <div class="timeline-year">1916</div>
             <div class="timeline-content">
-              <h4>Schwarzschild Solution</h4>
-              <p>Karl Schwarzschild finds the first exact solution to Einstein's field equations, describing the spacetime geometry around a non-rotating spherical mass. This solution predicts the existence of a "Schwarzschild radius" — what we now call the event horizon.</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1931</div>
-            <div class="timeline-content">
-              <h4>Chandrasekhar Limit</h4>
-              <p>Subrahmanyan Chandrasekhar calculates that white dwarf stars above 1.4 solar masses cannot be supported by electron degeneracy pressure and must collapse further, hinting at the inevitability of gravitational collapse for massive stars.</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1939</div>
-            <div class="timeline-content">
-              <h4>Oppenheimer-Snyder Collapse</h4>
-              <p>Robert Oppenheimer and Hartland Snyder publish "On Continued Gravitational Contraction," demonstrating that a sufficiently massive star will collapse indefinitely, crossing the Schwarzschild radius to form what we now call a black hole.</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1958</div>
-            <div class="timeline-content">
-              <h4>Event Horizon Understood</h4>
-              <p>David Finkelstein identifies the Schwarzschild surface as a one-way membrane — the event horizon — clarifying that it is not a physical barrier but a causal boundary from which no information can escape.</p>
+              <h4>Решение Шварцшильда</h4>
+              <p>Карл Шварцшильд находит первое точное решение уравнений Эйнштейна, описывающее геометрию пространства-времени вокруг невращающейся сферической массы. Это решение предсказывает «шварцшильдовский радиус» — то, что мы теперь называем горизонтом событий.</p>
             </div>
           </div>
           <div class="timeline-item reveal">
             <div class="timeline-year">1963</div>
             <div class="timeline-content">
-              <h4>Kerr Rotating Black Hole</h4>
-              <p>Roy Kerr discovers the exact solution for a rotating black hole, which is far more realistic than Schwarzschild's non-rotating case. The Kerr solution reveals the ergosphere and frame-dragging effects.</p>
+              <h4>Вращающаяся чёрная дыра Керра</h4>
+              <p>Рой Керр находит точное решение для вращающейся чёрной дыры — гораздо более реалистичный случай, чем невращающееся решение Шварцшильда. Решение Керра раскрывает эргосферу и эффекты увлечения систем отсчёта.</p>
             </div>
           </div>
           <div class="timeline-item reveal">
             <div class="timeline-year">1967</div>
             <div class="timeline-content">
-              <h4>The Term "Black Hole" Is Coined</h4>
-              <p>Physicist John Wheeler popularizes the term "black hole" at a NASA conference in New York, replacing earlier terms like "frozen star" and "gravitationally completely collapsed object."</p>
-            </div>
-          </div>
-          <div class="timeline-item reveal">
-            <div class="timeline-year">1971</div>
-            <div class="timeline-content">
-              <h4>Cygnus X-1 Identified</h4>
-              <p>The X-ray source Cygnus X-1, discovered in 1964, is identified as a strong black hole candidate based on its mass exceeding the maximum for a neutron star. It becomes the first widely accepted black hole.</p>
+              <h4>Термин «чёрная дыра»</h4>
+              <p>Физик Джон Уилер популяризирует термин «чёрная дыра» на конференции NASA в Нью-Йорке, заменив ранние названия вроде «замороженная звезда» и «гравитационно полностью коллапсировавший объект».</p>
             </div>
           </div>
           <div class="timeline-item reveal">
             <div class="timeline-year">1974</div>
             <div class="timeline-content">
-              <h4>Hawking Radiation</h4>
-              <p>Stephen Hawking predicts that black holes are not entirely black — they emit thermal radiation due to quantum effects near the event horizon. This implies that black holes slowly evaporate over immense timescales, connecting general relativity with quantum mechanics.</p>
+              <h4>Излучение Хокинга</h4>
+              <p>Стивен Хокинг предсказывает, что чёрные дыры не абсолютно чёрные — они испускают тепловое излучение благодаря квантовым эффектам вблизи горизонта событий. Это означает, что чёрные дыры медленно испаряются на протяжении колоссальных временных масштабов.</p>
             </div>
           </div>
           <div class="timeline-item reveal">
             <div class="timeline-year">2015</div>
             <div class="timeline-content">
-              <h4>Gravitational Waves Detected</h4>
-              <p>LIGO detects gravitational waves for the first time — ripples in spacetime from two black holes merging 1.3 billion light-years away (GW150914). Each black hole was about 30 solar masses. This confirms a major prediction of general relativity and earns the 2017 Nobel Prize.</p>
+              <h4>Обнаружение гравитационных волн</h4>
+              <p>LIGO впервые регистрирует гравитационные волны — рябь пространства-времени от слияния двух чёрных дыр в 1,3 миллиарда световых лет (GW150914). Каждая чёрная дыра имела массу около 30 солнечных. Это подтвердило предсказание общей теории относительности и принесло Нобелевскую премию 2017 года.</p>
             </div>
           </div>
           <div class="timeline-item reveal">
             <div class="timeline-year">2019</div>
             <div class="timeline-content">
-              <h4>First Image of a Black Hole</h4>
-              <p>The Event Horizon Telescope captures the first-ever direct image of a black hole shadow — M87*, revealing the glowing ring of superheated gas around the 6.5-billion-solar-mass monster at the heart of galaxy Messier 87.</p>
+              <h4>Первый снимок чёрной дыры</h4>
+              <p>Телескоп горизонта событий получает первое прямое изображение тени чёрной дыры — M87*, раскалённое кольцо газа вокруг монстра массой 6,5 миллиарда солнечных масс в сердце галактики Messier 87.</p>
             </div>
           </div>
           <div class="timeline-item reveal">
             <div class="timeline-year">2022</div>
             <div class="timeline-content">
-              <h4>Sagittarius A* Revealed</h4>
-              <p>The EHT releases the image of Sgr A*, the supermassive black hole at the center of our own Milky Way galaxy, confirming decades of indirect evidence and marking a new era in black hole science.</p>
+              <h4>Стрелец A* — снимок</h4>
+              <p>EHT публикует снимок Sgr A* — сверхмассивной чёрной дыры в центре нашего Млечного Пути, подтвердив десятилетия косвенных доказательств и открыв новую эру в науке о чёрных дырах.</p>
             </div>
           </div>
         </div>
@@ -472,41 +403,41 @@
     <!-- PHYSICS -->
     <section class="content-section" id="physics">
       <div class="section-inner full-width">
-        <h2 class="section-title center reveal">The Physics of Black Holes</h2>
+        <h2 class="section-title center reveal">Физика чёрных дыр</h2>
         <div class="physics-grid">
           <div class="physics-card reveal">
-            <h3>Gravitational Lensing</h3>
-            <p>The immense gravity of a black hole bends light from objects behind it, creating distorted, magnified, or multiple images. This effect, predicted by Einstein in 1936, has been observed around galaxies and galaxy clusters. Near a black hole, it produces the distinctive photon ring visible in EHT images.</p>
+            <h3>Гравитационное линзирование</h3>
+            <p>Чудовищная гравитация чёрной дыры искривляет свет от объектов позади неё, создавая искажённые, увеличенные или множественные изображения. Этот эффект, предсказанный Эйнштейном в 1936 году, наблюдался у галактик и скоплений. Вблизи чёрной дыры он создаёт характерное фотонное кольцо, видимое на снимках EHT.</p>
             <div class="physics-equation">θ = 4GM/(c²b)</div>
-            <div class="physics-eq-label">Einstein's deflection angle for a ray with impact parameter b</div>
+            <div class="physics-eq-label">Угол отклонения Эйнштейна для луча с прицельным параметром b</div>
           </div>
           <div class="physics-card reveal">
-            <h3>Time Dilation</h3>
-            <p>As you approach a black hole, time slows down relative to a distant observer. At the event horizon, time effectively stops from the outside perspective. A clock near a black hole would tick slower and slower. This is not science fiction — GPS satellites must account for gravitational time dilation to maintain accuracy.</p>
+            <h3>Замедление времени</h3>
+            <p>При приближении к чёрной дыре время замедляется относительно далёкого наблюдателя. На горизонте событий время фактически останавливается с внешней точки зрения. Часы вблизи чёрной дыры тикают всё медленнее. Это не фантастика — спутники GPS должны учитывать гравитационное замедление времени для точной работы.</p>
             <div class="physics-equation">Δt' = Δt × √(1 − rₛ/r)</div>
-            <div class="physics-eq-label">Gravitational time dilation in Schwarzschild spacetime</div>
+            <div class="physics-eq-label">Гравитационное замедление времени в метрике Шварцшильда</div>
           </div>
           <div class="physics-card reveal">
-            <h3>Hawking Radiation</h3>
-            <p>Quantum fluctuations near the event horizon create virtual particle-antiparticle pairs. Occasionally, one particle falls into the black hole while the other escapes, carrying away energy. Over astronomical timescales, this causes the black hole to lose mass and eventually evaporate. A stellar-mass black hole would take ~10⁶⁷ years to evaporate — far longer than the current age of the universe (13.8 billion years).</p>
+            <h3>Излучение Хокинга</h3>
+            <p>Квантовые флуктуации вблизи горизонта событий создают виртуальные пары частица-античастица. Иногда одна частица падает в чёрную дыру, а другая ускользает, унося энергию. За астрономические временные масштабы это приводит к потере массы и «испарению» чёрной дыры. Звёздная чёрная дыра испарялась бы ~10⁶⁷ лет — несоизмеримо дольше возраста Вселенной (13,8 млрд лет).</p>
             <div class="physics-equation">T = ℏc³/(8πGMk_B)</div>
-            <div class="physics-eq-label">Hawking temperature — inversely proportional to mass</div>
+            <div class="physics-eq-label">Температура Хокинга — обратно пропорциональна массе</div>
           </div>
           <div class="physics-card reveal">
-            <h3>Spaghettification</h3>
-            <p>The tidal forces near a black hole stretch objects along the direction of the gravitational gradient and compress them perpendicular to it. For stellar-mass black holes, this happens far outside the event horizon. For supermassive ones, the tidal forces at the horizon are surprisingly gentle — you could cross without being torn apart (but you could never return).</p>
+            <h3>Спагеттификация</h3>
+            <p>Приливные силы вблизи чёрной дыры растягивают объекты вдоль направления гравитационного градиента и сжимают перпендикулярно ему. Для чёрных дыр звёздной массы это происходит далеко за горизонтом событий. Для сверхмассивных — приливные силы у горизонта удивительно слабы: можно пересечь его целым (но вернуться уже никогда).</p>
             <div class="physics-equation">ΔF ∝ M/r³</div>
-            <div class="physics-eq-label">Tidal force gradient — stronger for smaller, closer black holes</div>
+            <div class="physics-eq-label">Градиент приливной силы — сильнее у маленьких близких ЧД</div>
           </div>
           <div class="physics-card reveal">
-            <h3>Information Paradox</h3>
-            <p>If a black hole evaporates completely via Hawking radiation, what happens to the information about everything that fell in? Quantum mechanics says information cannot be destroyed, but general relativity says it vanishes behind the event horizon. This paradox, formulated by Hawking in 1976, remains one of the deepest unsolved problems in theoretical physics.</p>
+            <h3>Информационный парадокс</h3>
+            <p>Если чёрная дыра полностью испарится через излучение Хокинга, что произойдёт с информацией обо всём, что в неё упало? Квантовая механика утверждает, что информация не может быть уничтожена, но ОТО говорит, что она исчезает за горизонтом событий. Этот парадокс, сформулированный Хокингом в 1976 году, остаётся одной из глубочайших нерешённых проблем теоретической физики.</p>
           </div>
           <div class="physics-card reveal">
-            <h3>Gravitational Waves</h3>
-            <p>When two black holes spiral together and merge, they produce ripples in the fabric of spacetime — gravitational waves. These waves travel at the speed of light and were first directly detected by LIGO in 2015. The merger briefly radiated more energy than all the stars in the observable universe combined.</p>
+            <h3>Гравитационные волны</h3>
+            <p>Когда две чёрные дыры сближаются по спирали и сливаются, они создают рябь в ткани пространства-времени — гравитационные волны. Они распространяются со скоростью света и были впервые зарегистрированы LIGO в 2015 году. За 0,2 секунды слияние излучило больше энергии, чем все звёзды наблюдаемой Вселенной вместе взятые.</p>
             <div class="physics-equation">P = (32/5) × G⁴/c⁵ × (m₁m₂)²(m₁+m₂)/r⁵</div>
-            <div class="physics-eq-label">Power radiated in gravitational waves by a binary system</div>
+            <div class="physics-eq-label">Мощность гравитационного излучения двойной системы</div>
           </div>
         </div>
       </div>
@@ -515,37 +446,37 @@
     <!-- BY THE NUMBERS -->
     <section class="content-section dark-section" id="numbers">
       <div class="section-inner full-width">
-        <h2 class="section-title center reveal">By the Numbers</h2>
+        <h2 class="section-title center reveal">В числах</h2>
         <div class="numbers-grid">
           <div class="number-card reveal">
-            <div class="big-number" data-count="299792">299,792</div>
-            <div class="number-unit">km/s</div>
-            <div class="number-label">Speed of light — the escape velocity at the event horizon</div>
+            <div class="big-number">299 792</div>
+            <div class="number-unit">км/с</div>
+            <div class="number-label">Скорость света — вторая космическая скорость на горизонте событий</div>
           </div>
           <div class="number-card reveal">
-            <div class="big-number">66,000,000,000</div>
-            <div class="number-unit">solar masses</div>
-            <div class="number-label">Mass of TON 618 — one of the most massive black holes known</div>
+            <div class="big-number">66 000 000 000</div>
+            <div class="number-unit">масс Солнца</div>
+            <div class="number-label">Масса TON 618 — одной из самых массивных известных ЧД</div>
           </div>
           <div class="number-card reveal">
-            <div class="big-number">1,560</div>
-            <div class="number-unit">light-years</div>
-            <div class="number-label">Distance to Gaia BH1 — the nearest known black hole</div>
+            <div class="big-number">1 560</div>
+            <div class="number-unit">световых лет</div>
+            <div class="number-label">Расстояние до Gaia BH1 — ближайшей известной чёрной дыры</div>
           </div>
           <div class="number-card reveal">
-            <div class="big-number">55,000,000</div>
-            <div class="number-unit">light-years</div>
-            <div class="number-label">Distance to M87* — the first black hole ever photographed</div>
+            <div class="big-number">55 000 000</div>
+            <div class="number-unit">световых лет</div>
+            <div class="number-label">Расстояние до M87* — первой сфотографированной чёрной дыры</div>
           </div>
           <div class="number-card reveal">
-            <div class="big-number">10,000,000</div>
+            <div class="big-number">10 000 000</div>
             <div class="number-unit">°C</div>
-            <div class="number-label">Temperature of gas in the accretion disk, heated by friction</div>
+            <div class="number-label">Температура газа в аккреционном диске, нагретого трением</div>
           </div>
           <div class="number-card reveal">
             <div class="big-number">10<sup>67</sup></div>
-            <div class="number-unit">years</div>
-            <div class="number-label">Time for a stellar-mass black hole to evaporate via Hawking radiation</div>
+            <div class="number-unit">лет</div>
+            <div class="number-label">Время испарения звёздной ЧД через излучение Хокинга</div>
           </div>
         </div>
       </div>
@@ -555,16 +486,16 @@
     <section class="content-section" id="sound-section">
       <div class="section-inner">
         <div class="section-text reveal">
-          <h2 class="section-title">The Sound of a Black Hole</h2>
-          <p class="section-body">In 2003, NASA's Chandra X-ray Observatory detected sound waves propagating through the hot gas surrounding the supermassive black hole at the center of the Perseus galaxy cluster. The sound wave, a pressure wave in the intracluster medium, corresponds to a B-flat note, 57 octaves below middle C — a frequency about one million billion times lower than the lowest sounds humans can hear.</p>
-          <p class="section-body">In 2022, NASA released a "sonification" of this data, shifting the frequencies up by 57–58 octaves into the range of human hearing. The result is an eerie, rumbling drone — the sound of a supermassive black hole resonating through 200,000 light-years of hot gas.</p>
-          <p class="section-body">The simulation on this page generates a similar deep drone using synthesized tones. Toggle the sound button in the top-right corner to listen.</p>
-          <p class="section-source">Source: NASA Chandra X-ray Observatory, Fabian et al. 2003</p>
+          <h2 class="section-title">Звук чёрной дыры</h2>
+          <p class="section-body">В 2003 году рентгеновская обсерватория NASA «Чандра» обнаружила звуковые волны, распространяющиеся через раскалённый газ вокруг сверхмассивной чёрной дыры в центре скопления галактик Персея. Звуковая волна соответствует ноте си-бемоль, на 57 октав ниже средней до — частота примерно в квадриллион раз ниже, чем может услышать человек.</p>
+          <p class="section-body">В 2022 году NASA опубликовало «сонификацию» этих данных, сдвинув частоты вверх на 57–58 октав в диапазон человеческого слуха. Результат — зловещий, гулкий гул — звук сверхмассивной чёрной дыры, резонирующей через 200 000 световых лет горячего газа.</p>
+          <p class="section-body">Симуляция на этой странице генерирует похожий глубокий дрон с помощью синтезированных тонов. Нажмите кнопку звука в верхнем правом углу, чтобы послушать.</p>
+          <p class="section-source">Источник: NASA Chandra X-ray Observatory, Fabian et al. 2003</p>
         </div>
         <div class="section-visual reveal">
           <div class="stat-card sound-card">
             <div class="stat-number">57</div>
-            <div class="stat-label">octaves below middle C — the deepest note ever detected in the universe</div>
+            <div class="stat-label">октав ниже средней до — самая глубокая нота, когда-либо обнаруженная во Вселенной</div>
           </div>
         </div>
       </div>
@@ -574,11 +505,11 @@
     <section class="content-section dark-section" id="interstellar">
       <div class="section-inner">
         <div class="section-text reveal">
-          <h2 class="section-title">Black Holes in Cinema: Interstellar</h2>
-          <p class="section-body">The 2014 film <em>Interstellar</em>, directed by Christopher Nolan, featured the most scientifically accurate depiction of a black hole ever created for cinema. Working with theoretical physicist Kip Thorne, the visual effects team at Double Negative developed a new ray-tracing renderer called DNGR (Double Negative Gravitational Renderer) that solved the equations of general relativity for tens of millions of light rays.</p>
-          <p class="section-body">The resulting image of the fictional black hole "Gargantua" revealed unexpected visual features — particularly the warped appearance of the accretion disk, which wraps around the black hole due to gravitational lensing. Light from the back of the disk curves over the top and under the bottom, creating the distinctive halo.</p>
-          <p class="section-body">The simulation on this page uses similar ray-tracing principles, solving photon trajectories in Kerr spacetime (rotating black hole, spin a ≈ 0.97) to produce the lensing, frame-dragging, and Doppler beaming effects you see. You can drag the mouse to orbit around the black hole and see how the accretion disk appearance changes from different angles — just like the Double Negative team explored with Gargantua.</p>
-          <p class="section-source">Source: James et al. "Gravitational Lensing by Spinning Black Holes in Astrophysics, and in the Movie Interstellar," 2015, Classical and Quantum Gravity</p>
+          <h2 class="section-title">Чёрные дыры в кино: Интерстеллар</h2>
+          <p class="section-body">Фильм «Интерстеллар» (2014) Кристофера Нолана содержал самое научно точное изображение чёрной дыры, когда-либо созданное для кино. В сотрудничестве с физиком-теоретиком Кипом Торном команда Double Negative разработала рендерер DNGR, решающий уравнения общей теории относительности для десятков миллионов световых лучей.</p>
+          <p class="section-body">Результат — вымышленная чёрная дыра «Гаргантюа» — раскрыл неожиданные визуальные особенности, в частности, искривлённый вид аккреционного диска, обволакивающего чёрную дыру благодаря гравитационному линзированию. Свет с задней стороны диска огибает объект сверху и снизу, создавая характерный нимб.</p>
+          <p class="section-body">Симуляция на этой странице использует аналогичные принципы трассировки лучей, решая траектории фотонов в пространстве-времени Керра (вращающаяся ЧД, спин a ≈ 0,97) для воспроизведения линзирования, увлечения систем отсчёта и доплеровского излучения. Вы можете перетаскивать мышь для обзора чёрной дыры с разных углов.</p>
+          <p class="section-source">Источник: James et al. «Gravitational Lensing by Spinning Black Holes…», 2015, Classical and Quantum Gravity</p>
         </div>
       </div>
     </section>
@@ -586,39 +517,39 @@
     <!-- FINAL FACTS -->
     <section class="content-section" id="facts">
       <div class="section-inner full-width">
-        <h2 class="section-title center reveal">Fascinating Facts</h2>
+        <h2 class="section-title center reveal">Удивительные факты</h2>
         <div class="facts-grid">
           <div class="fact-card reveal">
             <div class="fact-icon">🌀</div>
-            <p>If you compressed the Earth to the size of a marble (about 9mm), it would become a black hole.</p>
+            <p>Если бы Земля была сжата до размера шарика (~9 мм), она стала бы чёрной дырой.</p>
           </div>
           <div class="fact-card reveal">
             <div class="fact-icon">⏱</div>
-            <p>Time stops at the event horizon from the perspective of a distant observer. You would never see someone cross it — they would appear to slow down, redden, and fade away forever.</p>
+            <p>Время останавливается на горизонте событий с точки зрения далёкого наблюдателя. Вы никогда не увидите, как кто-то его пересекает — он будет замедляться, краснеть и угасать навечно.</p>
           </div>
           <div class="fact-card reveal">
             <div class="fact-icon">🔊</div>
-            <p>The black hole at the center of the Perseus cluster produces the deepest note ever detected — 57 octaves below middle C.</p>
+            <p>Чёрная дыра в центре скопления Персея издаёт самую глубокую ноту во Вселенной — на 57 октав ниже средней до.</p>
           </div>
           <div class="fact-card reveal">
             <div class="fact-icon">💫</div>
-            <p>The supermassive black hole in galaxy NGC 1277 makes up 14% of its galaxy's total mass — an unusually high ratio that challenges formation theories.</p>
+            <p>Сверхмассивная ЧД в галактике NGC 1277 составляет 14% от общей массы галактики — необычно высокая доля, ставящая под вопрос теории формирования.</p>
           </div>
           <div class="fact-card reveal">
             <div class="fact-icon">🌊</div>
-            <p>When LIGO detected the first gravitational wave merger (GW150914), the two black holes released more energy in 0.2 seconds than all the stars in the observable universe combined.</p>
+            <p>Когда LIGO зафиксировала первое слияние (GW150914), две чёрные дыры за 0,2 секунды выделили больше энергии, чем все звёзды наблюдаемой Вселенной вместе взятые.</p>
           </div>
           <div class="fact-card reveal">
             <div class="fact-icon">⚡</div>
-            <p>Quasars — active supermassive black holes feeding on matter — are the brightest objects in the universe. Some outshine their entire host galaxy by a factor of 100.</p>
+            <p>Квазары — активные сверхмассивные ЧД, поглощающие материю — являются ярчайшими объектами во Вселенной. Некоторые из них в 100 раз ярче своей галактики.</p>
           </div>
           <div class="fact-card reveal">
             <div class="fact-icon">🧲</div>
-            <p>The magnetic field lines near a black hole can become so twisted that they launch jets of plasma at 99.99% the speed of light, extending thousands of light-years into space.</p>
+            <p>Магнитные поля вблизи чёрной дыры могут быть настолько закручены, что запускают джеты плазмы со скоростью 99,99% скорости света на тысячи световых лет.</p>
           </div>
           <div class="fact-card reveal">
             <div class="fact-icon">🪐</div>
-            <p>If our Sun were replaced with a black hole of the same mass, Earth's orbit would not change. The gravitational pull at our distance would be identical — but we'd freeze in darkness.</p>
+            <p>Если бы Солнце заменили чёрной дырой той же массы, орбита Земли не изменилась бы. Гравитация на нашем расстоянии была бы идентичной — но мы замёрзли бы в темноте.</p>
           </div>
         </div>
       </div>
@@ -628,11 +559,11 @@
     <footer class="site-footer">
       <div class="footer-inner">
         <div class="footer-title">BLACK HOLE</div>
-        <p class="footer-text">All scientific information sourced from NASA, ESA, the Event Horizon Telescope Collaboration, and peer-reviewed astrophysical journals.</p>
-        <p class="footer-text">3D simulation uses ray-tracing in Kerr spacetime (rotating black hole) with Three.js and WebGL.</p>
-      <p class="footer-text"><a href="catalog.html" style="color: var(--accent); text-decoration: none;">📚 Browse the full catalog of all known black holes →</a></p>
+        <p class="footer-text">Вся научная информация взята из материалов NASA, ESA, коллаборации Телескопа горизонта событий и рецензируемых астрофизических журналов.</p>
+        <p class="footer-text">3D-симуляция использует трассировку лучей в пространстве-времени Керра (вращающаяся ЧД) на базе Three.js и WebGL.</p>
+        <p class="footer-text"><a href="catalog.html" style="color: var(--accent); text-decoration: none;">📚 Каталог всех известных чёрных дыр →</a></p>
         <div class="footer-credits">
-          <p>Images: NASA, ESA, EHT Collaboration, ESO — used under public domain / CC BY 4.0</p>
+          <p>Изображения: NASA, ESA, EHT Collaboration, ESO — используются на условиях public domain / CC BY 4.0</p>
         </div>
       </div>
     </footer>

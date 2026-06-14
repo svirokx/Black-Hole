@@ -433,12 +433,6 @@ body.scrolled-past-hero .scale-compare {
   justify-content: center;
   pointer-events: none;
   z-index: 2;
-  /* Тонкий радиальный градиент — отделяет текст от симуляции */
-  background: radial-gradient(
-    ellipse 70% 50% at center 48%,
-    rgba(5, 5, 16, 0.12) 0%,
-    transparent 55%
-  );
 }
 .hero-title {
   font-family: var(--font-heading);
@@ -447,7 +441,6 @@ body.scrolled-past-hero .scale-compare {
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #fff;
-  /* Усиленное свечение для отделения от чёрной дыры */
   text-shadow:
     0 0 60px rgba(255, 123, 58, 0.5),
     0 0 120px rgba(255, 123, 58, 0.2),
@@ -456,20 +449,11 @@ body.scrolled-past-hero .scale-compare {
   position: relative;
   z-index: 5;
   opacity: 0;
-  animation: heroTitleIn 2s ease forwards 1.5s;
+  /* Появляется → держится 4 секунды → плавно исчезает */
+  animation: heroTitleLife 8s ease forwards 1.5s;
 }
 .hero-subtitle {
-  font-family: var(--font-body);
-  font-size: clamp(0.9rem, 2vw, 1.2rem);
-  color: var(--text-secondary);
-  letter-spacing: 0.15em;
-  margin-top: 16px;
-  position: relative;
-  z-index: 5;
-  /* Тонкая тень для отделения от симуляции */
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
-  opacity: 0;
-  animation: fadeIn 2s ease forwards 2.5s;
+  display: none; /* Убрана по требованию */
 }
 
 .scroll-indicator {
@@ -503,6 +487,13 @@ body.scrolled-past-hero .scale-compare {
 @keyframes heroTitleIn {
   0% { opacity: 0; transform: scale(1.1); letter-spacing: 0.5em; }
   100% { opacity: 1; transform: scale(1); letter-spacing: 0.3em; }
+}
+/* Появление → пауза → исчезновение заголовка */
+@keyframes heroTitleLife {
+  0%   { opacity: 0; transform: scale(1.1); letter-spacing: 0.5em; }
+  18%  { opacity: 1; transform: scale(1); letter-spacing: 0.3em; }
+  65%  { opacity: 1; }
+  100% { opacity: 0; }
 }
 @keyframes fadeIn {
   to { opacity: 1; }

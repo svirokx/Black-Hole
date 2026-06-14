@@ -144,21 +144,8 @@ function initScaleRuler(bhRenderer) {
   updateScale();
 }
 
-// ---------- Scale Comparison Toggle ----------
-
-function initScaleCompare(particleSystem) {
-  const toggle = document.getElementById('scale-compare-toggle');
-  const info = document.getElementById('scale-compare-info');
-  if (!toggle || !info) return;
-
-  toggle.addEventListener('click', () => {
-    const visible = info.style.display !== 'none';
-    info.style.display = visible ? 'none' : 'flex';
-    toggle.classList.toggle('active', !visible);
-    // Also toggle 3D scale rings in the scene
-    particleSystem.toggleScaleRings(!visible);
-  });
-}
+// ---------- Scale Comparison (removed by design) ----------
+function initScaleCompare() {}
 
 // ---------- Creation Mode ----------
 
@@ -247,7 +234,7 @@ async function init() {
   initSound();
   initCreationMode(bhRenderer, particleSystem);
   initScaleRuler(bhRenderer);
-  initScaleCompare(particleSystem);
+  initScaleCompare();
 }
 
 function safeInit() {

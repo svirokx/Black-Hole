@@ -162,7 +162,7 @@ void main() {
   float prevY     = pos.y;
   float closestR  = 100.0;
 
-  for (int i = 0; i < 300; i++) {
+  for (int i = 0; i < 350; i++) {
     if (float(i) >= uMaxSteps) break;
 
     // Boyer-Lindquist r (Kerr)
@@ -181,8 +181,16 @@ void main() {
     if (r > 50.0) break;
 
     // — Adaptive step size —
-    // Large far away (speed), small near BH (accuracy)
-    float dt = clamp(r * 0.06, 0.01, 0.8);
+    // Tiny near BH (proper gravitational bending), large far away (speed)
+    float dt;
+    if (r < 3.0) {
+      // Критическая зона линзирования — мелкий шаг для изгиба лучей
+      dt = max(0.008, (r - R_HORIZON) * 0.025 + 0.008);
+    } else if (r < 8.0) {
+      dt = r * 0.04;
+    } else {
+      dt = min(1.2, r * 0.1);
+    }
 
     // — Gravitational acceleration —
     // Schwarzschild null-geodesic: a = -1.5 L²/r⁵ · pos
@@ -311,9 +319,50 @@ void main() {
     color += vec3(1.0, 0.92, 0.75) * caustic;
   }
 
+  // ---- Линзированный диск (обволакивание как в Интерстелларе) ----
+  // Задняя часть аккреционного диска видна сверху и снизу тени
+  // через гравитационное линзирование. Это полу-аналитический
+  // расчёт — работает на ЛЮБОМ количестве шагов.
+  if (!hitHorizon) {
+    float b_crit = 5.196;
+    float shadowR = b_crit / uCamDist;
+    float sR = length(uv);
+    float edgeDist = sR - shadowR;
+
+    if (edgeDist > -0.005 && edgeDist < 0.18) {
+      float sAngle = atan(uv.y, uv.x);
+
+      // Вертикальная компонента: максимум сверху/снизу тени,
+      // минимум по бокам (там диск виден напрямую)
+      float vert = abs(sin(sAngle));
+      float edgeness = sin(uCamTheta);
+      float wrapVis = mix(0.3, vert, edgeness);
+
+      // Яркость: экспоненциальный спад от края тени
+      float brightness = exp(-max(0.0, edgeDist) * 12.0) * wrapVis * 0.6;
+      if (edgeDist < 0.0) brightness *= smoothstep(-0.005, 0.0, edgeDist);
+
+      if (brightness > 0.005) {
+        // Приблизительная позиция на диске для линзированного луча
+        float dR = mix(DISK_INNER + 1.0, DISK_OUTER * 0.5,
+                      clamp(edgeDist / 0.12, 0.0, 1.0));
+        float dA = sAngle + PI + sin(sAngle * 2.0) * 0.3;
+
+        vec3 lCol = diskColor(dR, dA, uTime);
+
+        // Доплеровская асимметрия: приближающаяся сторона ярче
+        float dopplerHint = 1.0 + 0.35 * cos(sAngle - uCamPhi);
+        lCol *= dopplerHint;
+
+        // Гравитационное красное смещение
+        float grs = sqrt(max(0.0, 1.0 - 2.0 * M / (dR + 0.01)));
+
+        color += lCol * brightness * grs * (1.0 - diskAlpha * 0.5);
+      }
+    }
+  }
+
   // ---- Горизонт событий → абсолютная чернота ----
-  // Физически корректно: ни один фотон не выходит
-  // Глубину создаёт яркое фотонное кольцо ВОКРУГ тени
   if (hitHorizon) {
     color = vec3(0.0);
   }
@@ -413,13 +462,8 @@ export class BlackHoleRenderer {
     });
     c.style.cursor = 'grab';
 
-    // Wheel → zoom (only when hero visible)
-    c.addEventListener('wheel', (e) => {
-      if (!this.isHeroVisible()) return;
-      e.preventDefault();
-      this.camDist += e.deltaY * 0.015;
-      this.camDist = Math.max(4, Math.min(60, this.camDist));
-    }, { passive: false });
+    // Wheel zoom disabled — scroll navigates the page normally
+    // Zoom only via pinch-to-zoom on touch devices
 
     // Touch controls
     let touchDecided = false, touchIsOrbit = false;

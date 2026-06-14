@@ -144,7 +144,9 @@ void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution) / uResolution.y;
 
   // ---- Camera ----
-  float camR = uCamDist;
+  // Compensate apparent shadow size change with viewing angle:
+  // pole-on shadow looks smaller → move camera closer to keep consistent size
+  float camR = uCamDist * mix(0.78, 1.0, sin(uCamTheta));
   vec3 camPos = vec3(
     camR * sin(uCamTheta) * cos(uCamPhi),
     camR * cos(uCamTheta),

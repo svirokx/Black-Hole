@@ -233,8 +233,18 @@ async function init() {
   initScaleCompare(particleSystem);
 }
 
+function safeInit() {
+  try {
+    init();
+  } catch (e) {
+    console.error('Black Hole init error:', e);
+    // Always hide loader even if initialization fails
+    hideLoader();
+  }
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', safeInit);
 } else {
-  init();
+  safeInit();
 }

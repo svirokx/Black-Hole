@@ -95,6 +95,12 @@ vec3 starField(vec3 rd) {
 }
 
 // ==================== Accretion Disk ====================
+float kerrRadius(vec3 p) {
+  float r2xy = dot(p.xz, p.xz);
+  float r2bl = r2xy + p.y * p.y - SPIN * SPIN;
+  return sqrt(max(0.0, 0.5 * (r2bl + sqrt(r2bl * r2bl + 4.0 * SPIN * SPIN * p.y * p.y))));
+}
+
 vec3 diskColor(float r, float angle, float t) {
   float temp = smoothstep(DISK_OUTER, DISK_INNER, r);
 
@@ -232,7 +238,6 @@ void main() {
     // — Leapfrog integrator —
     vec3 vel_half = vel + acc * dt * 0.5;
     vec3 newPos   = pos + vel_half * dt;
-
     // Recompute accel at new position
     float nr2_xy  = dot(newPos.xz, newPos.xz);
     float nr2_bls = nr2_xy + newPos.y * newPos.y - a * a;
@@ -244,6 +249,10 @@ void main() {
     float nCosTheta2 = newPos.y * newPos.y / max(nr * nr, 1e-4);
     float nSigma = nr * nr + a * a * nCosTheta2;
     nAcc += (2.0 * a * M / (nSigma * nr + 0.01)) * cross(spinAxis, vel_half);
+
+    float segmentT = clamp(-dot(pos, newPos - pos) / max(dot(newPos - pos, newPos - pos), 1e-6), 0.0, 1.0);
+    float closestSegmentR = kerrRadius(pos + (newPos - pos) * segmentT);
+    bool crossesHorizon = min(min(r, nr), closestSegmentR) <= R_HORIZON;
 
     vel = normalize(vel_half + nAcc * dt * 0.5);
 
@@ -290,7 +299,7 @@ void main() {
     // Volumetric disk glow — follows disk rotation, fades at edge-on view
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
-    if (uDiskEnabled && absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
+    if (!crossesHorizon && uDiskEnabled && absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
       float thickness = mix(1.8, 0.35, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
       float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.055;
       float dAng = atan(newPos.z, newPos.x);
@@ -304,17 +313,15 @@ void main() {
     }
 
     // Hot corona — bright glowing gas near photon sphere
-    if (r < 5.5 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
+    if (!crossesHorizon && r < 5.5 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
       float coronaDist = r - R_HORIZON;
       float coronaGlow = exp(-coronaDist * 1.2) * 0.014;
       vec3 coronaCol = mix(vec3(1.0, 0.55, 0.15), vec3(0.6, 0.75, 1.0), exp(-coronaDist * 3.0));
       color += coronaCol * coronaGlow * (1.0 - diskAlpha);
     }
 
-    // Mark capture only when the integrated geodesic actually crosses the
-    // Kerr event horizon. Disk emission for this step is already accumulated,
-    // so the foreground disk remains visible across the shadow.
-    if (nr <= R_HORIZON) {
+    // Preserve foreground disk light already sampled for this segment.
+    if (crossesHorizon) {
       hitHorizon = true;
       diskAlpha = 1.0;
       break;
@@ -338,44 +345,8 @@ void main() {
     color += stars * (1.0 - diskAlpha);
   }
 
-  // ---- Photon ring and gravitationally lensed glow ----
-  // No screen-space circular mask: the silhouette comes from integrated rays.
-  // Свет, облетевший ЧД 1-2-3 раза, формирует тонкие кольца.
-  // Широкая мягкая пенумбра с угловой вариацией создаёт объём —
-  // тень выглядит как силуэт СФЕРЫ, а не плоский кружок.
-  if (!hitHorizon) {
-    float rimDist = closestR - R_HORIZON;
-
-    // --- Широкая мягкая пенумбра (объёмность тени) ---
-    // Тёплый тусклый свет, растекающийся от края тени.
-    // Угловая вариация ломает равномерный круг → ощущение 3D сферы.
-    float uvAng = atan(uv.y, uv.x);
-    float angVar = 0.6 + 0.4 * sin(uvAng * 2.0 + 0.5);
-    float softGlow = exp(-rimDist * 1.5) * 0.12 * angVar;
-    vec3 softColor = vec3(0.5, 0.28, 0.08);
-    color += softColor * softGlow * (1.0 - diskAlpha * 0.5);
-
-    // --- Фотонные кольца ---
-    // Первичное (1 оборот) — модулировано углом для 3D-вида
-    float ring1 = exp(-rimDist * 4.5) * 0.40 * (0.75 + 0.25 * angVar);
-    // Вторичное (2 оборота — тоньше)
-    float ring2 = exp(-rimDist * 9.0) * 0.20 * (0.85 + 0.15 * angVar);
-    // Третичное (каустика у самого края)
-    float ring3 = exp(-rimDist * 16.0) * 0.12;
-
-    vec3 ringColor = mix(
-      vec3(1.0, 0.78, 0.4),
-      vec3(0.85, 0.88, 1.0),
-      smoothstep(0.0, 0.5, ring3 / max(ring1 + 0.01, 0.01))
-    );
-
-    float totalRing = ring1 + ring2 + ring3;
-    color += ringColor * totalRing * (1.0 - diskAlpha * 0.3);
-
-    // Каустика у самого края
-    float caustic = exp(-pow(rimDist * 8.0, 2.0)) * 0.05;
-    color += vec3(1.0, 0.92, 0.75) * caustic;
-  }
+  // Photon rings are left to the integrated ray path; do not draw a separate
+  // circular screen-space shadow/edge over the Kerr geodesic result.
 
   // ---- Линзированный диск (physics-based wrapping) ----
   // Лучи, прошедшие близко к ЧД, видят заднюю сторону диска

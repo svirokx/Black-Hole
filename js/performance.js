@@ -26,22 +26,21 @@
 // dpr = число → фиксированный pixelRatio
 
 export const LEVELS = [
-  // === Уровень 0: Абсолютный минимум (стабильность > красота) ===
-  { level: 0, label: 'Минимум',     steps: 95,  dpr: 1.0, resMul: 0.40, shadows: false, postFX: 'off' },
+  { level: 0, label: 'Минимум',     steps: 95,  dpr: 1.0, resMul: 0.48, shadows: false, postFX: 'off' },
   // === Уровень 1: Низкие ===
-  { level: 1, label: 'Низкие',      steps: 105, dpr: 1.0, resMul: 0.53, shadows: false, postFX: 'off' },
+  { level: 1, label: 'Низкие',      steps: 105, dpr: 1.0, resMul: 0.60, shadows: false, postFX: 'off' },
   // === Уровень 2: Средне-Низкие ===
-  { level: 2, label: 'Ср-Низкие',   steps: 115, dpr: 1.0, resMul: 0.68, shadows: false, postFX: 'off' },
+  { level: 2, label: 'Ср-Низкие',   steps: 115, dpr: 1.0, resMul: 0.74, shadows: false, postFX: 'off' },
   // === Уровень 3: Средние ===
-  { level: 3, label: 'Средние',     steps: 120, dpr: 1.0, resMul: 0.83, shadows: false, postFX: 'off' },
+  { level: 3, label: 'Средние',     steps: 120, dpr: 1.0, resMul: 0.87, shadows: false, postFX: 'off' },
   // === Уровень 4: Средне-Высокие ===
-  { level: 4, label: 'Ср-Высокие',  steps: 125, dpr: 1.0, resMul: 0.95, shadows: true, postFX: 'basic' }
+  { level: 4, label: 'Ср-Высокие',  steps: 125, dpr: 1.0, resMul: 0.97, shadows: true, postFX: 'basic' },
   // === Уровень 5: Высокие ===
-  { level: 5, label: 'Высокие',     steps: 135, dpr: 1.15, resMul: 1.0, shadows: true, postFX: 'full' },
+  { level: 5, label: 'Высокие',     steps: 140, dpr: 1.15, resMul: 1.0, shadows: true, postFX: 'full' },
   // === Уровень 6: Очень Высокие ===
-  { level: 6, label: 'Оч.Высокие',  steps: 145, dpr: null, resMul: 1.0, shadows: true, postFX: 'full' }
+  { level: 6, label: 'Оч.Высокие',  steps: 150, dpr: null, resMul: 1.0, shadows: true, postFX: 'full' },
   // === Уровень 7: Ультра ===
-  { level: 7, label: 'Ультра',      steps: 155, dpr: null, resMul: 1.0, shadows: true, postFX: 'full' }
+  { level: 7, label: 'Ультра',      steps: 165, dpr: null, resMul: 1.0, shadows: true, postFX: 'full' },
 ];
 
 // ---------- GPU-классификация ----------

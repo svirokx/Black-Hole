@@ -394,11 +394,11 @@ void main() {
     }
   }
 
-  // ---- Горизонт событий ----
-  // Captured rays: discard volumetric glow/corona (those photons are captured too)
-  // Keep ONLY thin-disk crossings — front edge passes over the black sphere
+  // ---- Event horizon ----
+  // Captured rays are black. The accretion disk is rendered by uncaptured rays
+  // in front of the shadow; disk emission must never fill the horizon itself.
   if (hitHorizon) {
-    color = frontDiskColor;
+    color = vec3(0.0);
   }
 
   // Subtle vignette

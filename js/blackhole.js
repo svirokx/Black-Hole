@@ -366,48 +366,8 @@ void main() {
     color += stars * (1.0 - diskAlpha);
   }
 
-  // Photon rings are left to the integrated ray path; do not draw a separate
-  // circular screen-space shadow/edge over the Kerr geodesic result.
-
-  // ---- Линзированный диск (physics-based wrapping) ----
-  // Лучи, прошедшие близко к ЧД, видят заднюю сторону диска
-  // через гравитационное линзирование — «обволакивание» как в Интерстелларе.
-  // Используем closestR (реальная физика луча), а не экранные координаты.
-  if (uDiskEnabled && !hitHorizon && closestR < 6.0 && diskAlpha < 0.9) {
-    // Сила изгиба: чем ближе к ЧД, тем сильнее обволакивание
-    float bendStrength = exp(-(closestR - R_HORIZON) * 1.2);
-
-    // Вертикальная видимость: обволакивание видно сверху/снизу тени,
-    // по бокам — прямой диск виден напрямую
-    float uvAngle = atan(uv.y, uv.x);
-    float vertFactor = abs(sin(uvAngle));
-    // Также добавим слабое обволакивание по бокам (диск закручивается)
-    vertFactor = 0.15 + 0.85 * vertFactor;
-
-    // При боковом ракурсе (edge-on) обволакивание сильнее
-    float edgeness = sin(uCamTheta);
-    float wrapVis = bendStrength * vertFactor * smoothstep(0.1, 0.4, edgeness) * 0.65;
-
-    if (wrapVis > 0.005) {
-      // Позиция на задней стороне диска: ближние лучи видят внутренний диск
-      float dR = mix(DISK_INNER + 0.5, DISK_OUTER * 0.45,
-                    clamp((closestR - R_HORIZON) / 2.5, 0.0, 1.0));
-
-      // Угол: используем ОТКЛОНЁННОЕ направление луча (vel) — вращается с диском
-      float dA = atan(vel.z, vel.x) + PI;
-
-      vec3 lCol = diskColor(dR, dA, uTime);
-
-      // Доплеровская асимметрия приближающейся/удаляющейся стороны
-      float dopplerHint = 1.0 + 0.3 * cos(dA - uCamPhi);
-      lCol *= dopplerHint;
-
-      // Гравитационное красное смещение
-      float grs = sqrt(max(0.0, 1.0 - 2.0 * M / (dR + 0.01)));
-
-      color += lCol * wrapVis * grs * (1.0 - diskAlpha * 0.4);
-    }
-  }
+  // All lensed disk light comes from ray/disk intersections inside the integrator.
+  // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
   // ---- Event horizon ----
   // Captured rays are black. The accretion disk is rendered by uncaptured rays

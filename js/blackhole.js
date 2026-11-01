@@ -168,11 +168,8 @@ void main() {
   vec3 up    = cross(right, forward);
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
-  vec3 rayAngularMomentum = cross(camPos, rd);
-  float impactParameter = length(rayAngularMomentum);
-  float axialSpinView = rayAngularMomentum.y / max(impactParameter, 0.001);
-  // Compact Kerr-shadow estimate, with a modest spin-dependent asymmetry.
-  float shadowRadius = clamp(3.35 - 0.35 * SPIN * axialSpinView * sin(uCamTheta), 2.9, 3.8);
+  float impactParameter = length(cross(camPos, rd));
+  const float SHADOW_RADIUS = 2.9; // compact, smaller black center
 
   // ---- Ray Tracing (Kerr geodesic) ----
   vec3  pos  = camPos;
@@ -250,8 +247,7 @@ void main() {
     float nSigma = nr * nr + a * a * nCosTheta2;
     nAcc += (2.0 * a * M / (nSigma * nr + 0.01)) * cross(spinAxis, vel_half);
 
-    // Track horizon crossing for light occlusion; final silhouette is antialiased
-    // continuously from closestR after the geodesic integration finishes.
+    // Detect only an actual radial crossing of the Kerr event horizon.
     bool crossesHorizon = min(r, nr) <= R_HORIZON;
 
     vel = normalize(vel_half + nAcc * dt * 0.5);
@@ -346,10 +342,10 @@ void main() {
   // All lensed disk light comes from ray/disk intersections inside the integrator.
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
-  // Composite a compact, pure-black shadow over every disk/lensing contribution.
-  // Smooth its circular silhouette over approximately one output pixel.
-  float shadowAA = max(0.01, uCamDist / uResolution.y);
-  float shadowVisible = smoothstep(shadowRadius - shadowAA, shadowRadius + shadowAA, impactParameter);
+  // Draw one compact Kerr shadow last. This keeps the center black even when
+  // disk and lensing contributions overlap it from a tilted camera angle.
+  float horizonAA = max(0.01, 0.85 * uCamDist / uResolution.y);
+  float shadowVisible = smoothstep(SHADOW_RADIUS - horizonAA, SHADOW_RADIUS + horizonAA, impactParameter);
   color *= shadowVisible;
 
   // Subtle vignette

@@ -168,10 +168,6 @@ void main() {
   vec3 up    = cross(right, forward);
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
-  vec3 initialAngularMomentum = cross(camPos, rd);
-  float impactParameter = length(initialAngularMomentum);
-  float spinProjection = initialAngularMomentum.y / max(impactParameter, 0.001);
-  float criticalCapture = clamp(5.2 - 1.5 * SPIN * spinProjection * sin(uCamTheta), 3.0, 6.5);
 
   // ---- Ray Tracing (Kerr geodesic) ----
   vec3  pos  = camPos;
@@ -341,17 +337,6 @@ void main() {
     pos   = newPos;
   }
 
-  // The finite integration budget can stop a plunging ray just before the
-  // horizon. Use the Kerr critical capture parameter only for such unfinished
-  // near-hole rays, not as a screen-space overlay on the whole image.
-  if (!hitHorizon) {
-    float terminalR = kerrRadius(pos);
-    if (terminalR < 50.0 && impactParameter < criticalCapture) {
-      hitHorizon = true;
-      diskAlpha = 1.0;
-    }
-  }
-
   // ---- Background stars (gravitationally lensed direction) ----
   if (!hitHorizon && uStarsEnabled) {
     vec3 stars = starField(normalize(vel));
@@ -370,11 +355,9 @@ void main() {
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
   // ---- Event horizon ----
-  // Keep the captured shadow black, but composite the nearest disk crossing
-  // sampled before capture as the foreground disk over the shadow.
-  if (hitHorizon) {
-    color = frontDiskHit ? frontDiskColor : vec3(0.0);
-  }
+  // Only geodesics that actually cross the Kerr horizon produce a black pixel.
+  // Near-miss and unfinished rays keep their traced disk/background color.
+  if (hitHorizon) color = vec3(0.0);
 
   // Subtle vignette
   color *= 1.0 - 0.15 * dot(uv, uv);

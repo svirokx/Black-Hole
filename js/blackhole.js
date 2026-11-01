@@ -251,11 +251,9 @@ void main() {
     float nSigma = nr * nr + a * a * nCosTheta2;
     nAcc += (2.0 * a * M / (nSigma * nr + 0.01)) * cross(spinAxis, vel_half);
 
-    // Smooth the capture transition by one local pixel footprint. The edge follows
-    // integrated Kerr radii, while the fully captured interior stays exactly black.
-    float horizonAA = max(0.012, 2.0 * uCamDist / uResolution.y);
-    float captureCoverage = 1.0 - smoothstep(R_HORIZON - horizonAA, R_HORIZON + horizonAA, min(r, nr));
-    bool crossesHorizon = captureCoverage > 0.5;
+    // Track horizon crossing for light occlusion; final silhouette is antialiased
+    // continuously from closestR after the geodesic integration finishes.
+    bool crossesHorizon = min(r, nr) <= R_HORIZON;
 
     vel = normalize(vel_half + nAcc * dt * 0.5);
 
@@ -357,11 +355,15 @@ void main() {
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
   // ---- Event horizon ----
-  // Antialias only the silhouette boundary; fully captured ray centers stay black.
-  if (hitHorizon) {
-    float horizonAA = max(0.012, 2.0 * uCamDist / uResolution.y);
-    float coverage = 1.0 - smoothstep(R_HORIZON - horizonAA, R_HORIZON + horizonAA, closestR);
-    color *= 1.0 - coverage;
+  // Anti-alias the Kerr silhouette from the integrated closest approach.
+  // The captured interior remains black; the foreground disk only covers pixels
+  // outside the fully-black part of the shadow.
+  float horizonAA = max(0.01, 1.25 * uCamDist / uResolution.y);
+  float shadowCoverage = 1.0 - smoothstep(R_HORIZON - horizonAA, R_HORIZON + horizonAA, closestR);
+  color *= 1.0 - shadowCoverage;
+  if (frontDiskHit) {
+    float diskForeground = frontDiskAlpha * (1.0 - shadowCoverage);
+    color = mix(color, frontDiskColor, diskForeground);
   }
 
   // Subtle vignette

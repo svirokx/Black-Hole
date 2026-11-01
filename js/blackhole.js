@@ -316,22 +316,16 @@ void main() {
   }
 
   // ---- Захват лучей ----
-  // Луч не вылетел за r=50: проверяем, захвачен ли он или просто не хватило шагов
-  {
+  // Только лучи, реально дошедшие до горизонта, считаются захваченными.
+  // Не классифицируем все незавершённые лучи как захват: при косом ракурсе
+  // трассировка может исчерпать шаги раньше, чем луч достигнет r=50.
+  if (!hitHorizon) {
     float fr2_xy  = dot(pos.xz, pos.xz);
     float fr2_bls = fr2_xy + pos.y * pos.y - a * a;
     float finalR  = sqrt(0.5 * (fr2_bls + sqrt(fr2_bls * fr2_bls + 4.0 * a * a * pos.y * pos.y)));
-    if (!hitHorizon && finalR < 50.0) {
-      float radVel = dot(normalize(pos), vel);
-      // Если луч далеко от ЧД и летит наружу — он просто не успел выйти за 50,
-      // но уже на траектории побега. Не захватываем.
-      if (finalR > 8.0 && radVel > 0.05) {
-        // Ушедший луч — используем текущее vel для звёзд/фона
-      } else {
-        hitHorizon = true;
-        // Keep any accumulated front-disk color; horizon = black background
-        diskAlpha = 1.0;
-      }
+    if (finalR <= R_HORIZON + 0.015) {
+      hitHorizon = true;
+      diskAlpha = 1.0;
     }
   }
 
@@ -470,7 +464,7 @@ export class BlackHoleRenderer {
   init() {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      antialias: true,
+      antialias: false,
       alpha: false,
       powerPreference: 'high-performance',
     });
@@ -485,7 +479,7 @@ export class BlackHoleRenderer {
       uCamDist:    { value: this.camDist },
       uCamTheta:   { value: this.currentTheta },
       uCamPhi:     { value: this.currentPhi },
-      uMaxSteps:   { value: 125 },
+      uMaxSteps:   { value: 120 },
       uStarsEnabled: { value: true },
       uDiskEnabled: { value: true },
     };

@@ -511,12 +511,15 @@ export class BlackHoleRenderer {
     this.zoomControl = document.getElementById('camera-zoom');
     if (this.zoomControl) {
       this.zoomControl.value = String(this.defaultDist);
-      this.zoomControl.addEventListener('input', () => {
+      const syncZoom = () => {
         this.camDist = Number(this.zoomControl.value);
         this.uniforms.uCamDist.value = this.camDist;
         this.renderer.render(this.scene, this.camera);
-      });
+      };
+      this.zoomControl.addEventListener('input', syncZoom);
+      this.zoomControl.addEventListener('change', syncZoom);
       this.zoomControl.addEventListener('pointerdown', (event) => event.stopPropagation());
+      this.zoomControl.addEventListener('mousedown', (event) => event.stopPropagation());
     }
 
     // Mouse drag → orbit

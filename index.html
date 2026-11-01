@@ -58,12 +58,6 @@
     </div>
 
     <button class="scene-controls" id="sim-toggle" type="button" aria-pressed="false" aria-label="Пауза симуляции, клавиша пробел">Ⅱ <span>Пауза</span><kbd>SPACE</kbd></button>
-    <label class="zoom-control" aria-label="Приближение симуляции">
-      <span aria-hidden="true">＋</span>
-      <input id="camera-zoom" type="range" min="12" max="34" step="0.5" value="22" aria-label="Приблизить или отдалить симуляцию">
-      <span aria-hidden="true">−</span>
-    </label>
-
     <div id="scale-ruler" class="scale-ruler">
       <div class="scale-bar"><div class="scale-line"></div><div class="scale-ticks"><div class="scale-tick"></div><div class="scale-tick"></div></div></div>
       <div class="scale-label" id="scale-label">— а.е.</div>
@@ -74,6 +68,12 @@
       <span>Листайте вниз</span>
     </div>
   </section>
+
+  <label class="zoom-control" aria-label="Приближение симуляции">
+    <span aria-hidden="true">＋</span>
+    <input id="camera-zoom" type="range" min="12" max="34" step="0.5" value="22" aria-label="Приблизить или отдалить симуляцию">
+    <span aria-hidden="true">−</span>
+  </label>
 
   <!-- ============ CONTENT SECTIONS ============ -->
   <main id="content">

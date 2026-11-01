@@ -337,6 +337,17 @@ void main() {
     pos   = newPos;
   }
 
+  // If the integration budget ends while a ray is still deep in the potential
+  // and moving inward, treat it as captured instead of leaking disk light.
+  if (!hitHorizon) {
+    float terminalR = kerrRadius(pos);
+    float terminalRadial = dot(normalize(pos), vel);
+    if (terminalR < 8.0 && terminalRadial < 0.04 && closestR < 7.0) {
+      hitHorizon = true;
+      diskAlpha = 1.0;
+    }
+  }
+
   // ---- Background stars (gravitationally lensed direction) ----
   if (!hitHorizon && uStarsEnabled) {
     vec3 stars = starField(normalize(vel));

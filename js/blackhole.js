@@ -76,7 +76,7 @@ vec3 starField(vec3 rd) {
     if (h > 0.965) {
       vec3 off = vec3(hash3(id + 11.0), hash3(id + 23.0), hash3(id + 37.0)) * 0.4 - 0.2;
       float d = length(f - off);
-      float br = smoothstep(0.07, 0.0, d) * (0.4 + 0.6 * hash3(id + 99.0));
+      float br = (1.0 - smoothstep(0.0, 0.07, d)) * (0.4 + 0.6 * hash3(id + 99.0));
       float temp = hash3(id + 55.0);
       vec3 sCol = mix(vec3(0.7, 0.85, 1.0), vec3(1.0, 0.9, 0.7), temp);
       sCol = mix(sCol, vec3(1.0, 0.5, 0.3), step(0.93, temp));
@@ -102,7 +102,7 @@ float kerrRadius(vec3 p) {
 }
 
 vec3 diskColor(float r, float angle, float t) {
-  float temp = smoothstep(DISK_OUTER, DISK_INNER, r);
+  float temp = 1.0 - smoothstep(DISK_INNER, DISK_OUTER, r);
 
   vec3 cold  = vec3(0.5, 0.08, 0.02);
   vec3 warm  = vec3(0.95, 0.4, 0.08);
@@ -142,7 +142,7 @@ vec3 diskColor(float r, float angle, float t) {
   col += vec3(0.35, 0.6, 1.0) * exp(-pow((r - DISK_INNER) * 2.5, 2.0)) * 0.6;
 
   float innerFade = smoothstep(DISK_INNER - 0.1, DISK_INNER + 0.4, r);
-  float outerFade = smoothstep(DISK_OUTER, DISK_OUTER - 3.0, r);
+  float outerFade = 1.0 - smoothstep(DISK_OUTER - 3.0, DISK_OUTER, r);
 
   return col * brightness * innerFade * outerFade * 2.2;
 }
@@ -199,19 +199,14 @@ void main() {
     if (r > 50.0) break;
 
     // — Adaptive step size —
-    // Tiny near BH (proper gravitational bending), large far away (speed)
-    // After periapsis (ray moving outward), use larger steps to save budget
-    float radVelStep = dot(normalize(pos), vel);
+    // Resolve the photon sphere and disk crossings without periapsis-sized jumps.
     float dt;
     if (r < 3.0) {
-      // Критическая зона линзирования — мелкий шаг для изгиба лучей
-      dt = max(0.008, (r - R_HORIZON) * 0.025 + 0.008);
-      // После прохождения ближайшей точки (луч уходит наружу) — крупнее шаг
-      if (radVelStep > 0.0 && r > closestR + 0.05) {
-        dt = max(dt, r * 0.035);
-      }
+      dt = max(0.006, (r - R_HORIZON) * 0.012 + 0.006);
     } else if (r < 8.0) {
-      dt = r * 0.04;
+      dt = r * 0.025;
+    } else if (r < DISK_OUTER + 4.0) {
+      dt = min(0.35, r * 0.035);
     } else {
       dt = min(1.2, r * 0.1);
     }
@@ -280,7 +275,7 @@ void main() {
           dCol = mix(dCol, dCol * vec3(1.3, 0.75, 0.5), min((1.0 - doppler) * 0.3, 0.5));
         }
 
-        float alpha = smoothstep(DISK_OUTER, DISK_OUTER - 2.5, cR)
+        float alpha = (1.0 - smoothstep(DISK_OUTER - 2.5, DISK_OUTER, cR))
                     * smoothstep(DISK_INNER * 0.8, DISK_INNER + 0.4, cR) * 0.92;
         color     += dCol * alpha * (1.0 - diskAlpha);
         diskAlpha += alpha * (1.0 - diskAlpha);
@@ -359,7 +354,7 @@ export class BlackHoleRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.defaultTheta = Math.PI * 0.47;
-    this.defaultDist = 58;
+    this.defaultDist = 30;
     this.targetTheta  = this.defaultTheta;
     this.targetPhi    = 0;
     this.currentTheta = this.defaultTheta;

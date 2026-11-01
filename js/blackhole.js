@@ -168,9 +168,6 @@ void main() {
   vec3 up    = cross(right, forward);
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
-  float impactParameter = length(cross(camPos, rd));
-  const float SHADOW_RADIUS = 2.9; // compact, smaller black center
-
   // ---- Ray Tracing (Kerr geodesic) ----
   vec3  pos  = camPos;
   vec3  vel  = rd;
@@ -342,12 +339,9 @@ void main() {
   // All lensed disk light comes from ray/disk intersections inside the integrator.
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
-  // Draw one compact Kerr shadow last. This keeps the center black even when
-  // disk and lensing contributions overlap it from a tilted camera angle.
-  float horizonAA = max(0.01, 0.85 * uCamDist / uResolution.y);
-  float shadowVisible = smoothstep(SHADOW_RADIUS - horizonAA, SHADOW_RADIUS + horizonAA, impactParameter);
-  color *= shadowVisible;
-
+  // Rays captured by the integrated Kerr horizon receive no background light.
+  // Keep foreground disk samples accumulated before capture; do not add a
+  // screen-space circle that masks unrelated rays or foreground disk emission.
   // Subtle vignette
   color *= 1.0 - 0.15 * dot(uv, uv);
 

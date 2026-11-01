@@ -264,8 +264,9 @@ void main() {
       float frac = abs(prevY) / (abs(prevY) + abs(newY) + 1e-5);
       vec3  crossPos = mix(pos, newPos, frac);
       float cR = length(crossPos.xz);
+      float crossingKerrR = kerrRadius(crossPos);
 
-      if (cR > DISK_INNER * 0.85 && cR < DISK_OUTER) {
+      if (cR > DISK_INNER * 0.85 && cR < DISK_OUTER && crossingKerrR > R_HORIZON + 0.01) {
         float angle = atan(crossPos.z, crossPos.x);
 
         // Doppler beaming
@@ -291,8 +292,8 @@ void main() {
                     * smoothstep(DISK_INNER * 0.8, DISK_INNER + 0.4, cR) * 0.92;
         color     += dCol * alpha * (1.0 - diskAlpha);
         diskAlpha += alpha * (1.0 - diskAlpha);
-        // Captured rays keep only the nearest disk crossing. Far-side disk
-        // emission must remain hidden behind the event horizon.
+        // Save only the nearest crossing visible to the camera. The test above
+        // prevents disk segments inside the Kerr horizon from leaking through.
         if (!frontDiskHit) {
           frontDiskColor = dCol * alpha;
           frontDiskAlpha = alpha;

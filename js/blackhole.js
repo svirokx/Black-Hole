@@ -358,7 +358,7 @@ void main() {
   // Anti-alias the Kerr silhouette from the integrated closest approach.
   // The captured interior remains black; the foreground disk only covers pixels
   // outside the fully-black part of the shadow.
-  float horizonAA = max(0.01, 1.25 * uCamDist / uResolution.y);
+  float horizonAA = max(0.01, 1.75 * uCamDist / uResolution.y);
   float shadowCoverage = 1.0 - smoothstep(R_HORIZON - horizonAA, R_HORIZON + horizonAA, closestR);
   color *= 1.0 - shadowCoverage;
   if (frontDiskHit) {
@@ -383,7 +383,7 @@ export class BlackHoleRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.defaultTheta = Math.PI * 0.47;
-    this.defaultDist = 48;
+    this.defaultDist = 58;
     this.targetTheta  = this.defaultTheta;
     this.targetPhi    = 0;
     this.currentTheta = this.defaultTheta;

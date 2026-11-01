@@ -621,8 +621,7 @@ body.scrolled-past-hero .scale-ruler {
   #blackhole-canvas { cursor: default; }
   .content-section { padding-left: 16px; padding-right: 16px; }
   /* Ensure canvas doesn't block scrolling */
-  #hero { touch-action: pan-y; }
-  #blackhole-canvas { touch-action: manipulation; }
+  #hero, #blackhole-canvas { touch-action: pan-y; }
   /* Prevent iOS rubber-band bounce hiding the BH */
   html, body { overscroll-behavior: none; }
 }
@@ -650,24 +649,14 @@ body { background: #03040a; }
 .content-section { backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); will-change: auto; }
 .content-section:nth-child(even) { background: rgba(8, 10, 22, .88); }
 .hero-title { animation: heroTitleLife 8s ease forwards 1.5s; text-shadow: 0 0 34px rgba(255,154,98,.32), 0 4px 40px rgba(0,0,0,.9); }
-.scene-controls { position: fixed; z-index: 120; top: 22px; left: 22px; width: min(500px, calc(100vw - 108px)); padding: 13px 15px; border: 1px solid rgba(180,199,255,.17); border-radius: 15px; background: rgba(7,10,22,.78); color: #e8ecf8; font: 500 12px/1.4 var(--font-body); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); opacity: 0; animation: fadeIn 1s ease forwards 2.2s; pointer-events: auto; }
-.scene-controls-head, .scene-control-row, .scene-slider { display:flex; align-items:center; gap:9px; }
-.scene-controls-head { color:#bdc8e2; font-size:10px; letter-spacing:.16em; margin-bottom:10px; }
-.live-dot { width:7px;height:7px;border-radius:50%;background:#79e0b1;box-shadow:0 0 12px #79e0b1; }
-.scene-hint { margin-left:auto; color:#9ba6bf; letter-spacing:0; }
-.scene-control-row { flex-wrap:wrap; }
-.scene-button { border:1px solid rgba(180,199,255,.17); border-radius:9px; padding:7px 10px; background:rgba(255,255,255,.045);color:#e8ecf8;font:inherit;cursor:pointer; }
-.scene-button:hover,.scene-button[aria-pressed="true"] { border-color:rgba(255,154,98,.55); background:rgba(255,154,98,.12); }
-.scene-slider { margin-top:9px; color:#aeb8ce; }
-.scene-slider input { flex:1; min-width:60px; accent-color:#ff9a62; }
-.scene-slider span { width:28px; text-align:right; color:#e7d2c5; }
-.scene-toggles { margin-top:10px; color:#bbc4d8; }
-.scene-toggles label { display:flex;align-items:center;gap:5px; }
-.scene-toggles input { accent-color:#ff9a62; }
+.scene-controls { position:fixed; z-index:120; top:18px; left:18px; display:flex; align-items:center; gap:9px; min-height:38px; padding:7px 11px; border:1px solid rgba(180,199,255,.17); border-radius:11px; background:rgba(7,10,22,.78); color:#e8ecf8; font:500 12px/1.2 var(--font-body); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); opacity:0; animation:fadeIn 1s ease forwards 2.2s; cursor:pointer; }
+.scene-controls:hover,.scene-controls[aria-pressed="true"] { border-color:rgba(255,154,98,.55); background:rgba(7,10,22,.9); }
+.scene-controls kbd { padding:3px 5px; border:1px solid rgba(180,199,255,.2); border-radius:5px; color:#9ba6bf; font:10px var(--font-body); }
+.scene-controls:focus-visible { outline:2px solid #ff9a62; outline-offset:3px; }
 #sound-toggle { top:22px;right:22px; }
 .bh-hud { background:rgba(7,10,22,.78); border-color:rgba(180,199,255,.17); }
 .section-body { color:#c0c5da; }
 .section-source,.bh-hud-label,.scale-label,.loader-sub { color:#9ba6bf; }
 .stat-card,.anatomy-card,.type-card,.physics-card { background:rgba(14,17,34,.86); border-color:rgba(180,199,255,.14); }
-@media(max-width:700px) { .scene-controls { top:auto;bottom:14px;left:12px;width:calc(100vw - 24px);padding:10px 12px; } #sound-toggle { top:14px;right:14px; } .scene-controls-head { margin-bottom:7px; } .scene-button { min-height:36px; } .bh-hud { display:none; } .scene-toggles { gap:10px; } }
+@media(max-width:700px) { .scene-controls { top:auto;bottom:18px;left:50%;transform:translateX(-50%);min-height:42px;padding:8px 11px; } .scene-controls kbd { display:none; } #sound-toggle { top:14px;right:14px; } .bh-hud { display:none; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; } }

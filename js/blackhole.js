@@ -470,11 +470,11 @@ export class BlackHoleRenderer {
   init() {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      antialias: false,
+      antialias: true,
       alpha: false,
       powerPreference: 'high-performance',
     });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.35));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 
     this.scene  = new THREE.Scene();
     this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -485,7 +485,7 @@ export class BlackHoleRenderer {
       uCamDist:    { value: this.camDist },
       uCamTheta:   { value: this.currentTheta },
       uCamPhi:     { value: this.currentPhi },
-      uMaxSteps:   { value: 110 },
+      uMaxSteps:   { value: 125 },
       uStarsEnabled: { value: true },
       uDiskEnabled: { value: true },
     };
@@ -534,21 +534,7 @@ export class BlackHoleRenderer {
     });
     c.style.cursor = 'grab';
 
-    // Wheel zoom disabled — scroll navigates the page normally
-    // Zoom only via pinch-to-zoom on touch devices
-
-    // Touch controls
-    c.addEventListener('wheel', (e) => {
-      if (e.ctrlKey || e.metaKey || window.scrollY >= window.innerHeight * 0.8) return;
-      e.preventDefault();
-      this.camDist = Math.max(4, Math.min(45, this.camDist + Math.sign(e.deltaY) * 1.2));
-      const zoom = document.getElementById('zoom-control');
-      if (zoom) zoom.value = this.camDist;
-    }, { passive: false });
-
     let touchDecided = false, touchIsOrbit = false;
-    this.pinchStartDist = 0;
-    this.pinchStartCamDist = this.camDist;
 
     c.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) {
@@ -556,15 +542,10 @@ export class BlackHoleRenderer {
         this.lastMouse.y = e.touches[0].clientY;
         touchDecided = false;
         touchIsOrbit = false;
-      } else if (e.touches.length === 2) {
-        e.preventDefault();
+      } else if (e.touches.length > 1) {
         touchDecided = true;
         touchIsOrbit = false;
         this.isDragging = false;
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        this.pinchStartDist = Math.sqrt(dx * dx + dy * dy);
-        this.pinchStartCamDist = this.camDist;
       }
     }, { passive: false });
 
@@ -585,14 +566,6 @@ export class BlackHoleRenderer {
           this.lastMouse.x  = e.touches[0].clientX;
           this.lastMouse.y  = e.touches[0].clientY;
         }
-      } else if (e.touches.length === 2) {
-        e.preventDefault();
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        this.camDist = Math.max(4, Math.min(60,
-          this.pinchStartCamDist * (this.pinchStartDist / Math.max(dist, 1))
-        ));
       }
     }, { passive: false });
 
@@ -609,14 +582,6 @@ export class BlackHoleRenderer {
     const dpr = this.renderer.getPixelRatio(); // сохраняем текущий DPR
     this.renderer.setSize(w, h);
     this.uniforms.uResolution.value.set(w * dpr, h * dpr);
-  }
-
-  resetCamera() {
-    this.targetTheta = this.defaultTheta;
-    this.currentTheta = this.defaultTheta;
-    this.targetPhi = 0;
-    this.currentPhi = 0;
-    this.camDist = this.defaultDist;
   }
 
   // ---------- Frame ----------

@@ -27,21 +27,21 @@
 
 export const LEVELS = [
   // === Уровень 0: Абсолютный минимум (стабильность > красота) ===
-  { level: 0, label: 'Минимум',     steps: 55,  dpr: 1.0,  resMul: 0.70, shadows: false, postFX: 'off' },
+  { level: 0, label: 'Минимум',     steps: 45,  dpr: 1.0,  resMul: 0.90, shadows: false, postFX: 'off' },
   // === Уровень 1: Низкие ===
-  { level: 1, label: 'Низкие',      steps: 75,  dpr: 1.0,  resMul: 0.80, shadows: false, postFX: 'off' },
+  { level: 1, label: 'Низкие',      steps: 60,  dpr: 1.0,  resMul: 0.95, shadows: false, postFX: 'off' },
   // === Уровень 2: Средне-Низкие ===
-  { level: 2, label: 'Ср-Низкие',   steps: 90,  dpr: 1.0,  resMul: 0.90, shadows: true,  postFX: 'off' },
+  { level: 2, label: 'Ср-Низкие',   steps: 75,  dpr: 1.0,  resMul: 1.0,  shadows: true,  postFX: 'off' },
   // === Уровень 3: Средние ===
-  { level: 3, label: 'Средние',     steps: 110, dpr: 1.0,  resMul: 1.0,  shadows: true,  postFX: 'off' },
+  { level: 3, label: 'Средние',     steps: 90,  dpr: 1.0,  resMul: 1.0,  shadows: true,  postFX: 'off' },
   // === Уровень 4: Средне-Высокие ===
-  { level: 4, label: 'Ср-Высокие',  steps: 130, dpr: 1.15, resMul: 1.0,  shadows: true,  postFX: 'basic' },
+  { level: 4, label: 'Ср-Высокие',  steps: 105, dpr: 1.1,  resMul: 1.0,  shadows: true,  postFX: 'basic' },
   // === Уровень 5: Высокие ===
-  { level: 5, label: 'Высокие',     steps: 155, dpr: 1.25, resMul: 1.0,  shadows: true,  postFX: 'full' },
+  { level: 5, label: 'Высокие',     steps: 120, dpr: 1.2,  resMul: 1.0,  shadows: true,  postFX: 'full' },
   // === Уровень 6: Очень Высокие ===
-  { level: 6, label: 'Оч.Высокие',  steps: 180, dpr: null, resMul: 1.0,  shadows: true,  postFX: 'full' },
+  { level: 6, label: 'Оч.Высокие',  steps: 130, dpr: null, resMul: 1.0,  shadows: true,  postFX: 'full' },
   // === Уровень 7: Ультра ===
-  { level: 7, label: 'Ультра',      steps: 200, dpr: null, resMul: 1.0,  shadows: true,  postFX: 'full' },
+  { level: 7, label: 'Ультра',      steps: 140, dpr: null, resMul: 1.0,  shadows: true,  postFX: 'full' },
 ];
 
 // ---------- GPU-классификация ----------
@@ -394,7 +394,7 @@ export class StablePerformanceEngine {
     if (settings.dpr === null) {
       resolvedDpr = this.isMobile
         ? Math.min(window.devicePixelRatio, 1.0)
-        : Math.min(window.devicePixelRatio, 2.0);
+        : Math.min(window.devicePixelRatio, 1.2);
     } else {
       resolvedDpr = this.isMobile ? Math.min(settings.dpr, 1.0) : settings.dpr;
     }
@@ -486,7 +486,7 @@ export function applyGraphicsSettings(renderer, uniforms, settings) {
   }
 
   // Разрешение рендера
-  const effectiveDpr = Math.min(resolvedDpr * resMul, 1.35);
+  const effectiveDpr = Math.min(resolvedDpr * resMul, 1.2);
   renderer.setPixelRatio(effectiveDpr);
 
   // Тени

@@ -140,7 +140,6 @@ async function init() {
   let lastTime = performance.now();
   let elapsed = 0;
   let paused = false;
-  let speed = 1;
   let sceneVisible = true;
   const heroObserver = new IntersectionObserver(([entry]) => { sceneVisible = entry.isIntersecting; }, { threshold: 0.01 });
   heroObserver.observe(document.getElementById('hero'));
@@ -151,10 +150,10 @@ async function init() {
     const dt = Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
     if (!paused && sceneVisible && !document.hidden) {
-      elapsed += dt * speed;
+      elapsed += dt;
       bhRenderer.update(elapsed);
       if (particleSystem) {
-        particleSystem.update(dt * speed);
+        particleSystem.update(dt);
         particleSystem.render(bhRenderer.renderer);
       }
       perfEngine.tick();
@@ -164,40 +163,28 @@ async function init() {
   animate();
 
   const bind = (id, event, handler) => document.getElementById(id)?.addEventListener(event, handler);
-  bind('sim-toggle', 'click', (e) => {
+  const pauseButton = document.getElementById('sim-toggle');
+  const togglePause = () => {
     paused = !paused;
-    e.currentTarget.textContent = paused ? '▶ Продолжить' : 'Ⅱ Пауза';
+    pauseButton.setAttribute('aria-pressed', String(paused));
+    pauseButton.querySelector('span').textContent = paused ? 'Продолжить' : 'Пауза';
+    pauseButton.firstChild.textContent = paused ? '▶ ' : 'Ⅱ ';
+  };
+  pauseButton.addEventListener('click', togglePause);
+  document.addEventListener('keydown', (event) => {
+    const target = event.target;
+    const typing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName));
+    if (event.code === 'Space' && !typing && !event.repeat) {
+      event.preventDefault();
+      togglePause();
+    }
   });
-  bind('rotate-toggle', 'click', (e) => {
-    bhRenderer.autoRotate = !bhRenderer.autoRotate;
-    e.currentTarget.setAttribute('aria-pressed', String(bhRenderer.autoRotate));
-  });
-  bind('camera-reset', 'click', () => {
-    bhRenderer.resetCamera();
-    const zoom = document.getElementById('zoom-control');
-    if (zoom) zoom.value = bhRenderer.defaultDist;
-    const label = document.getElementById('zoom-value');
-    if (label) label.textContent = String(bhRenderer.defaultDist);
-  });
-  bind('zoom-control', 'input', (e) => {
-    bhRenderer.camDist = Number(e.target.value);
-    document.getElementById('zoom-value').textContent = e.target.value;
-  });
-  bind('speed-control', 'input', (e) => {
-    speed = Number(e.target.value);
-    document.getElementById('speed-value').textContent = `${speed.toFixed(1).replace('.0','')}×`;
-  });
-  bind('stars-toggle', 'change', (e) => { bhRenderer.uniforms.uStarsEnabled.value = e.target.checked; });
-  bind('disk-toggle', 'change', (e) => { bhRenderer.uniforms.uDiskEnabled.value = e.target.checked; });
-  bind('particle-add', 'click', () => particleSystem?.spawn((Math.random() - .5) * .45, (Math.random() - .5) * .45));
-  bind('particle-clear', 'click', () => particleSystem?.clear());
 
   setTimeout(() => hideLoader(), 2500);
 
   initScrollReveal();
   initHeroParallax();
   initSound();
-  initScaleRuler(bhRenderer);
 }
 
 function safeInit() {

@@ -251,9 +251,9 @@ void main() {
     float nSigma = nr * nr + a * a * nCosTheta2;
     nAcc += (2.0 * a * M / (nSigma * nr + 0.01)) * cross(spinAxis, vel_half);
 
-    float segmentT = clamp(-dot(pos, newPos - pos) / max(dot(newPos - pos, newPos - pos), 1e-6), 0.0, 1.0);
-    float closestSegmentR = kerrRadius(pos + (newPos - pos) * segmentT);
-    bool crossesHorizon = min(min(r, nr), closestSegmentR) <= R_HORIZON;
+    // Use the integrated geodesic radii, not the straight chord between steps.
+    // Near the hole, a chord cuts inside the curved path and falsely enlarges the shadow.
+    bool crossesHorizon = min(r, nr) <= R_HORIZON;
 
     vel = normalize(vel_half + nAcc * dt * 0.5);
 

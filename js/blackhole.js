@@ -199,15 +199,15 @@ void main() {
     if (r > 50.0) break;
 
     // — Adaptive step size —
-    // Resolve the photon sphere and disk crossings without periapsis-sized jumps.
+    // Cover the camera-to-disk distance within the step budget; refine near the shadow.
     float dt;
     if (r < 3.0) {
-      dt = max(0.004, (r - R_HORIZON) * 0.008 + 0.004);
+      dt = max(0.008, (r - R_HORIZON) * 0.02 + 0.008);
     } else if (r < 8.0) {
-      dt = min(0.06, r * 0.012);
+      dt = min(0.28, r * 0.04);
     } else if (r < DISK_OUTER + 4.0) {
-      // Short segments keep ray/disk intersections continuous across the disk.
-      dt = min(0.06, r * 0.006);
+      // Disk plane crossings are interpolated along each segment below.
+      dt = min(0.8, r * 0.05);
     } else {
       dt = min(1.2, r * 0.1);
     }

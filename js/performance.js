@@ -26,11 +26,11 @@
 // dpr = число → фиксированный pixelRatio
 
 export const LEVELS = [
-  { level: 0, label: 'Минимум',     steps: 140, dpr: 1.0, resMul: 0.82, shadows: false, postFX: 'off' },
+  { level: 0, label: 'Минимум',     steps: 100, dpr: 1.0, resMul: 0.62, shadows: false, postFX: 'off' },
   // === Уровень 1: Низкие ===
-  { level: 1, label: 'Низкие',      steps: 150, dpr: 1.0, resMul: 0.88, shadows: false, postFX: 'off' },
+  { level: 1, label: 'Низкие',      steps: 115, dpr: 1.0, resMul: 0.72, shadows: false, postFX: 'off' },
   // === Уровень 2: Средне-Низкие ===
-  { level: 2, label: 'Ср-Низкие',   steps: 160, dpr: 1.0, resMul: 0.94, shadows: false, postFX: 'off' },
+  { level: 2, label: 'Ср-Низкие',   steps: 125, dpr: 1.0, resMul: 0.82, shadows: false, postFX: 'off' },
   // === Уровень 3: Средние ===
   { level: 3, label: 'Средние',     steps: 120, dpr: 1.0, resMul: 0.87, shadows: false, postFX: 'off' },
   // === Уровень 4: Средне-Высокие ===

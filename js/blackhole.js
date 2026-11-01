@@ -162,10 +162,6 @@ void main() {
   vec3 up    = cross(right, forward);
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
-  vec3 initialAngularMomentum = cross(camPos, rd);
-  float impactParameter = length(initialAngularMomentum);
-  float normalizedSpinMomentum = initialAngularMomentum.y / max(impactParameter, 0.001);
-  float criticalImpact = clamp(4.5 - 1.7 * normalizedSpinMomentum * sin(uCamTheta), 2.8, 6.3);
 
   // ---- Ray Tracing (Kerr geodesic) ----
   vec3  pos  = camPos;
@@ -315,24 +311,25 @@ void main() {
       color += coronaCol * coronaGlow * (1.0 - diskAlpha);
     }
 
+    // Mark capture only when the integrated geodesic actually crosses the
+    // Kerr event horizon. Disk emission for this step is already accumulated,
+    // so the foreground disk remains visible across the shadow.
+    if (nr <= R_HORIZON) {
+      hitHorizon = true;
+      diskAlpha = 1.0;
+      break;
+    }
+
     prevY = newY;
     pos   = newPos;
-  }
-
-  // ---- Захват лучей ----
-  // Use the impact parameter to preserve the visible Kerr shadow boundary even
-  // when adaptive integration steps skip over the coordinate horizon.
-  if (!hitHorizon && impactParameter <= criticalImpact) {
-    hitHorizon = true;
-    diskAlpha = 1.0;
   }
 
   // ---- Background stars (gravitationally lensed direction) ----
   if (!hitHorizon && uStarsEnabled) {
     vec3 stars = starField(normalize(vel));
 
-    // Гравитационное усиление: звёзды у края тени ярче (фокусировка)
-    float rimDist = impactParameter - criticalImpact;
+    // Гравитационное усиление: звёзды рядом с горизонтом ярче (фокусировка)
+    float rimDist = closestR - R_HORIZON;
     if (rimDist < 5.0) {
       float magnification = 1.0 + 0.6 * exp(-rimDist * 0.5);
       stars *= magnification;
@@ -341,18 +338,13 @@ void main() {
     color += stars * (1.0 - diskAlpha);
   }
 
-  // ---- Photon ring + shadow edge ----
-  // Enhance the critical curve so the event-horizon silhouette stays readable.
-  if (!hitHorizon) {
-    float shadowEdge = 1.0 - smoothstep(criticalImpact, criticalImpact + 0.18, impactParameter);
-    color = mix(color, vec3(0.001, 0.0015, 0.004), shadowEdge);
-  }
-
+  // ---- Photon ring and gravitationally lensed glow ----
+  // No screen-space circular mask: the silhouette comes from integrated rays.
   // Свет, облетевший ЧД 1-2-3 раза, формирует тонкие кольца.
   // Широкая мягкая пенумбра с угловой вариацией создаёт объём —
   // тень выглядит как силуэт СФЕРЫ, а не плоский кружок.
   if (!hitHorizon) {
-    float rimDist = impactParameter - criticalImpact;
+    float rimDist = closestR - R_HORIZON;
 
     // --- Широкая мягкая пенумбра (объёмность тени) ---
     // Тёплый тусклый свет, растекающийся от края тени.

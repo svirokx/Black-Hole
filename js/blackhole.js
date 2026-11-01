@@ -185,6 +185,7 @@ void main() {
   // captured rays keep ONLY thin-disk color, not volumetric/corona glow
   vec3  frontDiskColor = vec3(0.0);
   float frontDiskAlpha = 0.0;
+  bool  frontDiskHit = false;
 
   for (int i = 0; i < 350; i++) {
     if (float(i) >= uMaxSteps) break;
@@ -290,9 +291,13 @@ void main() {
                     * smoothstep(DISK_INNER * 0.8, DISK_INNER + 0.4, cR) * 0.92;
         color     += dCol * alpha * (1.0 - diskAlpha);
         diskAlpha += alpha * (1.0 - diskAlpha);
-        // Track thin-disk separately for captured-ray Z-buffer
-        frontDiskColor += dCol * alpha * (1.0 - frontDiskAlpha);
-        frontDiskAlpha += alpha * (1.0 - frontDiskAlpha);
+        // Captured rays keep only the nearest disk crossing. Far-side disk
+        // emission must remain hidden behind the event horizon.
+        if (!frontDiskHit) {
+          frontDiskColor = dCol * alpha;
+          frontDiskAlpha = alpha;
+          frontDiskHit = true;
+        }
       }
     }
 

@@ -168,11 +168,9 @@ void main() {
   vec3 up    = cross(right, forward);
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
-  vec3 angularMomentum = cross(camPos, rd);
-  float impactParameter = length(angularMomentum);
-  float axialFraction = angularMomentum.y / max(impactParameter, 0.001);
-  // Approximate Kerr critical curve: bounded spin-dependent radius, not a screen circle.
-  float criticalImpact = clamp(5.196 - 0.85 * SPIN * axialFraction * sin(uCamTheta), 4.1, 6.2);
+  // Each camera ray gets its own impact parameter; this defines the central shadow.
+  float impactParameter = length(cross(camPos, rd));
+  float shadowRadius = 5.2 * M;
 
   // ---- Ray Tracing (Kerr geodesic) ----
   vec3  pos  = camPos;
@@ -186,11 +184,6 @@ void main() {
   float prevY     = pos.y;
   float closestR  = 100.0;
 
-  // Track thin-disk crossings separately for Z-buffer correctness:
-  // captured rays keep ONLY thin-disk color, not volumetric/corona glow
-  vec3  frontDiskColor = vec3(0.0);
-  float frontDiskAlpha = 0.0;
-  bool  frontDiskHit = false;
 
   for (int i = 0; i < 350; i++) {
     if (float(i) >= uMaxSteps) break;
@@ -297,13 +290,6 @@ void main() {
                     * smoothstep(DISK_INNER * 0.8, DISK_INNER + 0.4, cR) * 0.92;
         color     += dCol * alpha * (1.0 - diskAlpha);
         diskAlpha += alpha * (1.0 - diskAlpha);
-        // Save only the nearest crossing visible to the camera. The test above
-        // prevents disk segments inside the Kerr horizon from leaking through.
-        if (!frontDiskHit) {
-          frontDiskColor = dCol * alpha;
-          frontDiskAlpha = alpha;
-          frontDiskHit = true;
-        }
       }
     }
 
@@ -359,14 +345,10 @@ void main() {
   // All lensed disk light comes from ray/disk intersections inside the integrator.
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
-  // Composite the nearest foreground disk crossing, then apply the Kerr shadow.
-  if (frontDiskHit) {
-    color = mix(color, frontDiskColor, frontDiskAlpha);
-  }
-  // Smooth one-pixel edge around the spin-dependent critical curve. The shadow
-  // center stays pure black; the accretion disk remains visible outside it.
-  float shadowAA = max(0.012, uCamDist / uResolution.y);
-  float shadowCoverage = 1.0 - smoothstep(criticalImpact - shadowAA, criticalImpact + shadowAA, impactParameter);
+  // Draw the black Kerr shadow after disk/lensing effects so no glow fills the core.
+  float shadowRadius = 5.2 * M;
+  float shadowAA = max(0.008, 0.75 * uCamDist / uResolution.y);
+  float shadowCoverage = 1.0 - smoothstep(shadowRadius - shadowAA, shadowRadius + shadowAA, impactParameter);
   color *= 1.0 - shadowCoverage;
 
   // Subtle vignette

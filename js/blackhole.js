@@ -347,7 +347,8 @@ void main() {
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
   // Draw a compact Kerr shadow after the disk so glow cannot cover its center.
-  float shadowAA = max(0.006, fwidth(impactParameter) * 1.1);
+  // Approximate one screen pixel in ray-impact units (WebGL1-safe; no derivatives extension).
+  float shadowAA = max(0.008, uCamDist / uResolution.y);
   float shadowCoverage = 1.0 - smoothstep(shadowRadius - shadowAA, shadowRadius + shadowAA, impactParameter);
   color *= 1.0 - shadowCoverage;
 

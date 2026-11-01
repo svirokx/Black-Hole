@@ -168,6 +168,11 @@ void main() {
   vec3 up    = cross(right, forward);
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
+  vec3 angularMomentum = cross(camPos, rd);
+  float impactParameter = length(angularMomentum);
+  float axialFraction = angularMomentum.y / max(impactParameter, 0.001);
+  // Approximate Kerr critical curve: bounded spin-dependent radius, not a screen circle.
+  float criticalImpact = clamp(5.196 - 0.85 * SPIN * axialFraction * sin(uCamTheta), 4.1, 6.2);
 
   // ---- Ray Tracing (Kerr geodesic) ----
   vec3  pos  = camPos;
@@ -354,19 +359,15 @@ void main() {
   // All lensed disk light comes from ray/disk intersections inside the integrator.
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
-  // ---- Event horizon ----
-  // Anti-alias the Kerr silhouette from the integrated closest approach.
-  // The captured interior remains black; the foreground disk only covers pixels
-  // outside the fully-black part of the shadow.
-  float horizonAA = max(0.006, 0.75 * uCamDist / uResolution.y);
-  float shadowCoverage = 1.0 - smoothstep(R_HORIZON - horizonAA, R_HORIZON + horizonAA, closestR);
-  color *= 1.0 - shadowCoverage;
+  // Composite the nearest foreground disk crossing, then apply the Kerr shadow.
   if (frontDiskHit) {
-    // Keep the disk strictly outside the event-horizon silhouette; only blend
-    // its foreground edge after the antialiased black core has ended.
-    float diskForeground = frontDiskAlpha * smoothstep(R_HORIZON + horizonAA, R_HORIZON + 2.0 * horizonAA, closestR);
-    color = mix(color, frontDiskColor, diskForeground);
+    color = mix(color, frontDiskColor, frontDiskAlpha);
   }
+  // Smooth one-pixel edge around the spin-dependent critical curve. The shadow
+  // center stays pure black; the accretion disk remains visible outside it.
+  float shadowAA = max(0.012, uCamDist / uResolution.y);
+  float shadowCoverage = 1.0 - smoothstep(criticalImpact - shadowAA, criticalImpact + shadowAA, impactParameter);
+  color *= 1.0 - shadowCoverage;
 
   // Subtle vignette
   color *= 1.0 - 0.15 * dot(uv, uv);

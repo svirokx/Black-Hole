@@ -168,6 +168,10 @@ void main() {
   vec3 up    = cross(right, forward);
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
+  vec3 initialAngularMomentum = cross(camPos, rd);
+  float impactParameter = length(initialAngularMomentum);
+  float spinProjection = initialAngularMomentum.y / max(impactParameter, 0.001);
+  float criticalCapture = clamp(5.2 - 1.5 * SPIN * spinProjection * sin(uCamTheta), 3.0, 6.5);
 
   // ---- Ray Tracing (Kerr geodesic) ----
   vec3  pos  = camPos;
@@ -337,12 +341,12 @@ void main() {
     pos   = newPos;
   }
 
-  // If the integration budget ends while a ray is still deep in the potential
-  // and moving inward, treat it as captured instead of leaking disk light.
+  // The finite integration budget can stop a plunging ray just before the
+  // horizon. Use the Kerr critical capture parameter only for such unfinished
+  // near-hole rays, not as a screen-space overlay on the whole image.
   if (!hitHorizon) {
     float terminalR = kerrRadius(pos);
-    float terminalRadial = dot(normalize(pos), vel);
-    if (terminalR < 8.0 && terminalRadial < 0.04 && closestR < 7.0) {
+    if (terminalR < 50.0 && impactParameter < criticalCapture) {
       hitHorizon = true;
       diskAlpha = 1.0;
     }

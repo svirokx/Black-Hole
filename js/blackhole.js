@@ -383,7 +383,7 @@ export class BlackHoleRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.defaultTheta = Math.PI * 0.47;
-    this.defaultDist = 40;
+    this.defaultDist = 48;
     this.targetTheta  = this.defaultTheta;
     this.targetPhi    = 0;
     this.currentTheta = this.defaultTheta;

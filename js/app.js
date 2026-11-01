@@ -143,6 +143,20 @@ async function init() {
   let sceneVisible = true;
   const heroObserver = new IntersectionObserver(([entry]) => { sceneVisible = entry.isIntersecting; }, { threshold: 0.01 });
   heroObserver.observe(document.getElementById('hero'));
+  let fpsFrames = 0;
+  let fpsWindowStart = performance.now();
+  function reportFps(now) {
+    fpsFrames++;
+    if (now - fpsWindowStart >= 1000) {
+      if (!paused && sceneVisible && !document.hidden) {
+        perfEngine.setMeasuredFps(fpsFrames * 1000 / (now - fpsWindowStart));
+      }
+      fpsFrames = 0;
+      fpsWindowStart = now;
+    }
+    requestAnimationFrame(reportFps);
+  }
+  requestAnimationFrame(reportFps);
   document.addEventListener('visibilitychange', () => { lastTime = performance.now(); });
 
   function animate() {
@@ -171,10 +185,6 @@ async function init() {
     pauseButton.firstChild.textContent = paused ? '▶ ' : 'Ⅱ ';
   };
   pauseButton.addEventListener('click', togglePause);
-  const zoomControl = document.getElementById('camera-zoom');
-  zoomControl.addEventListener('input', () => {
-    bhRenderer.camDist = Number(zoomControl.value);
-  });
   document.addEventListener('keydown', (event) => {
     const target = event.target;
     const typing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName));

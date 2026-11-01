@@ -162,6 +162,10 @@ void main() {
   vec3 up    = cross(right, forward);
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
+  vec3 initialAngularMomentum = cross(camPos, rd);
+  float impactParameter = length(initialAngularMomentum);
+  float normalizedSpinMomentum = initialAngularMomentum.y / max(impactParameter, 0.001);
+  float criticalImpact = clamp(4.5 - 1.7 * normalizedSpinMomentum * sin(uCamTheta), 2.8, 6.3);
 
   // ---- Ray Tracing (Kerr geodesic) ----
   vec3  pos  = camPos;
@@ -316,17 +320,11 @@ void main() {
   }
 
   // ---- Захват лучей ----
-  // Только лучи, реально дошедшие до горизонта, считаются захваченными.
-  // Не классифицируем все незавершённые лучи как захват: при косом ракурсе
-  // трассировка может исчерпать шаги раньше, чем луч достигнет r=50.
-  if (!hitHorizon) {
-    float fr2_xy  = dot(pos.xz, pos.xz);
-    float fr2_bls = fr2_xy + pos.y * pos.y - a * a;
-    float finalR  = sqrt(0.5 * (fr2_bls + sqrt(fr2_bls * fr2_bls + 4.0 * a * a * pos.y * pos.y)));
-    if (finalR <= R_HORIZON + 0.015) {
-      hitHorizon = true;
-      diskAlpha = 1.0;
-    }
+  // Use the impact parameter to preserve the visible Kerr shadow boundary even
+  // when adaptive integration steps skip over the coordinate horizon.
+  if (!hitHorizon && impactParameter <= criticalImpact) {
+    hitHorizon = true;
+    diskAlpha = 1.0;
   }
 
   // ---- Background stars (gravitationally lensed direction) ----
@@ -334,7 +332,7 @@ void main() {
     vec3 stars = starField(normalize(vel));
 
     // Гравитационное усиление: звёзды у края тени ярче (фокусировка)
-    float rimDist = closestR - R_HORIZON;
+    float rimDist = impactParameter - criticalImpact;
     if (rimDist < 5.0) {
       float magnification = 1.0 + 0.6 * exp(-rimDist * 0.5);
       stars *= magnification;
@@ -343,12 +341,18 @@ void main() {
     color += stars * (1.0 - diskAlpha);
   }
 
-  // ---- Фотонное кольцо + глубина тени ----
+  // ---- Photon ring + shadow edge ----
+  // Enhance the critical curve so the event-horizon silhouette stays readable.
+  if (!hitHorizon) {
+    float shadowEdge = 1.0 - smoothstep(criticalImpact, criticalImpact + 0.18, impactParameter);
+    color = mix(color, vec3(0.001, 0.0015, 0.004), shadowEdge);
+  }
+
   // Свет, облетевший ЧД 1-2-3 раза, формирует тонкие кольца.
   // Широкая мягкая пенумбра с угловой вариацией создаёт объём —
   // тень выглядит как силуэт СФЕРЫ, а не плоский кружок.
   if (!hitHorizon) {
-    float rimDist = closestR - R_HORIZON;
+    float rimDist = impactParameter - criticalImpact;
 
     // --- Широкая мягкая пенумбра (объёмность тени) ---
     // Тёплый тусклый свет, растекающийся от края тени.
@@ -504,6 +508,16 @@ export class BlackHoleRenderer {
 
   setupControls() {
     const c = this.canvas;
+    this.zoomControl = document.getElementById('camera-zoom');
+    if (this.zoomControl) {
+      this.zoomControl.value = String(this.defaultDist);
+      this.zoomControl.addEventListener('input', () => {
+        this.camDist = Number(this.zoomControl.value);
+        this.uniforms.uCamDist.value = this.camDist;
+        this.renderer.render(this.scene, this.camera);
+      });
+      this.zoomControl.addEventListener('pointerdown', (event) => event.stopPropagation());
+    }
 
     // Mouse drag → orbit
     c.addEventListener('mousedown', (e) => {

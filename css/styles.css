@@ -649,15 +649,21 @@ body { background: #03040a; }
 .content-section { backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); will-change: auto; }
 .content-section:nth-child(even) { background: rgba(8, 10, 22, .88); }
 .hero-title { animation: heroTitleLife 8s ease forwards 1.5s; text-shadow: 0 0 34px rgba(255,154,98,.32), 0 4px 40px rgba(0,0,0,.9); }
-.scene-controls { position:fixed; z-index:120; top:18px; left:18px; display:flex; align-items:center; gap:9px; min-height:38px; padding:7px 11px; border:1px solid rgba(180,199,255,.17); border-radius:11px; background:rgba(7,10,22,.78); color:#e8ecf8; font:500 12px/1.2 var(--font-body); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); opacity:0; animation:fadeIn 1s ease forwards 2.2s; cursor:pointer; }
+.scene-controls { position:fixed; z-index:120; top:18px; left:18px; display:flex; align-items:center; gap:9px; min-height:38px; padding:7px 11px; border:1px solid rgba(180,199,255,.17); border-radius:11px; background:rgba(7,10,22,.78); color:#e8ecf8; font:500 12px/1.2 var(--font-body); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); opacity:0; animation:fadeIn 1s ease forwards 2.2s; cursor:pointer; pointer-events:auto; }
 .scene-controls:hover,.scene-controls[aria-pressed="true"] { border-color:rgba(255,154,98,.55); background:rgba(7,10,22,.9); }
 .scene-controls kbd { padding:3px 5px; border:1px solid rgba(180,199,255,.2); border-radius:5px; color:#9ba6bf; font:10px var(--font-body); }
 .scene-controls:focus-visible { outline:2px solid #ff9a62; outline-offset:3px; }
-.zoom-control { position:fixed; z-index:120; top:50%; right:18px; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; gap:12px; padding:12px 9px; border:1px solid rgba(180,199,255,.17); border-radius:14px; background:rgba(7,10,22,.78); color:#c0c5da; font:12px var(--font-body); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
-.zoom-control input { appearance:slider-vertical; -webkit-appearance:slider-vertical; writing-mode:vertical-lr; direction:rtl; width:24px; height:170px; accent-color:#ff9a62; cursor:ns-resize; touch-action:pan-x; }
+.zoom-control { position:fixed; z-index:120; top:50%; right:18px; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; gap:12px; padding:12px 9px; border:1px solid rgba(180,199,255,.17); border-radius:14px; background:rgba(7,10,22,.78); color:#c0c5da; font:12px var(--font-body); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); pointer-events:auto; }
+.zoom-control input { appearance:slider-vertical; -webkit-appearance:slider-vertical; writing-mode:vertical-lr; direction:ltr; width:24px; height:170px; accent-color:#ff9a62; cursor:ns-resize; touch-action:none; }
 .zoom-control input:focus-visible { outline:2px solid #ff9a62; outline-offset:3px; }
 #sound-toggle { top:22px;right:22px; }
-.bh-hud { background:rgba(7,10,22,.78); border-color:rgba(180,199,255,.17); }
+.bh-hud { background:rgba(7,10,22,.78); border-color:rgba(180,199,255,.17); padding:10px 13px; min-width:185px; border-radius:10px; }
+.bh-hud-name { font-size:1.08rem; margin-bottom:1px; }
+.bh-hud-type { font-size:.57rem; margin-bottom:7px; letter-spacing:.12em; }
+.bh-hud-stats { gap:3px; }
+.bh-hud-stat { gap:10px; }
+.bh-hud-label { font-size:.64rem; }
+.bh-hud-value { font-size:.7rem; }
 .section-body { color:#c0c5da; }
 .section-source,.bh-hud-label,.scale-label,.loader-sub { color:#9ba6bf; }
 .stat-card,.anatomy-card,.type-card,.physics-card { background:rgba(14,17,34,.86); border-color:rgba(180,199,255,.14); }

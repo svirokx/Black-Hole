@@ -27,21 +27,21 @@
 
 export const LEVELS = [
   // === Уровень 0: Абсолютный минимум (стабильность > красота) ===
-  { level: 0, label: 'Минимум',     steps: 120, dpr: 1.0, resMul: 0.50, shadows: false, postFX: 'off' },
+  { level: 0, label: 'Минимум',     steps: 90,  dpr: 1.0, resMul: 0.35, shadows: false, postFX: 'off' },
   // === Уровень 1: Низкие ===
-  { level: 1, label: 'Низкие',      steps: 120, dpr: 1.0, resMul: 0.65, shadows: false, postFX: 'off' },
+  { level: 1, label: 'Низкие',      steps: 100, dpr: 1.0, resMul: 0.48, shadows: false, postFX: 'off' },
   // === Уровень 2: Средне-Низкие ===
-  { level: 2, label: 'Ср-Низкие',   steps: 120, dpr: 1.0, resMul: 0.78, shadows: true,  postFX: 'off' },
+  { level: 2, label: 'Ср-Низкие',   steps: 110, dpr: 1.0, resMul: 0.62, shadows: false, postFX: 'off' },
   // === Уровень 3: Средние ===
-  { level: 3, label: 'Средние',     steps: 120, dpr: 1.0, resMul: 0.92, shadows: true,  postFX: 'off' },
+  { level: 3, label: 'Средние',     steps: 115, dpr: 1.0, resMul: 0.78, shadows: false, postFX: 'off' },
   // === Уровень 4: Средне-Высокие ===
-  { level: 4, label: 'Ср-Высокие',  steps: 120, dpr: 1.1, resMul: 1.0, shadows: true, postFX: 'basic' },
+  { level: 4, label: 'Ср-Высокие',  steps: 120, dpr: 1.0, resMul: 0.90, shadows: true, postFX: 'basic' },
   // === Уровень 5: Высокие ===
-  { level: 5, label: 'Высокие',     steps: 120, dpr: 1.2, resMul: 1.0, shadows: true, postFX: 'full' },
+  { level: 5, label: 'Высокие',     steps: 125, dpr: 1.15, resMul: 1.0, shadows: true, postFX: 'full' },
   // === Уровень 6: Очень Высокие ===
-  { level: 6, label: 'Оч.Высокие',  steps: 120, dpr: null, resMul: 1.0, shadows: true, postFX: 'full' },
+  { level: 6, label: 'Оч.Высокие',  steps: 130, dpr: null, resMul: 1.0, shadows: true, postFX: 'full' },
   // === Уровень 7: Ультра ===
-  { level: 7, label: 'Ультра',      steps: 120, dpr: null, resMul: 1.0, shadows: true, postFX: 'full' },
+  { level: 7, label: 'Ультра',      steps: 140, dpr: null, resMul: 1.0, shadows: true, postFX: 'full' },
 ];
 
 // ---------- GPU-классификация ----------
@@ -114,10 +114,11 @@ export class StablePerformanceEngine {
 
     // --- Рантайм-мониторинг ---
     this._lastFrameTime   = 0;
-    this._windowFrameTimes = [];  // дельты кадров за текущее 3-секундное окно
+    this._windowFrameTimes = [];
     this._windowStart     = 0;
-    this._stableCount     = 0;    // счётчик стабильных окон подряд
-    this._locked          = false; // заблокирован ли авто-тюнинг
+    this._stableCount     = 0;
+    this.measuredFps      = 60;
+    this._locked          = false;
 
     // --- UI ---
     this._badgeTimeout = null;
@@ -128,6 +129,35 @@ export class StablePerformanceEngine {
   }
 
   // ==================== Определение GPU ====================
+
+  setMeasuredFps(fps) {
+    if (!Number.isFinite(fps) || fps < 1) return;
+    this.measuredFps = fps;
+    this.targetFrameTime = 1000 / Math.max(30, this.displayHz);
+    const now = performance.now();
+    if (!this._fpsWindowStart) this._fpsWindowStart = now;
+    if (!this._windowStart) this._windowStart = now;
+    this._fpsWindowSamples = (this._fpsWindowSamples || 0) + 1;
+    if (now - this._fpsWindowStart < 1800 || this._fpsWindowSamples < 2) return;
+
+    const target = Math.max(30, this.displayHz * 0.88);
+    if (fps < target * 0.78 && this.currentLevel > 0) {
+      const next = Math.max(0, this.currentLevel - (fps < target * 0.5 ? 2 : 1));
+      this._applyLevel(next);
+      this._stableCount = 0;
+    } else if (fps > target * 1.05 && this.currentLevel < this.maxLevel) {
+      this._stableCount++;
+      if (this._stableCount >= 2) {
+        this._applyLevel(this.currentLevel + 1);
+        this._stableCount = 0;
+      }
+    } else {
+      this._stableCount = 0;
+    }
+
+    this._fpsWindowStart = now;
+    this._fpsWindowSamples = 0;
+  }
 
   _detectGPU() {
     // Пробуем WEBGL_debug_renderer_info (deprecated в Firefox)
@@ -238,43 +268,22 @@ export class StablePerformanceEngine {
       return;
     }
 
-    // === Рантайм-мониторинг ===
-    if (!this._locked) {
-      this._runtimeTick(now, dt);
-    }
+    // Runtime quality adaptation uses actual delivered FPS via setMeasuredFps().
   }
 
   _finishBenchmark() {
     this._benchmarkActive = false;
     this._benchmarkDone   = true;
 
-    const times = this._benchmarkFrameTimes;
-    const analysis = this._analyzeStability(times);
-
-    console.log(`[Perf] Бенчмарк завершён:`);
-    console.log(`  Средний FPS: ${analysis.avgFps.toFixed(1)}`);
-    console.log(`  1% Low FPS:  ${analysis.p1Fps.toFixed(1)}`);
-    console.log(`  Jitter:      ${analysis.jitter.toFixed(2)}мс`);
-    console.log(`  Дропы:       ${analysis.drops} из ${times.length} кадров`);
-
-    // Определяем оптимальный уровень
+    const analysis = this._analyzeStability(this._benchmarkFrameTimes);
+    const targetFps = Math.max(30, this.displayHz * 0.9);
     let level = this.currentLevel;
 
-    if (!analysis.stable) {
-      // Слабый GPU: сначала резко снижаем число пикселей на кадр.
-      level = Math.max(0, level - 1);
-      console.log(`[Perf] Бенчмарк нестабилен → понижаем до ${LEVELS[level].label}`);
-    } else if (analysis.headroom) {
-      // Есть запас → осторожно повышаем НА ОДИН шаг
-      level = Math.min(LEVELS.length - 1, level + 1);
-      console.log(`[Perf] Бенчмарк стабилен с запасом → повышаем до ${LEVELS[level].label}`);
-    } else {
-      console.log(`[Perf] Бенчмарк стабилен → оставляем ${LEVELS[level].label}`);
-    }
+    while (analysis.avgFps < targetFps * 0.72 && level > 0) level--;
+    if (analysis.avgFps > targetFps * 1.08 && analysis.drops === 0 && level < this.maxLevel) level++;
 
+    console.log(`[Perf] Benchmark: ${analysis.avgFps.toFixed(1)} FPS / ${this.displayHz} Hz; quality ${LEVELS[level].label}`);
     this._applyLevel(level);
-
-    // Сбрасываем для рантайм-мониторинга
     this._windowFrameTimes = [];
     this._windowStart = performance.now();
     this._stableCount = 0;
@@ -310,12 +319,9 @@ export class StablePerformanceEngine {
     const dropThreshold = this.targetFrameTime * 1.5;
     const drops = frameTimes.filter(dt => dt > dropThreshold).length;
 
-    // Стабильность: FPS выше 55 (или 92% от монитора), jitter < 5мс, мало дропов
-    const targetMin = Math.min(55, this.displayHz * 0.92);
-    const stable = avgFps >= targetMin && jitter < 5.0 && drops < frameTimes.length * 0.03;
-
-    // Есть запас: средний FPS > 95% от монитора, jitter < 2мс, 0 дропов
-    const headroom = avgFps >= this.displayHz * 0.95 && jitter < 2.5 && drops === 0;
+    const targetMin = Math.max(30, this.displayHz * 0.82);
+    const stable = avgFps >= targetMin && drops < frameTimes.length * 0.12;
+    const headroom = avgFps >= this.displayHz * 0.96 && drops === 0;
 
     return { avgFps, p1Fps, jitter, drops, stable, headroom };
   }
@@ -330,53 +336,28 @@ export class StablePerformanceEngine {
 
     this._windowFrameTimes.push(dt);
 
-    // Каждые 3 секунды — анализ окна
-    if (now - this._windowStart >= 3000) {
+    // Reassess measured frame rate every 1.5 seconds.
+    if (now - this._windowStart >= 1500) {
       const analysis = this._analyzeStability(this._windowFrameTimes);
-
-      // Сбрасываем окно
       this._windowFrameTimes = [];
       this._windowStart = now;
+      const targetFps = Math.max(30, this.displayHz * 0.9);
 
-      if (!analysis.stable && this.currentLevel > 0) {
-        // === НЕСТАБИЛЬНО → мгновенно понижаем на 1 шаг ===
-        const newLevel = this.currentLevel - 1;
-        console.log(
-          `[Perf] Нестабильно (FPS:${analysis.avgFps.toFixed(0)}, ` +
-          `jitter:${analysis.jitter.toFixed(1)}мс, drops:${analysis.drops}) ` +
-          `→ понижаем: ${LEVELS[this.currentLevel].label} → ${LEVELS[newLevel].label}`
-        );
-        this._applyLevel(newLevel);
+      if (analysis.avgFps < targetFps * 0.82 && this.currentLevel > 0) {
+        const drop = analysis.avgFps < targetFps * 0.55 ? 2 : 1;
+        const next = Math.max(0, this.currentLevel - drop);
+        console.log(`[Perf] ${analysis.avgFps.toFixed(0)} FPS (<${targetFps.toFixed(0)} target): ${LEVELS[this.currentLevel].label} → ${LEVELS[next].label}`);
+        this._applyLevel(next);
         this._stableCount = 0;
-
-      } else if (analysis.headroom && this.currentLevel < LEVELS.length - 1) {
-        // === Есть запас — повышаем ТОЛЬКО после 4 стабильных окон подряд (12с) ===
+      } else if (analysis.avgFps >= targetFps * 0.98 && analysis.drops === 0 && this.currentLevel < this.maxLevel) {
         this._stableCount++;
-        if (this._stableCount >= 4) {
-          const newLevel = this.currentLevel + 1;
-          console.log(
-            `[Perf] Стабильно 12с+ (FPS:${analysis.avgFps.toFixed(0)}) ` +
-            `→ повышаем: ${LEVELS[this.currentLevel].label} → ${LEVELS[newLevel].label}`
-          );
-          this._applyLevel(newLevel);
+        if (this._stableCount >= 2) {
+          const next = this.currentLevel + 1;
+          console.log(`[Perf] ${analysis.avgFps.toFixed(0)} FPS headroom: ${LEVELS[this.currentLevel].label} → ${LEVELS[next].label}`);
+          this._applyLevel(next);
           this._stableCount = 0;
         }
-
-      } else if (analysis.stable) {
-        // Стабильно, но без запаса — не меняем, считаем стабильные окна
-        this._stableCount++;
-
-        // После 6 стабильных окон подряд (18с) — блокируем
-        if (this._stableCount >= 6) {
-          this._locked = true;
-          console.log(
-            `[Perf] Стабильно 18с → заблокировано на «${LEVELS[this.currentLevel].label}» ` +
-            `(${analysis.avgFps.toFixed(0)} FPS, jitter ${analysis.jitter.toFixed(1)}мс)`
-          );
-        }
-
       } else {
-        // Пограничный случай — сбрасываем счётчик
         this._stableCount = 0;
       }
     }
@@ -394,7 +375,7 @@ export class StablePerformanceEngine {
     if (settings.dpr === null) {
       resolvedDpr = this.isMobile
         ? Math.min(window.devicePixelRatio, 1.0)
-        : Math.min(window.devicePixelRatio, 1.5);
+        : Math.min(window.devicePixelRatio, 1.75);
     } else {
       resolvedDpr = this.isMobile ? Math.min(settings.dpr, 1.0) : settings.dpr;
     }
@@ -486,7 +467,7 @@ export function applyGraphicsSettings(renderer, uniforms, settings) {
   }
 
   // Разрешение рендера
-  const effectiveDpr = Math.min(resolvedDpr * resMul, 1.5);
+  const effectiveDpr = Math.max(0.25, Math.min(resolvedDpr * resMul, 1.75));
   renderer.setPixelRatio(effectiveDpr);
 
   // Тени

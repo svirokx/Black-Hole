@@ -168,9 +168,11 @@ void main() {
   vec3 up    = cross(right, forward);
 
   vec3 rd = normalize(forward + right * uv.x + up * uv.y);
-  // Each camera ray gets its own impact parameter; this defines the central shadow.
-  float impactParameter = length(cross(camPos, rd));
-  float shadowRadius = 5.2 * M;
+  vec3 rayAngularMomentum = cross(camPos, rd);
+  float impactParameter = length(rayAngularMomentum);
+  float axialSpinView = rayAngularMomentum.y / max(impactParameter, 0.001);
+  // Compact Kerr-shadow estimate, with a modest spin-dependent asymmetry.
+  float shadowRadius = clamp(3.35 - 0.35 * SPIN * axialSpinView * sin(uCamTheta), 2.9, 3.8);
 
   // ---- Ray Tracing (Kerr geodesic) ----
   vec3  pos  = camPos;
@@ -183,7 +185,6 @@ void main() {
   bool  hitHorizon = false;
   float prevY     = pos.y;
   float closestR  = 100.0;
-
 
   for (int i = 0; i < 350; i++) {
     if (float(i) >= uMaxSteps) break;
@@ -345,9 +346,8 @@ void main() {
   // All lensed disk light comes from ray/disk intersections inside the integrator.
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
-  // Draw the black Kerr shadow after disk/lensing effects so no glow fills the core.
-  float shadowRadius = 5.2 * M;
-  float shadowAA = max(0.008, 0.75 * uCamDist / uResolution.y);
+  // Draw a compact Kerr shadow after the disk so glow cannot cover its center.
+  float shadowAA = max(0.006, fwidth(impactParameter) * 1.1);
   float shadowCoverage = 1.0 - smoothstep(shadowRadius - shadowAA, shadowRadius + shadowAA, impactParameter);
   color *= 1.0 - shadowCoverage;
 

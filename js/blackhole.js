@@ -370,10 +370,10 @@ void main() {
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
   // ---- Event horizon ----
-  // Captured rays are black. The accretion disk is rendered by uncaptured rays
-  // in front of the shadow; disk emission must never fill the horizon itself.
+  // Keep the captured shadow black, but composite the nearest disk crossing
+  // sampled before capture as the foreground disk over the shadow.
   if (hitHorizon) {
-    color = vec3(0.0);
+    color = frontDiskHit ? frontDiskColor : vec3(0.0);
   }
 
   // Subtle vignette

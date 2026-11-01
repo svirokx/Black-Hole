@@ -251,9 +251,11 @@ void main() {
     float nSigma = nr * nr + a * a * nCosTheta2;
     nAcc += (2.0 * a * M / (nSigma * nr + 0.01)) * cross(spinAxis, vel_half);
 
-    // Use the integrated geodesic radii, not the straight chord between steps.
-    // Near the hole, a chord cuts inside the curved path and falsely enlarges the shadow.
-    bool crossesHorizon = min(r, nr) <= R_HORIZON;
+    // Smooth the capture transition by one local pixel footprint. The edge follows
+    // integrated Kerr radii, while the fully captured interior stays exactly black.
+    float horizonAA = max(0.012, 2.0 * uCamDist / uResolution.y);
+    float captureCoverage = 1.0 - smoothstep(R_HORIZON - horizonAA, R_HORIZON + horizonAA, min(r, nr));
+    bool crossesHorizon = captureCoverage > 0.5;
 
     vel = normalize(vel_half + nAcc * dt * 0.5);
 
@@ -355,9 +357,12 @@ void main() {
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
   // ---- Event horizon ----
-  // Only geodesics that actually cross the Kerr horizon produce a black pixel.
-  // Near-miss and unfinished rays keep their traced disk/background color.
-  if (hitHorizon) color = vec3(0.0);
+  // Antialias only the silhouette boundary; fully captured ray centers stay black.
+  if (hitHorizon) {
+    float horizonAA = max(0.012, 2.0 * uCamDist / uResolution.y);
+    float coverage = 1.0 - smoothstep(R_HORIZON - horizonAA, R_HORIZON + horizonAA, closestR);
+    color *= 1.0 - coverage;
+  }
 
   // Subtle vignette
   color *= 1.0 - 0.15 * dot(uv, uv);
@@ -376,7 +381,7 @@ export class BlackHoleRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.defaultTheta = Math.PI * 0.47;
-    this.defaultDist = 22;
+    this.defaultDist = 40;
     this.targetTheta  = this.defaultTheta;
     this.targetPhi    = 0;
     this.currentTheta = this.defaultTheta;

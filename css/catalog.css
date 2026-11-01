@@ -317,3 +317,23 @@
   .bh-stats { grid-template-columns: 1fr; }
   .catalog-hero { padding: 120px 20px 60px; }
 }
+
+
+/* Catalog discovery tools */
+.catalog-tools { width:min(1080px,100%); display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin:0 auto 8px; }
+.catalog-tools input,.catalog-tools select { min-height:40px; padding:8px 12px; color:var(--text-primary); background:rgba(255,255,255,.045); border:1px solid var(--border-subtle); border-radius:10px; font:inherit; }
+.catalog-tools input { flex:1 1 280px; }
+.catalog-tools select { flex:0 1 190px; }
+.catalog-tools option { color:#111; }
+.bh-card.is-favorite { outline:1px solid rgba(255,215,0,.6); }
+.card-actions { display:flex; gap:8px; margin-top:12px; }
+.card-action { border:1px solid var(--border-subtle); border-radius:8px; padding:7px 10px; background:rgba(255,255,255,.04); color:var(--text-secondary); font:inherit; cursor:pointer; }
+.card-action[aria-pressed="true"] { color:#ffd700; border-color:rgba(255,215,0,.5); }
+.compare-check { accent-color:var(--accent); }
+.compare-panel { position:fixed; z-index:110; inset:auto 16px 16px; max-height:48vh; overflow:auto; padding:18px; border:1px solid var(--glass-border); border-radius:14px; background:rgba(7,10,22,.96); box-shadow:0 12px 45px #0009; }
+.compare-panel h2 { font-size:1rem; margin-bottom:10px; }
+.compare-table { width:100%; border-collapse:collapse; font-size:.83rem; }
+.compare-table th,.compare-table td { text-align:left; padding:7px; border-bottom:1px solid var(--border-subtle); }
+.catalog-hero { background:radial-gradient(ellipse at 50% 0%,rgba(67,75,140,.2),transparent 68%),linear-gradient(180deg,#070916,#10101c); }
+.bh-card { background:rgba(13,16,31,.94); border-color:rgba(180,199,255,.13); }
+@media(max-width:700px) { .catalog-tools { display:grid; grid-template-columns:1fr 1fr; } .catalog-tools input { grid-column:1/-1; } .catalog-tools select { min-width:0; } .catalog-tools .filter-btn { padding:8px; } .compare-panel { inset:auto 8px 8px; max-height:50vh; } }

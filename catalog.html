@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +9,8 @@
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()">
-  <title>Black Hole Catalog — All Known Black Holes</title>
-  <meta name="description" content="A comprehensive catalog of all known and confirmed black holes — stellar-mass, intermediate-mass, and supermassive — with data from NASA, ESA, EHT, and LIGO.">
+  <title>Каталог чёрных дыр — Black Hole</title>
+  <meta name="description" content="Каталог известных чёрных дыр: сверхмассивные, промежуточной и звёздной массы, а также объекты, обнаруженные по гравитационным волнам.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,24 +22,30 @@
 
   <!-- NAV -->
   <nav class="site-nav">
-    <a href="index.html" class="nav-link">← Main</a>
-    <span class="nav-title">BLACK HOLE CATALOG</span>
+    <a href="index.html" class="nav-link">← Симуляция</a>
+    <span class="nav-title">КАТАЛОГ ЧЁРНЫХ ДЫР</span>
     <span class="nav-spacer"></span>
   </nav>
 
   <!-- HERO -->
   <header class="catalog-hero">
-    <h1 class="catalog-hero-title">Known Black Holes</h1>
-    <p class="catalog-hero-sub">A comprehensive catalog of confirmed and candidate black holes across the universe, organized by class. All data sourced from NASA, ESA, EHT, LIGO/Virgo, and peer-reviewed astrophysical journals.</p>
+    <h1 class="catalog-hero-title">Каталог чёрных дыр</h1>
+    <p class="catalog-hero-sub">Известные кандидаты и подтверждённые чёрные дыры — от объектов звёздной массы до гигантов в центрах галактик. Данные основаны на публикациях NASA, ESA, EHT и LIGO/Virgo.</p>
   </header>
 
   <!-- FILTER TABS -->
   <div class="filter-bar">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="supermassive">Supermassive</button>
-    <button class="filter-btn" data-filter="intermediate">Intermediate</button>
-    <button class="filter-btn" data-filter="stellar">Stellar-Mass</button>
-    <button class="filter-btn" data-filter="merger">GW Mergers</button>
+    <div class="catalog-tools">
+      <input id="catalog-search" type="search" placeholder="Поиск по имени, галактике, описанию…" aria-label="Поиск по каталогу">
+      <select id="catalog-sort" aria-label="Сортировка"><option value="default">Порядок каталога</option><option value="name">Название: А—Я</option><option value="mass">Масса: больше → меньше</option></select>
+      <button class="filter-btn" id="favorites-filter" type="button" aria-pressed="false">☆ Избранное</button>
+      <button class="filter-btn" id="compare-toggle" type="button">Сравнить <span id="compare-count">0</span>/3</button>
+    </div>
+    <button class="filter-btn active" data-filter="all">Все</button>
+    <button class="filter-btn" data-filter="supermassive">Сверхмассивные</button>
+    <button class="filter-btn" data-filter="intermediate">Промежуточные</button>
+    <button class="filter-btn" data-filter="stellar">Звёздной массы</button>
+    <button class="filter-btn" data-filter="merger">Слияния и GW</button>
   </div>
 
   <main class="catalog-main">
@@ -907,54 +913,16 @@
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-title">BLACK HOLE</div>
-      <p class="footer-text">All scientific information sourced from NASA, ESA, EHT, LIGO/Virgo/KAGRA, and peer-reviewed journals.</p>
-      <p class="footer-text"><a href="index.html" style="color: var(--accent); text-decoration: none;">← Back to Main Page & 3D Simulation</a></p>
+      <p class="footer-text">Научные сведения собраны по материалам NASA, ESA, EHT, LIGO/Virgo/KAGRA и рецензируемых журналов.</p>
+      <p class="footer-text"><a href="index.html" style="color: var(--accent); text-decoration: none;">← Вернуться к 3D-симуляции</a></p>
       <div class="footer-credits">
-        <p>Images: NASA, ESA, EHT Collaboration, ESO — public domain / CC BY 4.0</p>
+        <p>Изображения: NASA, ESA, EHT Collaboration, ESO — public domain / CC BY 4.0</p>
       </div>
     </div>
   </footer>
 
-  <!-- Filter script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Filter buttons
-      const filterBtns = document.querySelectorAll('.filter-btn');
-      const cards = document.querySelectorAll('.bh-card');
-      const sections = document.querySelectorAll('.catalog-class');
-
-      filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const filter = btn.dataset.filter;
-
-          filterBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-
-          if (filter === 'all') {
-            sections.forEach(s => s.style.display = '');
-            cards.forEach(c => c.style.display = '');
-          } else {
-            sections.forEach(s => {
-              s.style.display = s.id === filter ? '' : 'none';
-            });
-            cards.forEach(c => {
-              c.style.display = c.dataset.category === filter ? '' : 'none';
-            });
-          }
-        });
-      });
-
-      // Scroll reveal
-      const reveals = document.querySelectorAll('.reveal');
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
-      reveals.forEach(el => observer.observe(el));
-    });
-  </script>
+  <div class="compare-panel" id="compare-panel" aria-live="polite" hidden></div>
+  <script src="js/catalog.js" defer></script>
 </body>
 </html>
+<!-- legacy inline block removed -->

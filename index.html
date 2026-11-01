@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qC+YWhF3NPdIQ5KTB3TZrbgffn9kAvaLLFtTKaG1N4c=' https://cdn.jsdelivr.net https://ga.jspm.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-qC+YWhF3NPdIQ5KTB3TZrbgffn9kAvaLLFtTKaG1N4c=' https://cdn.jsdelivr.net https://ga.jspm.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://upload.wikimedia.org https://*.wikipedia.org; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none';">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -57,6 +57,23 @@
       </div>
     </div>
 
+    <section class="scene-controls" aria-label="Управление симуляцией">
+      <div class="scene-controls-head"><span class="live-dot"></span><span>ЛАБОРАТОРИЯ</span><span class="scene-hint">перетаскивай для обзора</span></div>
+      <div class="scene-control-row">
+        <button class="scene-button" id="sim-toggle" type="button">Ⅱ Пауза</button>
+        <button class="scene-button" id="rotate-toggle" type="button" aria-pressed="true">↻ Автовращение</button>
+        <button class="scene-button" id="camera-reset" type="button">⌖ Сброс камеры</button>
+      </div>
+      <label class="scene-slider">Масштаб <input id="zoom-control" type="range" min="4" max="45" value="22" aria-label="Масштаб"><span id="zoom-value">22</span></label>
+      <label class="scene-slider">Скорость <input id="speed-control" type="range" min="0" max="2" step="0.1" value="1" aria-label="Скорость анимации"><span id="speed-value">1×</span></label>
+      <div class="scene-control-row scene-toggles">
+        <label><input id="stars-toggle" type="checkbox" checked> Звёзды</label>
+        <label><input id="disk-toggle" type="checkbox" checked> Диск</label>
+        <button class="scene-button" id="particle-add" type="button">＋ Добавить объект</button>
+        <button class="scene-button" id="particle-clear" type="button">Очистить</button>
+      </div>
+    </section>
+
     <div id="scale-ruler" class="scale-ruler">
       <div class="scale-bar"><div class="scale-line"></div><div class="scale-ticks"><div class="scale-tick"></div><div class="scale-tick"></div></div></div>
       <div class="scale-label" id="scale-label">— а.е.</div>
@@ -76,7 +93,7 @@
       <div class="section-inner two-col">
         <div class="section-text reveal">
           <h2 class="section-title">Что такое чёрная дыра?</h2>
-          <p class="section-body">Чёрная дыра — это область пространства-времени, гравитация в которой настолько чудовищно сильна, что ничто — ни частицы, ни электромагнитное излучение, включая свет — не может покинуть её, пересекув границу, известную как <strong>горизонт событий</strong>.</p>
+          <p class="section-body">Чёрная дыра — это область пространства-времени, гравитация в которой настолько чудовищно сильна, что ничто — ни частицы, ни электромагнитное излучение, включая свет — не может покинуть её, пересёк границу, известную как <strong>горизонт событий</strong>.</p>
           <p class="section-body">Общая теория относительности предсказывает, что достаточно компактная масса способна деформировать пространство-время, образуя чёрную дыру. Несмотря на колоссальное влияние на судьбу любого объекта, пересекающего горизонт, по ОТО он не обладает никакими локально наблюдаемыми особенностями.</p>
           <p class="section-source">Источник: NASA Science; Общая теория относительности — А. Эйнштейн, 1915</p>
         </div>

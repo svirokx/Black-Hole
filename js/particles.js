@@ -102,7 +102,7 @@ export class ParticleSystem {
   constructor(renderer) {
     this.bhRenderer = renderer;
     this.particles = [];
-    this.maxParticles = 30;
+    this.maxParticles = 12;
     this.glowTexture = createGlowTexture();
 
     // Create a separate scene for 3D particles
@@ -263,12 +263,18 @@ export class ParticleSystem {
     mesh.add(sprite);
 
     // Trail (line of recent positions)
-    const trailMax = 80;
+    const trailMax = 48;
     const trailPositions = new Float32Array(trailMax * 3);
     const trailColors = new Float32Array(trailMax * 4);
+    const drawPositions = new Float32Array(trailMax * 3);
+    const drawColors = new Float32Array(trailMax * 4);
+    const positionAttribute = new THREE.BufferAttribute(drawPositions, 3);
+    const colorAttribute = new THREE.BufferAttribute(drawColors, 4);
+    positionAttribute.setUsage(THREE.DynamicDrawUsage);
+    colorAttribute.setUsage(THREE.DynamicDrawUsage);
     const trailGeo = new THREE.BufferGeometry();
-    trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
-    trailGeo.setAttribute('color', new THREE.BufferAttribute(trailColors, 4));
+    trailGeo.setAttribute('position', positionAttribute);
+    trailGeo.setAttribute('color', colorAttribute);
     trailGeo.setDrawRange(0, 0);
 
     const trailMat = new THREE.LineBasicMaterial({
@@ -290,6 +296,10 @@ export class ParticleSystem {
       trailGeo,
       trailPositions,
       trailColors,
+      drawPositions,
+      drawColors,
+      positionAttribute,
+      colorAttribute,
       trailMax,
       trailCount: 0,
       trailIndex: 0,
@@ -308,10 +318,17 @@ export class ParticleSystem {
   removeParticle(p) {
     this.scene.remove(p.mesh);
     this.scene.remove(p.trail);
-    p.mesh.geometry = null;
+    p.mesh.material.dispose();
+    p.sprite.material.dispose();
+    p.trailGeo.dispose();
+    p.trail.material.dispose();
     p.alive = false;
     const idx = this.particles.indexOf(p);
     if (idx >= 0) this.particles.splice(idx, 1);
+  }
+
+  clear() {
+    for (const particle of [...this.particles]) this.removeParticle(particle);
   }
 
   update(dt) {
@@ -513,8 +530,8 @@ export class ParticleSystem {
     }
 
     // Rebuild buffer for draw order (newest first)
-    const positions = new Float32Array(p.trailCount * 3);
-    const colors = new Float32Array(p.trailCount * 4);
+    const positions = p.drawPositions;
+    const colors = p.drawColors;
     for (let i = 0; i < p.trailCount; i++) {
       const ringIdx = (p.trailIndex - 1 - i + p.trailMax * 100) % p.trailMax;
       positions[i * 3] = p.trailPositions[ringIdx * 3];
@@ -527,8 +544,8 @@ export class ParticleSystem {
       colors[i * 4 + 3] = fade * (p.absorbed ? Math.max(0, 1 - p.absorbTimer * 2) : 0.4);
     }
 
-    p.trailGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    p.trailGeo.setAttribute('color', new THREE.BufferAttribute(colors, 4));
+    p.positionAttribute.needsUpdate = true;
+    p.colorAttribute.needsUpdate = true;
     p.trailGeo.setDrawRange(0, p.trailCount);
   }
 

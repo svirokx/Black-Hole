@@ -31,6 +31,8 @@ uniform float uCamDist;
 uniform float uCamTheta;
 uniform float uCamPhi;
 uniform float uMaxSteps;
+uniform bool uStarsEnabled;
+uniform bool uDiskEnabled;
 
 #define PI       3.14159265359
 #define M        1.0
@@ -248,7 +250,7 @@ void main() {
     // — Disk crossing (y sign change) —
     float newY = newPos.y;
 
-    if (prevY * newY < 0.0 && diskAlpha < 0.95) {
+    if (uDiskEnabled && prevY * newY < 0.0 && diskAlpha < 0.95) {
       float frac = abs(prevY) / (abs(prevY) + abs(newY) + 1e-5);
       vec3  crossPos = mix(pos, newPos, frac);
       float cR = length(crossPos.xz);
@@ -288,7 +290,7 @@ void main() {
     // Volumetric disk glow — follows disk rotation, fades at edge-on view
     float absY  = abs(newPos.y);
     float diskR = length(newPos.xz);
-    if (absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
+    if (uDiskEnabled && absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
       float thickness = mix(1.8, 0.35, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
       float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.055;
       float dAng = atan(newPos.z, newPos.x);
@@ -334,7 +336,7 @@ void main() {
   }
 
   // ---- Background stars (gravitationally lensed direction) ----
-  if (!hitHorizon) {
+  if (!hitHorizon && uStarsEnabled) {
     vec3 stars = starField(normalize(vel));
 
     // Гравитационное усиление: звёзды у края тени ярче (фокусировка)
@@ -389,7 +391,7 @@ void main() {
   // Лучи, прошедшие близко к ЧД, видят заднюю сторону диска
   // через гравитационное линзирование — «обволакивание» как в Интерстелларе.
   // Используем closestR (реальная физика луча), а не экранные координаты.
-  if (!hitHorizon && closestR < 6.0 && diskAlpha < 0.9) {
+  if (uDiskEnabled && !hitHorizon && closestR < 6.0 && diskAlpha < 0.9) {
     // Сила изгиба: чем ближе к ЧД, тем сильнее обволакивание
     float bendStrength = exp(-(closestR - R_HORIZON) * 1.2);
 
@@ -448,11 +450,13 @@ void main() {
 export class BlackHoleRenderer {
   constructor(canvas) {
     this.canvas = canvas;
-    this.targetTheta  = Math.PI * 0.47;  // near edge-on (~85° from pole)
+    this.defaultTheta = Math.PI * 0.47;
+    this.defaultDist = 22;
+    this.targetTheta  = this.defaultTheta;
     this.targetPhi    = 0;
-    this.currentTheta = Math.PI * 0.47;
+    this.currentTheta = this.defaultTheta;
     this.currentPhi   = 0;
-    this.camDist      = 22;
+    this.camDist      = this.defaultDist;
     this.isDragging   = false;
     this.lastMouse    = { x: 0, y: 0 };
     this.autoRotate   = true;
@@ -470,6 +474,7 @@ export class BlackHoleRenderer {
       alpha: false,
       powerPreference: 'high-performance',
     });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.35));
 
     this.scene  = new THREE.Scene();
     this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -480,7 +485,9 @@ export class BlackHoleRenderer {
       uCamDist:    { value: this.camDist },
       uCamTheta:   { value: this.currentTheta },
       uCamPhi:     { value: this.currentPhi },
-      uMaxSteps:   { value: 150 },
+      uMaxSteps:   { value: 110 },
+      uStarsEnabled: { value: true },
+      uDiskEnabled: { value: true },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -531,6 +538,14 @@ export class BlackHoleRenderer {
     // Zoom only via pinch-to-zoom on touch devices
 
     // Touch controls
+    c.addEventListener('wheel', (e) => {
+      if (e.ctrlKey || e.metaKey || window.scrollY >= window.innerHeight * 0.8) return;
+      e.preventDefault();
+      this.camDist = Math.max(4, Math.min(45, this.camDist + Math.sign(e.deltaY) * 1.2));
+      const zoom = document.getElementById('zoom-control');
+      if (zoom) zoom.value = this.camDist;
+    }, { passive: false });
+
     let touchDecided = false, touchIsOrbit = false;
     this.pinchStartDist = 0;
     this.pinchStartCamDist = this.camDist;
@@ -594,6 +609,14 @@ export class BlackHoleRenderer {
     const dpr = this.renderer.getPixelRatio(); // сохраняем текущий DPR
     this.renderer.setSize(w, h);
     this.uniforms.uResolution.value.set(w * dpr, h * dpr);
+  }
+
+  resetCamera() {
+    this.targetTheta = this.defaultTheta;
+    this.currentTheta = this.defaultTheta;
+    this.targetPhi = 0;
+    this.currentPhi = 0;
+    this.camDist = this.defaultDist;
   }
 
   // ---------- Frame ----------

@@ -358,11 +358,13 @@ void main() {
   // Anti-alias the Kerr silhouette from the integrated closest approach.
   // The captured interior remains black; the foreground disk only covers pixels
   // outside the fully-black part of the shadow.
-  float horizonAA = max(0.01, 1.75 * uCamDist / uResolution.y);
+  float horizonAA = max(0.006, 0.75 * uCamDist / uResolution.y);
   float shadowCoverage = 1.0 - smoothstep(R_HORIZON - horizonAA, R_HORIZON + horizonAA, closestR);
   color *= 1.0 - shadowCoverage;
   if (frontDiskHit) {
-    float diskForeground = frontDiskAlpha * (1.0 - shadowCoverage);
+    // Keep the disk strictly outside the event-horizon silhouette; only blend
+    // its foreground edge after the antialiased black core has ended.
+    float diskForeground = frontDiskAlpha * smoothstep(R_HORIZON + horizonAA, R_HORIZON + 2.0 * horizonAA, closestR);
     color = mix(color, frontDiskColor, diskForeground);
   }
 

@@ -171,6 +171,10 @@ async function init() {
     pauseButton.firstChild.textContent = paused ? '▶ ' : 'Ⅱ ';
   };
   pauseButton.addEventListener('click', togglePause);
+  const zoomControl = document.getElementById('camera-zoom');
+  zoomControl.addEventListener('input', () => {
+    bhRenderer.camDist = Number(zoomControl.value);
+  });
   document.addEventListener('keydown', (event) => {
     const target = event.target;
     const typing = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName));

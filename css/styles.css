@@ -653,10 +653,13 @@ body { background: #03040a; }
 .scene-controls:hover,.scene-controls[aria-pressed="true"] { border-color:rgba(255,154,98,.55); background:rgba(7,10,22,.9); }
 .scene-controls kbd { padding:3px 5px; border:1px solid rgba(180,199,255,.2); border-radius:5px; color:#9ba6bf; font:10px var(--font-body); }
 .scene-controls:focus-visible { outline:2px solid #ff9a62; outline-offset:3px; }
+.zoom-control { position:fixed; z-index:120; top:50%; right:18px; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; gap:12px; padding:12px 9px; border:1px solid rgba(180,199,255,.17); border-radius:14px; background:rgba(7,10,22,.78); color:#c0c5da; font:12px var(--font-body); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+.zoom-control input { appearance:slider-vertical; -webkit-appearance:slider-vertical; writing-mode:vertical-lr; direction:rtl; width:24px; height:170px; accent-color:#ff9a62; cursor:ns-resize; touch-action:pan-x; }
+.zoom-control input:focus-visible { outline:2px solid #ff9a62; outline-offset:3px; }
 #sound-toggle { top:22px;right:22px; }
 .bh-hud { background:rgba(7,10,22,.78); border-color:rgba(180,199,255,.17); }
 .section-body { color:#c0c5da; }
 .section-source,.bh-hud-label,.scale-label,.loader-sub { color:#9ba6bf; }
 .stat-card,.anatomy-card,.type-card,.physics-card { background:rgba(14,17,34,.86); border-color:rgba(180,199,255,.14); }
-@media(max-width:700px) { .scene-controls { top:auto;bottom:18px;left:50%;transform:translateX(-50%);min-height:42px;padding:8px 11px; } .scene-controls kbd { display:none; } #sound-toggle { top:14px;right:14px; } .bh-hud { display:none; } }
+@media(max-width:700px) { .scene-controls { top:auto;bottom:18px;left:50%;transform:translateX(-50%);min-height:42px;padding:8px 11px; } .scene-controls kbd { display:none; } .zoom-control { right:8px; padding:10px 5px; } .zoom-control input { height:140px; } #sound-toggle { top:14px;right:14px; } .bh-hud { display:none; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; } }

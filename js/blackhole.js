@@ -202,11 +202,12 @@ void main() {
     // Resolve the photon sphere and disk crossings without periapsis-sized jumps.
     float dt;
     if (r < 3.0) {
-      dt = max(0.006, (r - R_HORIZON) * 0.012 + 0.006);
+      dt = max(0.004, (r - R_HORIZON) * 0.008 + 0.004);
     } else if (r < 8.0) {
-      dt = r * 0.025;
+      dt = min(0.06, r * 0.012);
     } else if (r < DISK_OUTER + 4.0) {
-      dt = min(0.35, r * 0.035);
+      // Short segments keep ray/disk intersections continuous across the disk.
+      dt = min(0.06, r * 0.006);
     } else {
       dt = min(1.2, r * 0.1);
     }
@@ -354,7 +355,7 @@ export class BlackHoleRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.defaultTheta = Math.PI * 0.47;
-    this.defaultDist = 30;
+    this.defaultDist = 27;
     this.targetTheta  = this.defaultTheta;
     this.targetPhi    = 0;
     this.currentTheta = this.defaultTheta;

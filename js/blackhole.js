@@ -346,11 +346,11 @@ void main() {
   // All lensed disk light comes from ray/disk intersections inside the integrator.
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
-  // Draw a compact Kerr shadow after the disk so glow cannot cover its center.
-  // Approximate one screen pixel in ray-impact units (WebGL1-safe; no derivatives extension).
-  float shadowAA = max(0.008, uCamDist / uResolution.y);
-  float shadowCoverage = 1.0 - smoothstep(shadowRadius - shadowAA, shadowRadius + shadowAA, impactParameter);
-  color *= 1.0 - shadowCoverage;
+  // Composite a compact, pure-black shadow over every disk/lensing contribution.
+  // Smooth its circular silhouette over approximately one output pixel.
+  float shadowAA = max(0.01, uCamDist / uResolution.y);
+  float shadowVisible = smoothstep(shadowRadius - shadowAA, shadowRadius + shadowAA, impactParameter);
+  color *= shadowVisible;
 
   // Subtle vignette
   color *= 1.0 - 0.15 * dot(uv, uv);

@@ -175,6 +175,7 @@ void main() {
   vec3  spinAxis = vec3(0.0, 1.0, 0.0);
 
   vec3  color     = vec3(0.0);
+  vec3  foregroundDiskColor = vec3(0.0);
   float diskAlpha = 0.0;
   bool  hitHorizon = false;
   float prevY     = pos.y;
@@ -282,7 +283,9 @@ void main() {
 
         float alpha = (1.0 - smoothstep(DISK_OUTER - 2.5, DISK_OUTER, cR))
                     * smoothstep(DISK_INNER * 0.8, DISK_INNER + 0.4, cR) * 0.92;
-        color     += dCol * alpha * (1.0 - diskAlpha);
+        vec3 diskSample = dCol * alpha * (1.0 - diskAlpha);
+        color += diskSample;
+        foregroundDiskColor += diskSample;
         diskAlpha += alpha * (1.0 - diskAlpha);
       }
     }
@@ -333,8 +336,9 @@ void main() {
   color = color * (2.51 * color + 0.03) / (color * (2.43 * color + 0.59) + 0.14);
   color = pow(clamp(color, 0.0, 1.0), vec3(1.0 / 2.2));
 
-  // Preserve foreground disk pixels; blacken only captured rays with no disk in front.
-  gl_FragColor = vec4(hitHorizon && diskAlpha < 0.01 ? vec3(0.0) : color, 1.0);
+  // Keep foreground disk light, but no background or corona, behind a captured ray.
+  if (hitHorizon) color = foregroundDiskColor;
+  gl_FragColor = vec4(color, 1.0);
 }
 `;
 

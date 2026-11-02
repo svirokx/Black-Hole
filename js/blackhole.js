@@ -287,22 +287,6 @@ void main() {
       }
     }
 
-    // Volumetric disk glow — follows disk rotation, fades at edge-on view
-    float absY  = abs(newPos.y);
-    float diskR = length(newPos.xz);
-    if (!crossesHorizon && uDiskEnabled && absY < 3.0 && diskR > DISK_INNER * 0.8 && diskR < DISK_OUTER && diskAlpha < 0.95) {
-      float thickness = mix(1.8, 0.35, smoothstep(DISK_INNER, DISK_OUTER * 0.45, diskR));
-      float vol = exp(-absY * absY / (thickness * thickness + 0.001)) * 0.055;
-      float dAng = atan(newPos.z, newPos.x);
-      // Use full diskColor so the glow ROTATES and has spiral structure
-      vec3  vCol = diskColor(diskR, dAng, uTime) * 0.45;
-      // Fade glow when viewing edge-on (camera near disk plane)
-      float edgeFade = 1.0 - smoothstep(0.3, 0.95, sin(uCamTheta));
-      vol *= edgeFade;
-      color     += vCol * vol * (1.0 - diskAlpha);
-      diskAlpha += vol * 0.12 * (1.0 - diskAlpha);
-    }
-
     // Hot corona — bright glowing gas near photon sphere
     if (!crossesHorizon && r < 5.5 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
       float coronaDist = r - R_HORIZON;

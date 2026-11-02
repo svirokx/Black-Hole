@@ -240,8 +240,12 @@ void main() {
     float nSigma = nr * nr + a * a * nCosTheta2;
     nAcc += (2.0 * a * M / (nSigma * nr + 0.01)) * cross(spinAxis, vel_half);
 
-    // Detect only an actual radial crossing of the Kerr event horizon.
-    bool crossesHorizon = min(r, nr) <= R_HORIZON;
+    // Check the segment midpoint too, so a curved ray cannot step across the horizon.
+    vec3 midPos = pos + vel_half * dt * 0.5;
+    float midR2xy = dot(midPos.xz, midPos.xz);
+    float midR2bl = midR2xy + midPos.y * midPos.y - a * a;
+    float midR = sqrt(0.5 * (midR2bl + sqrt(midR2bl * midR2bl + 4.0 * a * a * midPos.y * midPos.y)));
+    bool crossesHorizon = min(min(r, midR), nr) <= R_HORIZON;
 
     vel = normalize(vel_half + nAcc * dt * 0.5);
 

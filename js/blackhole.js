@@ -290,14 +290,6 @@ void main() {
       }
     }
 
-    // Hot corona — bright glowing gas near photon sphere
-    if (!crossesHorizon && r < 5.5 && r > R_HORIZON + 0.05 && diskAlpha < 0.95) {
-      float coronaDist = r - R_HORIZON;
-      float coronaGlow = exp(-coronaDist * 1.2) * 0.014;
-      vec3 coronaCol = mix(vec3(1.0, 0.55, 0.15), vec3(0.6, 0.75, 1.0), exp(-coronaDist * 3.0));
-      color += coronaCol * coronaGlow * (1.0 - diskAlpha);
-    }
-
     // Preserve foreground disk light already sampled for this segment.
     if (crossesHorizon) {
       hitHorizon = true;

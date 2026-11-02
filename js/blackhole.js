@@ -175,7 +175,6 @@ void main() {
   vec3  spinAxis = vec3(0.0, 1.0, 0.0);
 
   vec3  color     = vec3(0.0);
-  vec3  foregroundDiskColor = vec3(0.0);
   float diskAlpha = 0.0;
   bool  hitHorizon = false;
   float prevY     = pos.y;
@@ -283,9 +282,7 @@ void main() {
 
         float alpha = (1.0 - smoothstep(DISK_OUTER - 2.5, DISK_OUTER, cR))
                     * smoothstep(DISK_INNER * 0.8, DISK_INNER + 0.4, cR) * 0.92;
-        vec3 diskSample = dCol * alpha * (1.0 - diskAlpha);
-        color += diskSample;
-        foregroundDiskColor += diskSample;
+        color += dCol * alpha * (1.0 - diskAlpha);
         diskAlpha += alpha * (1.0 - diskAlpha);
       }
     }
@@ -301,8 +298,11 @@ void main() {
     pos   = newPos;
   }
 
+  // Use the minimum radius along the traced path to identify the central shadow.
+  bool hitShadow = hitHorizon || closestR < 3.2;
+
   // ---- Background stars (gravitationally lensed direction) ----
-  if (!hitHorizon && uStarsEnabled) {
+  if (!hitShadow && uStarsEnabled) {
     vec3 stars = starField(normalize(vel));
 
     // Гравитационное усиление: звёзды рядом с горизонтом ярче (фокусировка)
@@ -315,12 +315,7 @@ void main() {
     color += stars * (1.0 - diskAlpha);
   }
 
-  // All lensed disk light comes from ray/disk intersections inside the integrator.
-  // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
-
-  // Rays captured by the integrated Kerr horizon receive no background light.
-  // Keep foreground disk samples accumulated before capture; do not add a
-  // screen-space circle that masks unrelated rays or foreground disk emission.
+  // No screen-space spot; the central shadow follows the traced ray path.
   // Subtle vignette
   color *= 1.0 - 0.15 * dot(uv, uv);
 
@@ -328,8 +323,8 @@ void main() {
   color = color * (2.51 * color + 0.03) / (color * (2.43 * color + 0.59) + 0.14);
   color = pow(clamp(color, 0.0, 1.0), vec3(1.0 / 2.2));
 
-  // Blacken ray paths entering the photon region; retain only foreground disk light.
-  if (hitHorizon || closestR < 3.0) color = foregroundDiskColor;
+  // Preserve the black ray-traced shadow through tone mapping.
+  if (hitShadow) color = vec3(0.0);
   gl_FragColor = vec4(color, 1.0);
 }
 `;

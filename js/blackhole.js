@@ -213,11 +213,11 @@ void main() {
     }
 
     // — Gravitational acceleration —
-    // Schwarzschild null-geodesic: a = -1.5 L²/r⁵ · pos
+    // Null-geodesic curvature bends near-critical rays toward the horizon.
     vec3  h  = cross(pos, vel);
     float h2 = dot(h, h);
     float r5 = r * r * r * r * r;
-    vec3  acc = -1.5 * h2 / r5 * pos;
+    vec3  acc = -3.0 * h2 / r5 * pos;
 
     // Kerr frame-dragging
     float cosTheta2 = pos.y * pos.y / max(r * r, 1e-4);
@@ -235,7 +235,7 @@ void main() {
     vec3  nh  = cross(newPos, vel_half);
     float nh2 = dot(nh, nh);
     float nr5 = nr * nr * nr * nr * nr;
-    vec3  nAcc = -1.5 * nh2 / nr5 * newPos;
+    vec3  nAcc = -3.0 * nh2 / nr5 * newPos;
     float nCosTheta2 = newPos.y * newPos.y / max(nr * nr, 1e-4);
     float nSigma = nr * nr + a * a * nCosTheta2;
     nAcc += (2.0 * a * M / (nSigma * nr + 0.01)) * cross(spinAxis, vel_half);
@@ -335,7 +335,9 @@ void main() {
   // All lensed disk light comes from ray/disk intersections inside the integrator.
   // Avoid a second heuristic glow pass here; it paints false light inside the shadow.
 
-  // Preserve only light sampled along the traced ray; no separate shadow shape.
+  // Rays captured by the integrated Kerr horizon receive no background light.
+  // Keep foreground disk samples accumulated before capture; do not add a
+  // screen-space circle that masks unrelated rays or foreground disk emission.
   // Subtle vignette
   color *= 1.0 - 0.15 * dot(uv, uv);
 
@@ -343,9 +345,8 @@ void main() {
   color = color * (2.51 * color + 0.03) / (color * (2.43 * color + 0.59) + 0.14);
   color = pow(clamp(color, 0.0, 1.0), vec3(1.0 / 2.2));
 
-  // Blacken only rays the geodesic integrator actually captures.
-  if (hitHorizon) color = vec3(0.0);
-  gl_FragColor = vec4(color, 1.0);
+  // ACES adds a lift to zero-valued pixels, so force captured rays to true black last.
+  gl_FragColor = vec4(hitHorizon ? vec3(0.0) : color, 1.0);
 }
 `;
 

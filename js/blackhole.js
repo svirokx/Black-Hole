@@ -175,6 +175,7 @@ void main() {
   vec3  spinAxis = vec3(0.0, 1.0, 0.0);
 
   vec3  color     = vec3(0.0);
+  vec3  foregroundDiskColor = vec3(0.0);
   float diskAlpha = 0.0;
   bool  hitHorizon = false;
   float prevY     = pos.y;
@@ -282,7 +283,9 @@ void main() {
 
         float alpha = (1.0 - smoothstep(DISK_OUTER - 2.5, DISK_OUTER, cR))
                     * smoothstep(DISK_INNER * 0.8, DISK_INNER + 0.4, cR) * 0.92;
-        color += dCol * alpha * (1.0 - diskAlpha);
+        vec3 diskSample = dCol * alpha * (1.0 - diskAlpha);
+        color += diskSample;
+        foregroundDiskColor += diskSample;
         diskAlpha += alpha * (1.0 - diskAlpha);
       }
     }
@@ -299,7 +302,7 @@ void main() {
   }
 
   // Use the minimum radius along the traced path to identify the central shadow.
-  bool hitShadow = hitHorizon || closestR < 3.2;
+  bool hitShadow = hitHorizon || closestR < 3.0;
 
   // ---- Background stars (gravitationally lensed direction) ----
   if (!hitShadow && uStarsEnabled) {
@@ -316,6 +319,7 @@ void main() {
   }
 
   // No screen-space spot; the central shadow follows the traced ray path.
+  if (hitShadow) color = foregroundDiskColor;
   // Subtle vignette
   color *= 1.0 - 0.15 * dot(uv, uv);
 

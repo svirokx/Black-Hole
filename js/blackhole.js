@@ -327,8 +327,8 @@ void main() {
   color = color * (2.51 * color + 0.03) / (color * (2.43 * color + 0.59) + 0.14);
   color = pow(clamp(color, 0.0, 1.0), vec3(1.0 / 2.2));
 
-  // Preserve the black ray-traced shadow through tone mapping.
-  if (hitShadow) color = vec3(0.0);
+  // Preserve the ray-traced shadow without covering any foreground disk crossing.
+  if (hitShadow && diskAlpha < 0.01) color = vec3(0.0);
   gl_FragColor = vec4(color, 1.0);
 }
 `;
